@@ -56,7 +56,7 @@ Should return your existing taps (if any).
 
 This creates a tap with the Lucene query:
 ```
-"FAS Motorsports" OR "fasmotorsports.com" OR "FAS Performance" OR "FAS Racing" OR (FAS AND (motorsports OR performance OR racing OR automotive))
+"FAS Motorsports" OR "fasmotorsports.com"
 ```
 
 ### 3. List Taps
@@ -158,8 +158,6 @@ Your FAS Motorsports monitoring will catch:
 
 ✓ Exact phrase "FAS Motorsports"
 ✓ Domain mentions "fasmotorsports.com"
-✓ Brand variations "FAS Performance", "FAS Racing"
-✓ Contextual mentions "FAS" + automotive keywords
 ✓ English content only (configurable)
 
 ## Next Steps

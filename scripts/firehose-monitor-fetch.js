@@ -144,9 +144,6 @@ async function createFASMonitoringTap(baseUrl = API_CANDIDATES[0]) {
   const luceneQuery = [
     '"FAS Motorsports"',
     '"fasmotorsports.com"',
-    '"FAS Performance"',
-    '"FAS Racing"',
-    '(FAS AND (motorsports OR performance OR racing OR automotive))',
   ].join(' OR ');
 
   const tapConfig = {
@@ -482,7 +479,7 @@ async function main() {
       await listTaps(apiBase);
       break;
 
-    case 'create':
+    case 'create': {
       const tap = await createFASMonitoringTap(apiBase);
       if (tap && (tap.id || tap.tap_id)) {
         const tapId = tap.id || tap.tap_id;
@@ -494,8 +491,9 @@ async function main() {
         console.log('');
       }
       break;
+    }
 
-    case 'details':
+    case 'details': {
       const detailsTapId = process.argv[3];
       if (!detailsTapId) {
         console.error('Error: Tap ID required');
@@ -504,8 +502,9 @@ async function main() {
       }
       await getTapDetails(detailsTapId, apiBase);
       break;
+    }
 
-    case 'stream':
+    case 'stream': {
       const streamTapId = process.argv[3];
       if (!streamTapId) {
         console.error('Error: Tap ID required for streaming');
@@ -514,8 +513,9 @@ async function main() {
       }
       streamMatches(streamTapId, apiBase);
       break;
+    }
 
-    case 'ingest':
+    case 'ingest': {
       const ingestTapId = process.argv[3] || DEFAULT_TAP_ID;
       if (!ingestTapId) {
         console.error('Error: Tap ID required for ingestion');
@@ -529,6 +529,7 @@ async function main() {
       }
       streamAndIngestMatches(ingestTapId, apiBase, maxMatches);
       break;
+    }
 
     case 'help':
     default:

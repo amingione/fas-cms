@@ -32,8 +32,7 @@ node scripts/firehose-monitor.js create
 
 This creates a tap with the following Lucene query:
 ```
-"FAS Motorsports" OR "fasmotorsports.com" OR "FAS Performance" OR "FAS Racing" OR (FAS AND (motorsports OR performance OR racing OR automotive))
-```
+"FAS Motorsports" OR "fasmotorsports.com"
 
 ### List Existing Taps
 

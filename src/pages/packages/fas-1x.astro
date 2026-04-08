@@ -5,37 +5,69 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
 
 const included = [
-  { name: 'Complete FAS1000 Foundation', detail: 'Race ported supercharger, 108mm throttle body, upgraded fuel system, and longtube headers from the FAS1000 build — all carried forward as the platform baseline.' },
-  { name: 'Turbocharger System', detail: 'Platform-specific turbocharger setup designed to work alongside the existing supercharger. Compressor sizing, intercooling, and plumbing all engineered by FAS for your specific platform.' },
-  { name: 'Compound Boost Management', detail: 'Boost controller and wastegate setup to manage the combined output of the supercharger and turbocharger system under all operating conditions.' },
-  { name: 'Built Bottom End', detail: 'Forged rods, pistons, and supporting hardware to provide the internal engine foundation required for sustained 1200–1500 HP operation.' },
-  { name: 'High-Flow Fuel System', detail: 'Dedicated high-output fuel pump, larger injectors, and flex fuel sensor for E85 operation — sized to support the increased demand at 1X power levels.' },
-  { name: 'Race Intercooling Upgrade', detail: 'Upgraded intercooler system to manage charge temperatures under compound forced induction across extended high-load driving.' },
-  { name: 'Full Custom Dyno Tune', detail: 'Comprehensive pump gas and E85 calibration developed for your specific build on our in-house AWD dynamometer. Multiple tune files developed and verified.' },
-  { name: 'Installation Labor', detail: 'Complete installation at our Punta Gorda, FL facility. The FAS 1X is a multi-week build. Schedule a consultation before ordering.' },
+  {
+    name: 'Complete FAS1000 Foundation',
+    detail:
+      'Race ported supercharger, 108mm throttle body, upgraded fuel system, and longtube headers from the FAS1000 build — all carried forward as the platform baseline.'
+  },
+  {
+    name: 'Turbocharger System',
+    detail:
+      'Platform-specific turbocharger setup designed to work alongside the existing supercharger. Compressor sizing, intercooling, and plumbing all engineered by FAS for your specific platform.'
+  },
+  {
+    name: 'Compound Boost Management',
+    detail:
+      'Boost controller and wastegate setup to manage the combined output of the supercharger and turbocharger system under all operating conditions.'
+  },
+  {
+    name: 'Built Bottom End',
+    detail:
+      'Forged rods, pistons, and supporting hardware to provide the internal engine foundation required for sustained 1200–1500 HP operation.'
+  },
+  {
+    name: 'High-Flow Fuel System',
+    detail:
+      'Dedicated high-output fuel pump, larger injectors, and flex fuel sensor for E85 operation — sized to support the increased demand at 1X power levels.'
+  },
+  {
+    name: 'Race Intercooling Upgrade',
+    detail:
+      'Upgraded intercooler system to manage charge temperatures under compound forced induction across extended high-load driving.'
+  },
+  {
+    name: 'Full Custom Dyno Tune',
+    detail:
+      'Comprehensive pump gas and E85 calibration developed for your specific build on our in-house AWD dynamometer. Multiple tune files developed and verified.'
+  },
+  {
+    name: 'Installation Labor',
+    detail:
+      'Complete installation at our Punta Gorda, FL facility. The FAS 1X is a multi-week build. Schedule a consultation before ordering.'
+  }
 ];
 
 const faqs = [
   {
     q: 'What does 1X mean in the FAS naming system?',
-    a: 'The 1X designation indicates the first tier of compound forced induction — a supercharger plus turbocharger (twin-charged) build. The 1X package targets 1200–1500 HP depending on platform, fuel, and final tune parameters.',
+    a: 'The 1X designation indicates the first tier of compound forced induction — a supercharger plus turbocharger (twin-charged) build. The 1X package targets 1200–1500 HP depending on platform, fuel, and final tune parameters.'
   },
   {
     q: 'Why does this build require a consultation?',
-    a: 'At the 1X level, the build is fully custom. Turbo sizing, intercooling, plumbing, and internal engine specs vary by vehicle condition, intended use, and target power. A consultation lets us scope the build correctly before any parts are ordered.',
+    a: 'At the 1X level, the build is fully custom. Turbo sizing, intercooling, plumbing, and internal engine specs vary by vehicle condition, intended use, and target power. A consultation lets us scope the build correctly before any parts are ordered.'
   },
   {
     q: 'Does the FAS 1X require internal engine work?',
-    a: 'Yes. Forged rods and pistons are a standard component of the FAS 1X build. The factory Hellcat engine internals are not rated for sustained 1200–1500 HP operation, and cutting corners here is not part of how FAS builds.',
+    a: 'Yes. Forged rods and pistons are a standard component of the FAS 1X build. The factory Hellcat engine internals are not rated for sustained 1200–1500 HP operation, and cutting corners here is not part of how FAS builds.'
   },
   {
     q: 'What fuel does the FAS 1X run on?',
-    a: 'E85 is required for the full power calibration at the 1X level. A conservative pump gas tune is also developed, but the 1200–1500 HP range is achievable only with ethanol-based fuel.',
+    a: 'E85 is required for the full power calibration at the 1X level. A conservative pump gas tune is also developed, but the 1200–1500 HP range is achievable only with ethanol-based fuel.'
   },
   {
     q: 'How long does the FAS 1X build take?',
-    a: 'The FAS 1X is a multi-week build. Timeline depends on parts availability, current shop schedule, and vehicle condition. Contact FAS directly to discuss current lead times and begin the consultation process.',
-  },
+    a: 'The FAS 1X is a multi-week build. Timeline depends on parts availability, current shop schedule, and vehicle condition. Contact FAS directly to discuss current lead times and begin the consultation process.'
+  }
 ];
 ---
 
@@ -43,11 +75,18 @@ const faqs = [
   title="FAS 1X | 1200–1500 HP Compound Boost"
   description="The FAS 1X is a compound forced induction build (supercharger + turbo) targeting 1200–1500 HP on the Hellcat platform. Built internals, high-flow fuel system, and full custom dyno tuning. Contact FAS for pricing and consultation."
   canonical="https://fasmotorsports.com/packages/fas-1x/"
-  keywords={['FAS 1X package', 'Hellcat 1200 HP build', '1500 HP Hellcat', 'compound boost Hellcat', 'supercharger turbo Hellcat', 'twin charged Hellcat', 'FAS Motorsports 1X']}
+  keywords={[
+    'FAS 1X package',
+    'Hellcat 1200 HP build',
+    '1500 HP Hellcat',
+    'compound boost Hellcat',
+    'supercharger turbo Hellcat',
+    'twin charged Hellcat',
+    'FAS Motorsports 1X'
+  ]}
   bodyClass="bg-dark text-white min-h-screen flex flex-col"
   mainClass="flex-1 w-full max-w-none px-0 pt-0"
 >
-
   <section class="pkg-hero pkg-hero--1x" aria-label="FAS 1X package hero">
     <div class="pkg-hero__noise" aria-hidden="true"></div>
     <div class="pkg-hero__grid-overlay" aria-hidden="true"></div>
@@ -63,13 +102,17 @@ const faqs = [
         The FAS 1X is compound forced induction — a race ported supercharger and a platform-specific
         turbocharger working in tandem. Built internals. High-output fuel system. Custom E85
         calibration. 1200–1500 HP on a platform most shops won't touch at this level. This is where
-        the FAS racing heritage shows up in your build.
+        the FAS heritage shows up in your build.
       </p>
       <div class="pkg-hero__cta-row">
-        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--elite">Call to Consult</a>
+        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--elite"
+          >Call to Consult</a
+        >
         <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email FAS</a>
       </div>
-      <p class="pkg-hero__pricing-note">Pricing by consultation. Contact FAS to scope your 1X build.</p>
+      <p class="pkg-hero__pricing-note">
+        Pricing by consultation. Contact FAS to scope your 1X build.
+      </p>
     </div>
   </section>
 
@@ -103,161 +146,615 @@ const faqs = [
   <!-- ── COMPOUND INDUCTION EXPLANATION ───────────────────── -->
   <section class="pkg-section site-container" aria-labelledby="compound-heading">
     <h2 class="pkg-section__heading" id="compound-heading">What is Compound Forced Induction?</h2>
-    <p class="pkg-section__sub">The FAS 1X uses two forced induction systems simultaneously — and they are not redundant. They are complementary.</p>
+    <p class="pkg-section__sub">
+      The FAS 1X uses two forced induction systems simultaneously — and they are not redundant. They
+      are complementary.
+    </p>
     <div class="compound-grid">
       <div class="compound-card">
         <div class="compound-card__icon" aria-hidden="true">SC</div>
         <h3 class="compound-card__title">Supercharger</h3>
         <p class="compound-card__body">
-          The race-ported Hellcat supercharger provides immediate, linear boost response from idle to redline.
-          Low-RPM torque and throttle response are driven by the positive displacement supercharger —
-          making the 1X feel instantly responsive in normal driving despite the extreme power output.
+          The race-ported Hellcat supercharger provides immediate, linear boost response from idle
+          to redline. Low-RPM torque and throttle response are driven by the positive displacement
+          supercharger — making the 1X feel instantly responsive in normal driving despite the
+          extreme power output.
         </p>
       </div>
       <div class="compound-card compound-card--center" aria-label="Combined output">
         <div class="compound-card__plus" aria-hidden="true">+</div>
-        <p class="compound-card__center-text">Combined, the two systems deliver boost pressures that neither can achieve alone — enabling the 1200–1500 HP output range that defines the 1X tier.</p>
+        <p class="compound-card__center-text">
+          Combined, the two systems deliver boost pressures that neither can achieve alone —
+          enabling the 1200–1500 HP output range that defines the 1X tier.
+        </p>
       </div>
       <div class="compound-card">
         <div class="compound-card__icon" aria-hidden="true">T</div>
         <h3 class="compound-card__title">Turbocharger</h3>
         <p class="compound-card__body">
-          The platform-specific turbocharger is added downstream of the supercharger, compounding the
-          boost pressure further into the RPM range. Peak power is substantially higher than what
-          a supercharger alone can produce — and it climbs harder through the top of the rev range.
+          The platform-specific turbocharger is added downstream of the supercharger, compounding
+          the boost pressure further into the RPM range. Peak power is substantially higher than
+          what a supercharger alone can produce — and it climbs harder through the top of the rev
+          range.
         </p>
       </div>
     </div>
   </section>
 
-  <section class="pkg-section pkg-section--dark site-container" id="included" aria-labelledby="included-heading">
+  <section
+    class="pkg-section pkg-section--dark site-container"
+    id="included"
+    aria-labelledby="included-heading"
+  >
     <h2 class="pkg-section__heading" id="included-heading">What's Included</h2>
-    <p class="pkg-section__sub">The FAS 1X is a full-system build. Final specification is confirmed during consultation — the components listed below represent the standard 1X build sheet.</p>
+    <p class="pkg-section__sub">
+      The FAS 1X is a full-system build. Final specification is confirmed during consultation — the
+      components listed below represent the standard 1X build sheet.
+    </p>
     <ul class="included-grid" role="list">
-      {included.map((item) => (
-        <li class="included-card" role="listitem">
-          <div class="included-card__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M16.667 5L8.333 13.333 3.333 8.333" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <strong class="included-card__name">{item.name}</strong>
-            <p class="included-card__detail">{item.detail}</p>
-          </div>
-        </li>
-      ))}
+      {
+        included.map((item) => (
+          <li class="included-card" role="listitem">
+            <div class="included-card__icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path
+                  d="M16.667 5L8.333 13.333 3.333 8.333"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <strong class="included-card__name">{item.name}</strong>
+              <p class="included-card__detail">{item.detail}</p>
+            </div>
+          </li>
+        ))
+      }
     </ul>
   </section>
 
   <section class="pkg-section pkg-section--dark site-container" aria-labelledby="upgrade-heading">
-    <h2 class="pkg-section__heading" id="upgrade-heading">The FAS Performance Ladder</h2>
+    <h2 class="pkg-section__heading" id="upgrade-heading">The FAS Motorsports Ladder</h2>
     <nav class="upgrade-ladder" aria-label="Performance package tiers">
-      <a href="/packages/fas800" class="upgrade-rung"><span class="upgrade-rung__tier">FAS800</span><span class="upgrade-rung__hp">800 WHP</span><span class="upgrade-rung__tag">Entry</span></a>
-      <a href="/packages/fas850" class="upgrade-rung"><span class="upgrade-rung__tier">FAS850</span><span class="upgrade-rung__hp">850 WHP</span><span class="upgrade-rung__tag">Street</span></a>
-      <a href="/packages/fas900" class="upgrade-rung"><span class="upgrade-rung__tier">FAS900</span><span class="upgrade-rung__hp">900 WHP</span><span class="upgrade-rung__tag">High Performance</span></a>
-      <a href="/packages/fas1000" class="upgrade-rung"><span class="upgrade-rung__tier">FAS1000</span><span class="upgrade-rung__hp">1000+ WHP</span><span class="upgrade-rung__tag">Elite</span></a>
-      <a href="/packages/fas-1x" class="upgrade-rung upgrade-rung--active" aria-current="page"><span class="upgrade-rung__tier">FAS 1X</span><span class="upgrade-rung__hp">1200–1500 HP</span><span class="upgrade-rung__tag">Current</span></a>
-      <a href="/packages/fas-2x" class="upgrade-rung"><span class="upgrade-rung__tier">FAS 2X</span><span class="upgrade-rung__hp">1600+ HP</span><span class="upgrade-rung__tag">Maximum</span></a>
+      <a href="/packages/fas800" class="upgrade-rung"
+        ><span class="upgrade-rung__tier">FAS800</span><span class="upgrade-rung__hp">800 WHP</span
+        ><span class="upgrade-rung__tag">Entry</span></a
+      >
+      <a href="/packages/fas850" class="upgrade-rung"
+        ><span class="upgrade-rung__tier">FAS850</span><span class="upgrade-rung__hp">850 WHP</span
+        ><span class="upgrade-rung__tag">Street</span></a
+      >
+      <a href="/packages/fas900" class="upgrade-rung"
+        ><span class="upgrade-rung__tier">FAS900</span><span class="upgrade-rung__hp">900 WHP</span
+        ><span class="upgrade-rung__tag">High Performance</span></a
+      >
+      <a href="/packages/fas1000" class="upgrade-rung"
+        ><span class="upgrade-rung__tier">FAS1000</span><span class="upgrade-rung__hp"
+          >1000+ WHP</span
+        ><span class="upgrade-rung__tag">Elite</span></a
+      >
+      <a href="/packages/fas-1x" class="upgrade-rung upgrade-rung--active" aria-current="page"
+        ><span class="upgrade-rung__tier">FAS 1X</span><span class="upgrade-rung__hp"
+          >1200–1500 HP</span
+        ><span class="upgrade-rung__tag">Current</span></a
+      >
+      <a href="/packages/fas-2x" class="upgrade-rung"
+        ><span class="upgrade-rung__tier">FAS 2X</span><span class="upgrade-rung__hp">1600+ HP</span
+        ><span class="upgrade-rung__tag">Maximum</span></a
+      >
     </nav>
   </section>
 
   <section class="pkg-section site-container" aria-labelledby="faq-heading">
     <h2 class="pkg-section__heading" id="faq-heading">Common Questions</h2>
     <dl class="pkg-faq">
-      {faqs.map((faq) => (
-        <div class="pkg-faq__entry">
-          <dt class="pkg-faq__q">{faq.q}</dt>
-          <dd class="pkg-faq__a">{faq.a}</dd>
-        </div>
-      ))}
+      {
+        faqs.map((faq) => (
+          <div class="pkg-faq__entry">
+            <dt class="pkg-faq__q">{faq.q}</dt>
+            <dd class="pkg-faq__a">{faq.a}</dd>
+          </div>
+        ))
+      }
     </dl>
   </section>
 
   <section class="pkg-cta-final pkg-cta-final--1x" aria-labelledby="cta-heading">
     <div class="site-container">
       <h2 class="pkg-cta-final__heading" id="cta-heading">1200–1500 HP Starts with a Call.</h2>
-      <p class="pkg-cta-final__sub">The FAS 1X is built to your specs. Consult with FAS before ordering — we scope every 1X build individually to match your platform, goals, and fuel strategy.</p>
+      <p class="pkg-cta-final__sub">
+        The FAS 1X is built to your specs. Consult with FAS before ordering — we scope every 1X
+        build individually to match your platform, goals, and fuel strategy.
+      </p>
       <div class="pkg-cta-final__row">
-        <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--elite">Call {BUSINESS_PHONE_NATIONAL}</a>
-        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email sales@fasmotorsports.com</a>
+        <a
+          href={`tel:${BUSINESS_PHONE_E164}`}
+          class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--elite"
+          >Call {BUSINESS_PHONE_NATIONAL}</a
+        >
+        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost"
+          >Email sales@fasmotorsports.com</a
+        >
       </div>
       <address class="pkg-cta-final__address">
         FAS Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
       </address>
     </div>
   </section>
-
 </BaseLayout>
 
 <style>
-.pkg-hero { position: relative; background: #050505; border-bottom: 1px solid rgba(100,50,200,0.2); padding: clamp(80px, 12vw, 140px) 0 clamp(56px, 8vw, 96px); overflow: hidden; }
-.pkg-hero--1x::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(120,60,220,0.1) 0%, rgba(196,18,24,0.08) 50%, transparent 75%); pointer-events: none; }
-.pkg-hero__noise { position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; opacity: 0.4; }
-.pkg-hero__grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
-.pkg-hero__inner { position: relative; z-index: 1; }
-.pkg-hero__eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.pkg-tier-badge { font-family: var(--font-label); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--red); border: 1px solid var(--red-border); padding: 3px 10px; border-radius: 2px; }
-.pkg-tier-badge--elite { color: #a78bfa; border-color: rgba(167,139,250,0.4); }
-.pkg-tier-divider { color: var(--border-strong); font-size: 0.75rem; }
-.pkg-tier-label { font-family: var(--font-label); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); }
-.pkg-hero__name { font-family: var(--font-display); font-size: clamp(3.5rem, 10vw, 7rem); line-height: 0.9; letter-spacing: -0.02em; color: var(--text-primary); margin: 0 0 12px; text-transform: uppercase; }
-.pkg-hero__num { color: #a78bfa; }
-.pkg-hero__claim { font-family: var(--font-label); font-size: clamp(1rem, 2.5vw, 1.35rem); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #a78bfa; margin: 0 0 20px; }
-.pkg-hero__sub { font-family: var(--font-body); font-size: clamp(0.95rem, 1.5vw, 1.05rem); color: var(--text-secondary); max-width: 640px; line-height: 1.65; margin: 0 0 36px; }
-.pkg-hero__cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
-.pkg-hero__pricing-note { font-family: var(--font-body); font-size: 0.82rem; color: var(--text-muted); }
-.stat-bar { background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; justify-content: center; }
-.stat-bar__item { display: flex; flex-direction: column; align-items: center; padding: 20px 28px; flex: 1; min-width: 120px; }
-.stat-bar__val { font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--red); line-height: 1; }
-.stat-bar__val--elite { color: #a78bfa; }
-.stat-bar__label { font-family: var(--font-label); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; text-align: center; }
-.stat-bar__sep { width: 1px; background: var(--border-subtle); align-self: stretch; }
-.pkg-section { padding: clamp(56px, 8vw, 96px) 0; }
-.pkg-section--dark { background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
-.pkg-section__heading { font-family: var(--font-display); font-size: clamp(1.5rem, 3.5vw, 2.4rem); color: var(--text-primary); letter-spacing: 0.02em; text-transform: uppercase; margin: 0 0 10px; }
-.pkg-section__sub { font-family: var(--font-body); font-size: 0.97rem; color: var(--text-secondary); max-width: 600px; margin: 0 0 40px; line-height: 1.65; }
-/* COMPOUND GRID */
-.compound-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
-@media (max-width: 768px) { .compound-grid { grid-template-columns: 1fr; } }
-.compound-card { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 28px; }
-.compound-card__icon { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 4px; font-family: var(--font-display); font-size: 0.9rem; color: #a78bfa; letter-spacing: 0.05em; margin-bottom: 14px; }
-.compound-card__title { font-family: var(--font-label); font-size: 0.9rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-primary); margin: 0 0 10px; }
-.compound-card__body { font-family: var(--font-body); font-size: 0.87rem; color: var(--text-secondary); line-height: 1.65; margin: 0; }
-.compound-card--center { background: none; border: none; padding: 0 16px; text-align: center; }
-.compound-card__plus { font-family: var(--font-display); font-size: 3rem; color: #a78bfa; opacity: 0.6; line-height: 1; margin-bottom: 16px; }
-.compound-card__center-text { font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
-.included-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0; }
-.included-card { display: flex; gap: 14px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 20px; transition: border-color var(--dur-fast) var(--ease-out); }
-.included-card:hover { border-color: rgba(167,139,250,0.4); }
-.included-card__icon { flex-shrink: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.3); border-radius: 50%; color: #a78bfa; }
-.included-card__name { display: block; font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 4px; }
-.included-card__detail { font-family: var(--font-body); font-size: 0.84rem; color: var(--text-secondary); line-height: 1.55; margin: 0; }
-.upgrade-ladder { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
-.upgrade-rung { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 4px; text-decoration: none; transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out); }
-.upgrade-rung:hover { border-color: var(--red-border); background: var(--bg-overlay); }
-.upgrade-rung--active { border-color: #a78bfa; background: rgba(167,139,250,0.08); }
-.upgrade-rung__tier { font-family: var(--font-display); font-size: 1rem; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
-.upgrade-rung--active .upgrade-rung__tier { color: #a78bfa; }
-.upgrade-rung__hp { font-family: var(--font-label); font-size: 0.85rem; font-weight: 700; color: var(--amber); letter-spacing: 0.05em; }
-.upgrade-rung__tag { font-family: var(--font-body); font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
-.pkg-faq { display: flex; flex-direction: column; gap: 0; }
-.pkg-faq__entry { padding: 24px 0; border-bottom: 1px solid var(--border-subtle); }
-.pkg-faq__entry:last-child { border-bottom: none; }
-.pkg-faq__q { font-family: var(--font-label); font-size: 0.97rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-primary); text-transform: uppercase; margin-bottom: 8px; }
-.pkg-faq__a { font-family: var(--font-body); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65; margin: 0; }
-.pkg-cta-final { background: linear-gradient(160deg, #050008 0%, #020005 100%); border-top: 1px solid rgba(167,139,250,0.2); padding: clamp(64px, 10vw, 112px) 0; text-align: center; }
-.pkg-cta-final--1x { background: linear-gradient(160deg, #050010 0%, #030008 50%, #050000 100%); }
-.pkg-cta-final__heading { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3.5rem); color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 12px; }
-.pkg-cta-final__sub { font-family: var(--font-body); font-size: 1rem; color: var(--text-secondary); max-width: 520px; margin: 0 auto 36px; line-height: 1.65; }
-.pkg-cta-final__row { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-bottom: 28px; }
-.pkg-cta-final__address { font-family: var(--font-body); font-size: 0.8rem; font-style: normal; color: var(--text-muted); }
-.btn-pkg-primary { font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; background: var(--red); color: #fff; padding: 14px 32px; border-radius: 2px; display: inline-flex; align-items: center; transition: background var(--dur-fast) var(--ease-out); }
-.btn-pkg-primary:hover { background: var(--red-hover); }
-.btn-pkg-primary--large { padding: 16px 40px; font-size: 0.95rem; }
-.btn-pkg-primary--elite { background: #7c3aed; }
-.btn-pkg-primary--elite:hover { background: #6d28d9; }
-.btn-pkg-ghost { font-family: var(--font-label); font-size: 0.88rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; background: transparent; color: var(--text-secondary); padding: 14px 32px; border: 1px solid var(--border-strong); border-radius: 2px; display: inline-flex; align-items: center; transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out); }
-.btn-pkg-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
-@media (max-width: 640px) { .stat-bar { flex-direction: column; } .stat-bar__sep { width: 100%; height: 1px; } .upgrade-ladder { grid-template-columns: 1fr 1fr; } }
+  .pkg-hero {
+    position: relative;
+    background: #050505;
+    border-bottom: 1px solid rgba(100, 50, 200, 0.2);
+    padding: clamp(80px, 12vw, 140px) 0 clamp(56px, 8vw, 96px);
+    overflow: hidden;
+  }
+  .pkg-hero--1x::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 60% at 50% 0%,
+      rgba(120, 60, 220, 0.1) 0%,
+      rgba(196, 18, 24, 0.08) 50%,
+      transparent 75%
+    );
+    pointer-events: none;
+  }
+  .pkg-hero__noise {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: 0.4;
+  }
+  .pkg-hero__grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .pkg-hero__inner {
+    position: relative;
+    z-index: 1;
+  }
+  .pkg-hero__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .pkg-tier-badge {
+    font-family: var(--font-label);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--red);
+    border: 1px solid var(--red-border);
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+  .pkg-tier-badge--elite {
+    color: #a78bfa;
+    border-color: rgba(167, 139, 250, 0.4);
+  }
+  .pkg-tier-divider {
+    color: var(--border-strong);
+    font-size: 0.75rem;
+  }
+  .pkg-tier-label {
+    font-family: var(--font-label);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .pkg-hero__name {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+  }
+  .pkg-hero__num {
+    color: #a78bfa;
+  }
+  .pkg-hero__claim {
+    font-family: var(--font-label);
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a78bfa;
+    margin: 0 0 20px;
+  }
+  .pkg-hero__sub {
+    font-family: var(--font-body);
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    color: var(--text-secondary);
+    max-width: 640px;
+    line-height: 1.65;
+    margin: 0 0 36px;
+  }
+  .pkg-hero__cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .pkg-hero__pricing-note {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .stat-bar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .stat-bar__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 28px;
+    flex: 1;
+    min-width: 120px;
+  }
+  .stat-bar__val {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    color: var(--red);
+    line-height: 1;
+  }
+  .stat-bar__val--elite {
+    color: #a78bfa;
+  }
+  .stat-bar__label {
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-align: center;
+  }
+  .stat-bar__sep {
+    width: 1px;
+    background: var(--border-subtle);
+    align-self: stretch;
+  }
+  .pkg-section {
+    padding: clamp(56px, 8vw, 96px) 0;
+  }
+  .pkg-section--dark {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .pkg-section__heading {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .pkg-section__sub {
+    font-family: var(--font-body);
+    font-size: 0.97rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 0 40px;
+    line-height: 1.65;
+  }
+  /* COMPOUND GRID */
+  .compound-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .compound-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .compound-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 28px;
+  }
+  .compound-card__icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 4px;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: #a78bfa;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+  .compound-card__title {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 10px;
+  }
+  .compound-card__body {
+    font-family: var(--font-body);
+    font-size: 0.87rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+  }
+  .compound-card--center {
+    background: none;
+    border: none;
+    padding: 0 16px;
+    text-align: center;
+  }
+  .compound-card__plus {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    color: #a78bfa;
+    opacity: 0.6;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .compound-card__center-text {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .included-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .included-card {
+    display: flex;
+    gap: 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 20px;
+    transition: border-color var(--dur-fast) var(--ease-out);
+  }
+  .included-card:hover {
+    border-color: rgba(167, 139, 250, 0.4);
+  }
+  .included-card__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.3);
+    border-radius: 50%;
+    color: #a78bfa;
+  }
+  .included-card__name {
+    display: block;
+    font-family: var(--font-label);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .included-card__detail {
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .upgrade-ladder {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .upgrade-rung {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 18px 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
+  }
+  .upgrade-rung:hover {
+    border-color: var(--red-border);
+    background: var(--bg-overlay);
+  }
+  .upgrade-rung--active {
+    border-color: #a78bfa;
+    background: rgba(167, 139, 250, 0.08);
+  }
+  .upgrade-rung__tier {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .upgrade-rung--active .upgrade-rung__tier {
+    color: #a78bfa;
+  }
+  .upgrade-rung__hp {
+    font-family: var(--font-label);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+  }
+  .upgrade-rung__tag {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+  .pkg-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .pkg-faq__entry {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .pkg-faq__entry:last-child {
+    border-bottom: none;
+  }
+  .pkg-faq__q {
+    font-family: var(--font-label);
+    font-size: 0.97rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .pkg-faq__a {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0;
+  }
+  .pkg-cta-final {
+    background: linear-gradient(160deg, #050008 0%, #020005 100%);
+    border-top: 1px solid rgba(167, 139, 250, 0.2);
+    padding: clamp(64px, 10vw, 112px) 0;
+    text-align: center;
+  }
+  .pkg-cta-final--1x {
+    background: linear-gradient(160deg, #050010 0%, #030008 50%, #050000 100%);
+  }
+  .pkg-cta-final__heading {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 12px;
+  }
+  .pkg-cta-final__sub {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.65;
+  }
+  .pkg-cta-final__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .pkg-cta-final__address {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-style: normal;
+    color: var(--text-muted);
+  }
+  .btn-pkg-primary {
+    font-family: var(--font-label);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: var(--red);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    transition: background var(--dur-fast) var(--ease-out);
+  }
+  .btn-pkg-primary:hover {
+    background: var(--red-hover);
+  }
+  .btn-pkg-primary--large {
+    padding: 16px 40px;
+    font-size: 0.95rem;
+  }
+  .btn-pkg-primary--elite {
+    background: #7c3aed;
+  }
+  .btn-pkg-primary--elite:hover {
+    background: #6d28d9;
+  }
+  .btn-pkg-ghost {
+    font-family: var(--font-label);
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 14px 32px;
+    border: 1px solid var(--border-strong);
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    transition:
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+  }
+  .btn-pkg-ghost:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
+  @media (max-width: 640px) {
+    .stat-bar {
+      flex-direction: column;
+    }
+    .stat-bar__sep {
+      width: 100%;
+      height: 1px;
+    }
+    .upgrade-ladder {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
 </style>

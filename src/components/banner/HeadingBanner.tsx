@@ -61,7 +61,7 @@ export default function HeadingBanner() {
             </div>
 
             <h3 className="text-base font-semibold uppercase tracking-[0.2em] text-white/70">
-              FAS Performance Lab
+              FAS Motorsports Lab
             </h3>
             <p className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Predator pulley packages you can push on day one.

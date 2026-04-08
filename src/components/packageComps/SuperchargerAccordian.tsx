@@ -2,90 +2,229 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
-type Pkg = { label: string; desc: string };
+type Pkg = {
+  label: string;
+  gain: string;
+  fuel: string;
+  targetBuild: string;
+  includes: string[];
+  price: string;
+  href: string;
+};
+
 type Section = { title: string; intro: string; pkgs: Pkg[]; disclaimer: string };
 
 const sections: Section[] = [
   {
-    title: 'Hellcat / Trackhawk / Durango / TRX Superchargers',
+    title: 'Hellcat / Trackhawk / Durango / TRX',
     intro:
-      'Porting packages for OEM 2.4L and 2.7L IHI units, billet lids, and snouts. Each blower is blueprinted, matched to the throttle body, and supplied with before/after documentation.',
+      'CNC and hand-ported OEM 2.4L and 2.7L IHI units for the Hellcat supercharged platform. Each blower is blueprinted, matched to the throttle body, and returned with before/after documentation.',
     pkgs: [
       {
-        label: '2.4L Street Port -- 20-30 WHP gain',
-        desc: 'CNC rough-in and hand blend of inlet, bridge, and exit; snout match to 105 mm TB; case deburring and rotor timing verification. Ideal for pump-gas cars targeting 800-850 whp.'
+        label: '2.4L Street Port — 20–30 WHP Gain',
+        gain: '20–30 WHP Gain',
+        fuel: '91–93 Octane',
+        targetBuild: '800–850 WHP Builds',
+        includes: [
+          'CNC rough-in and hand blend of inlet, bridge, and exit',
+          'Snout match to 105mm throttle body',
+          'Case deburring and rotor timing verification',
+          'Before/after documentation included',
+        ],
+        price: 'Contact for quote',
+        href: '/hellcat-supercharger-porting',
       },
       {
-        label: '2.4L Race Port -- 30-45 WHP gain',
-        desc: 'Expanded cross-sectional area, vane biasing for high-RPM efficiency, optional bearing-plate smoothing, and 112 mm TB match. Best for flex-fuel builds in the 900-1000 whp range.'
+        label: '2.4L Race Port — 30–45 WHP Gain',
+        gain: '30–45 WHP Gain',
+        fuel: 'E85 / Flex Fuel',
+        targetBuild: '900–1000 WHP Builds',
+        includes: [
+          'Expanded cross-sectional area',
+          'Vane biasing for high-RPM efficiency',
+          'Optional bearing-plate smoothing',
+          '112mm throttle body match',
+        ],
+        price: 'Contact for quote',
+        href: '/hellcat-supercharger-porting',
       },
       {
-        label: '2.7L Street Port -- 25-35 WHP gain',
-        desc: 'Focus on inlet choke point, intercooler brick transition, and snout-to-case blend. Supports 1000+ whp combos with reduced IAT rise on long pulls.'
+        label: '2.7L Street Port — 25–35 WHP Gain',
+        gain: '25–35 WHP Gain',
+        fuel: '91–93 Octane / E85',
+        targetBuild: '1000+ WHP Builds',
+        includes: [
+          'Inlet choke point and intercooler brick transition work',
+          'Snout-to-case blend',
+          'Reduced IAT rise on extended pulls',
+          'Before/after documentation included',
+        ],
+        price: 'Contact for quote',
+        href: '/hellcat-supercharger-porting',
       },
       {
-        label: '2.7L Race Port -- 40-55 WHP gain',
-        desc: 'Aggressive case shaping, rotor trailing-edge relief, 118 mm throttle match, and lid flow-bench validation. Recommended for upper/lower pulley combos, nitrous, or twin pump E85 builds.'
+        label: '2.7L Race Port — 40–55 WHP Gain',
+        gain: '40–55 WHP Gain',
+        fuel: 'E85 / Methanol',
+        targetBuild: 'Twin-Charged / 1200+ HP Builds',
+        includes: [
+          'Aggressive case shaping',
+          'Rotor trailing-edge relief',
+          '118mm throttle match',
+          'Lid flow-bench validation',
+        ],
+        price: 'Contact for quote',
+        href: '/hellcat-supercharger-porting',
       },
       {
         label: 'Billet Lid + Snout Match',
-        desc: 'Port-match your FAS billet lid and snout to the ported case, ensuring seamless airflow and eliminating gasket lip turbulence. Includes hardware inspection and resurfacing.'
-      }
+        gain: 'Flow Optimization',
+        fuel: 'All Fuel Types',
+        targetBuild: 'Any Ported Build',
+        includes: [
+          'Port-match billet lid and snout to ported case',
+          'Eliminates gasket lip turbulence',
+          'Hardware inspection and resurfacing',
+          'Compatible with all FAS port packages',
+        ],
+        price: 'Contact for quote',
+        href: '/hellcat-supercharger-porting',
+      },
     ],
     disclaimer:
-      'All blowers are inspected, cleaned, and sealed prior to return. Core exchange options available. Customers are responsible for shipping both ways unless drop-off is scheduled.'
+      'All blowers are inspected, cleaned, and sealed prior to return. Core exchange options available. Customers are responsible for shipping both ways unless drop-off is scheduled.',
   },
   {
-    title: 'Mustang GT / Shelby (Coyote) Superchargers',
+    title: 'Mustang GT / Shelby (Coyote)',
     intro:
-      'Stage-based porting for Gen 3-Gen 5 Coyotes running factory Eaton or aftermarket Whipple/TVS units. Optimised for strong mid-range torque with OEM drivability.',
+      'Stage-based porting for Gen 3–Gen 5 Coyotes running factory Eaton or aftermarket Whipple/TVS units. Optimized for strong mid-range torque with OEM drivability.',
     pkgs: [
       {
-        label: 'Stage 1 -- OEM Eaton Blueprint',
-        desc: 'Entry-level clean-up for Gen 3+ GT 5.0L Eatons: inlet transition smoothing, snout to elbow match, and exhaust vane deburring. Perfect for bolt-on 93 octane setups.'
+        label: 'Stage 1 — OEM Eaton Blueprint',
+        gain: 'Entry-Level Gains',
+        fuel: '91–93 Octane',
+        targetBuild: 'Bolt-On 5.0L GT Builds',
+        includes: [
+          'Inlet transition smoothing',
+          'Snout to elbow match',
+          'Exhaust vane deburring',
+          'Ideal for Gen 3+ GT 5.0L Eatons',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
-        label: 'Stage 2 -- Eaton + Snout Port',
-        desc: 'Extends Stage 1 with rotor pocket shaping, welded elbow reinforcement, and 132 mm throttle body match. Supports 750+ whp with proper fuel system and boost control.'
+        label: 'Stage 2 — Eaton + Snout Port',
+        gain: '750+ WHP Capable',
+        fuel: '91–93 Octane / E85',
+        targetBuild: '750+ WHP Builds',
+        includes: [
+          'Stage 1 scope carried forward',
+          'Rotor pocket shaping',
+          'Welded elbow reinforcement',
+          '132mm throttle body match',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
         label: 'Whipple 3.0 / 3.8 Port',
-        desc: 'Inlet mouth enlargement, brick transition blending, and high-flow intercooler plate cleanup. Gains of 20-30 whp on E85 or race fuel; includes bypass valve calibration check.'
+        gain: '20–30 WHP Gain',
+        fuel: 'E85 / Race Fuel',
+        targetBuild: 'Whipple-Equipped Builds',
+        includes: [
+          'Inlet mouth enlargement',
+          'Brick transition blending',
+          'High-flow intercooler plate cleanup',
+          'Bypass valve calibration check',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
         label: 'TVS 2650 Competition Port',
-        desc: 'Case and lid match, snout blueprint, and manifold alignment for VMP/Jokerz combos. Recommended for half-mile or roll-race builds targeting 900+ whp.'
-      }
+        gain: '900+ WHP Capable',
+        fuel: 'E85 / Race Fuel',
+        targetBuild: 'Half-Mile / Roll-Race Builds',
+        includes: [
+          'Case and lid match',
+          'Snout blueprint',
+          'Manifold alignment for VMP/Jokerz combos',
+          'Recommended for 900+ WHP targets',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
+      },
     ],
     disclaimer:
-      'We offer removal and install at our facility or can receive shipped blowers. Turnaround is typically 7-10 business days; rush service available by appointment.'
+      'We offer removal and install at our facility or can receive shipped blowers. Turnaround is typically 7–10 business days; rush service available by appointment.',
   },
   {
     title: 'Audi 3.0T / 4.0T Supercharger Porting',
     intro:
-      'CNC-programmed port work for Audi S4/S5/SQ5 (3.0T) and RS platforms. Packages focus on reducing IAT, improving rotor efficiency, and maintaining OEM refinement.',
+      'CNC-programmed port work for Audi S4/S5/SQ5 (3.0T) and RS platforms. Focused on reducing IAT, improving rotor efficiency, and maintaining OEM refinement.',
     pkgs: [
       {
-        label: 'Stage 1 -- 3.0T Charger Blueprint',
-        desc: 'Disassembly, carbon cleaning, inlet bellmouth shaping, internal surface refinement, and rotor timing verification. +15-20 whp on pump gas dual pulley cars.'
+        label: 'Stage 1 — 3.0T Charger Blueprint',
+        gain: '15–20 WHP Gain',
+        fuel: '91–93 Octane',
+        targetBuild: 'Dual Pulley 3.0T Builds',
+        includes: [
+          'Disassembly and carbon cleaning',
+          'Inlet bellmouth shaping',
+          'Internal surface refinement',
+          'Rotor timing verification',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
-        label: 'Stage 2 -- 3.0T + Snout Port',
-        desc: 'Adds snout enlargement for larger pulleys, throttle body match, and bearing plate blend. Popular with dual pulley E40 builds seeking cooler IATs on extended pulls.'
+        label: 'Stage 2 — 3.0T + Snout Port',
+        gain: 'Cooler IATs on E40 Builds',
+        fuel: 'E40 / E85',
+        targetBuild: 'Dual Pulley E40 Builds',
+        includes: [
+          'Stage 1 scope carried forward',
+          'Snout enlargement for larger pulleys',
+          'Throttle body match',
+          'Bearing plate blend',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
-        label: 'Stage 3 -- RS 4.0T Hybrid Prep',
-        desc: 'Optimises the RS7/8V platform blower for upgraded turbos: inlet guide reshaping, intercooler brick smoothing, and meth/nozzle provisions. Includes flow report for tuner reference.'
+        label: 'Stage 3 — RS 4.0T Hybrid Prep',
+        gain: 'Optimized for Upgraded Turbos',
+        fuel: 'E85 / Meth',
+        targetBuild: 'RS7 / 8V Hybrid Builds',
+        includes: [
+          'Inlet guide reshaping for upgraded turbos',
+          'Intercooler brick smoothing',
+          'Methanol/nozzle provisions',
+          'Flow report for tuner reference',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
       },
       {
         label: 'Optional Ancillary Services',
-        desc: 'Ultrasonic cleaning, ceramic coating, CryO2 brick treatment, rotor pack rebuild, and media blasting of cases or snouts prior to coating.'
-      }
+        gain: 'Build Support',
+        fuel: 'All Platforms',
+        targetBuild: 'Any Blower Build',
+        includes: [
+          'Ultrasonic cleaning',
+          'Ceramic coating',
+          'CryO2 brick treatment',
+          'Rotor pack rebuild',
+          'Media blasting of cases or snouts',
+        ],
+        price: 'Contact for quote',
+        href: '/contact',
+      },
     ],
     disclaimer:
-      'Audi units require precise torque specs; we provide assembly notes and recommend professional install. Shipping crates available--contact us for scheduling and insurance guidance.'
-  }
-
+      'Audi units require precise torque specs; we provide assembly notes and recommend professional install. Shipping crates available — contact us for scheduling and insurance guidance.',
+  },
 ];
 
 function PackageItem({ pkg }: { pkg: Pkg }) {
@@ -95,16 +234,19 @@ function PackageItem({ pkg }: { pkg: Pkg }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full px-4 md:px-5 py-3 flex items-center justify-between gap-4 text-left"
+        className="w-full px-4 md:px-5 py-3 flex items-center justify-between gap-4 text-left cursor-pointer"
         aria-expanded={open}
       >
         <div>
           <div className="text-sm md:text-base font-medium text-white">{pkg.label}</div>
+          {!open && (
+            <div className="text-xs text-white/50 mt-0.5">{pkg.targetBuild} · {pkg.price}</div>
+          )}
         </div>
         <motion.div
           animate={{ rotate: open ? 180 : 0, scale: open ? 1.05 : 1 }}
           transition={{ duration: 0.2 }}
-          className="text-white/80"
+          className="text-white/80 flex-shrink-0"
         >
           <ChevronDown className="h-4 w-4" />
         </motion.div>
@@ -117,7 +259,29 @@ function PackageItem({ pkg }: { pkg: Pkg }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ height: { duration: 0.3 }, opacity: { duration: 0.2 } }}
           >
-            <div className="px-4 md:px-5 pb-4 pt-0 text-sm text-white/70">{pkg.desc}</div>
+            <div className="px-4 md:px-5 pb-4 pt-1 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.gain}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.fuel}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.targetBuild}</span>
+              </div>
+              <ul className="space-y-1">
+                {pkg.includes.map((c) => (
+                  <li key={c} className="flex items-start gap-1.5 text-xs text-white/60">
+                    <span className="mt-0.5 flex-shrink-0 text-white/30">—</span>{c}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                <span className="text-sm font-semibold text-white">{pkg.price}</span>
+                <a
+                  href={pkg.href}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Request Service →
+                </a>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

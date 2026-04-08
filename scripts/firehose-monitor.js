@@ -38,7 +38,7 @@ async function firehoseRequest(method, endpoint, data = null) {
         try {
           const parsed = JSON.parse(body);
           resolve({ status: res.statusCode, data: parsed });
-        } catch (e) {
+        } catch {
           resolve({ status: res.statusCode, data: body });
         }
       });
@@ -65,9 +65,6 @@ async function createFASMonitoringTap() {
   const luceneQuery = [
     '"FAS Motorsports"',
     '"fasmotorsports.com"',
-    '"FAS Performance"',
-    '"FAS Racing"',
-    '(FAS AND (motorsports OR performance OR racing OR automotive))',
   ].join(' OR ');
 
   const tapConfig = {
@@ -183,15 +180,16 @@ async function main() {
       await listTaps();
       break;
 
-    case 'create':
+    case 'create': {
       const tap = await createFASMonitoringTap();
       if (tap && (tap.id || tap.tap_id)) {
         console.log('Tap created! To start monitoring, run:');
         console.log(`  node scripts/firehose-monitor.js stream ${tap.id || tap.tap_id}`);
       }
       break;
+    }
 
-    case 'stream':
+    case 'stream': {
       const tapId = process.argv[3];
       if (!tapId) {
         console.error('Error: Tap ID required for streaming');
@@ -200,6 +198,7 @@ async function main() {
       }
       streamMatches(tapId);
       break;
+    }
 
     default:
       console.log('Usage:');

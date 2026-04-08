@@ -139,7 +139,7 @@ case "${1:-help}" in
         echo ""
 
         # Lucene query for FAS Motorsports
-        query='"FAS Motorsports" OR "fasmotorsports.com" OR "FAS Performance" OR "FAS Racing" OR (FAS AND (motorsports OR performance OR racing OR automotive))'
+        query='"FAS Motorsports" OR "fasmotorsports.com"'
         tap_data="$(build_tap_payload \
             "FAS Motorsports Brand Monitor" \
             "$query" \

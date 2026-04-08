@@ -2,42 +2,118 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 
-type Pkg = { label: string; desc: string };
+type Pkg = {
+  label: string;
+  whp: string;
+  fuel: string;
+  useCase: string;
+  components: string[];
+  price: string;
+  href: string;
+};
+
 type Section = { title: string; intro: string; pkgs: Pkg[]; disclaimer: string };
 
 const sections: Section[] = [
   {
     title: 'Hellcat Platform',
-    intro: '',
+    intro:
+      'Stage-based power packages for the Hellcat supercharged platform. Every build is installed, calibrated, and dyno-verified at our Punta Gorda, FL facility. Available for Charger, Challenger, Trackhawk, Durango SRT, and RAM TRX.',
     pkgs: [
       {
-        label: 'FAS800',
-        desc: 'FAS Upper Pulley Kit, Spark Plugs, 180 Thermostat, Custom 1320Tunez engine and trans tune'
+        label: 'FAS800 — 800 WHP',
+        whp: '800 WHP',
+        fuel: '91–93 Octane',
+        useCase: 'Street / Daily Driver',
+        components: [
+          'Pulley upgrade package',
+          'Cooling modifications',
+          'ECU unlock',
+          'Full custom AWD dyno tune',
+          'Installation labor — Punta Gorda, FL',
+        ],
+        price: 'Starting at $6,499 installed',
+        href: '/packages/fas800',
       },
       {
-        label: 'FAS850',
-        desc: 'FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more!'
+        label: 'FAS850 — 850 WHP',
+        whp: '850 WHP',
+        fuel: '91–93 Octane',
+        useCase: 'Street / Weekend',
+        components: [
+          'FAS800 foundation (pulley, cooling, ECU unlock)',
+          'Upgraded fuel injectors',
+          'Pinned crank assembly — required at 850 WHP and above',
+          'Performance thermostat',
+          'Full custom AWD dyno tune',
+        ],
+        price: 'Starting at $6,699 installed',
+        href: '/packages/fas850',
       },
       {
-        label: 'FAS900',
-        desc: 'Race Ported Supercharger snout, 108mm throttle body, High flow intake, Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS900 — 900 WHP',
+        whp: '900 WHP',
+        fuel: '91–93 Octane (E85 optional)',
+        useCase: 'Street / High Performance',
+        components: [
+          'Aggressive pulley upgrade package',
+          'Upgraded fuel injectors',
+          'Pinned crank assembly',
+          'Performance thermostat',
+          'Full custom AWD dyno tune',
+        ],
+        price: '$9,999 installed',
+        href: '/packages/fas900',
       },
       {
-        label: 'FAS1000',
-        desc: 'Race Ported Supercharger, 108mm throttle body, High flow intake, Longtube headers with Race Midpipes, FAS Upper Pulley Kit, Predator Lower Pulley, Upgraded Injectors, E85, Custom 1320Tunez engine and trans tune and much more! (E85 Fuel Package)'
+        label: 'FAS1000 — 1000+ WHP',
+        whp: '1000+ WHP',
+        fuel: 'E85 Required',
+        useCase: 'Street / Strip',
+        components: [
+          'Race ported supercharger',
+          '108mm throttle body',
+          'Longtube headers with race midpipes',
+          'Upgraded fuel system (injectors, pump, lines)',
+          'E85 conversion and full custom dyno tune',
+        ],
+        price: 'Starting at $16,999 installed',
+        href: '/packages/fas1000',
       },
       {
-        label: 'FAS 1X Package',
-        desc: '1200-1500HP!!! Call and discuss many potential options for this package!'
+        label: 'FAS 1X — 1200–1500 HP',
+        whp: '1200–1500 HP',
+        fuel: 'E85 Required',
+        useCase: 'Drag / Max Effort',
+        components: [
+          'FAS1000 foundation carried forward',
+          'Platform-specific turbocharger (compound boost)',
+          'Built bottom end — forged rods and pistons',
+          'High-output fuel system for 1X power levels',
+          'Race intercooling upgrade',
+        ],
+        price: 'Call for pricing — consultation required',
+        href: '/packages/fas-1x',
       },
       {
-        label: 'FAS 2X Package',
-        desc: '1600+HP!!! Call and discuss many potential options for this package!'
-      }
+        label: 'FAS 2X — 1600+ HP',
+        whp: '1600+ HP',
+        fuel: 'E85 + Methanol',
+        useCase: 'Track / Record Builds',
+        components: [
+          'FAS 1X foundation plus second turbocharger',
+          'CNC ported cylinder head package',
+          'Dry sump lubrication system',
+          'Methanol injection system',
+          'Upgraded 8HP90 transmission internals',
+        ],
+        price: 'Call for pricing — consultation required',
+        href: '/packages/fas-2x',
+      },
     ],
     disclaimer:
-      'MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY! FAS is not responsible for any issues you may encounter with your dealership warranty claims or warrantied issues/repairs.'
-  }
+      'MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY. FAS is not responsible for any issues you may encounter with dealership warranty claims.',
+  },
 ];
 
 function PackageItem({ pkg }: { pkg: Pkg }) {
@@ -47,16 +123,19 @@ function PackageItem({ pkg }: { pkg: Pkg }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full px-4 md:px-5 py-3 flex items-center justify-between gap-4 text-left"
+        className="w-full px-4 md:px-5 py-3 flex items-center justify-between gap-4 text-left cursor-pointer"
         aria-expanded={open}
       >
         <div>
           <div className="text-sm md:text-base font-medium text-white">{pkg.label}</div>
+          {!open && (
+            <div className="text-xs text-white/50 mt-0.5">{pkg.fuel} · {pkg.price}</div>
+          )}
         </div>
         <motion.div
           animate={{ rotate: open ? 180 : 0, scale: open ? 1.05 : 1 }}
           transition={{ duration: 0.2 }}
-          className="text-white/80"
+          className="text-white/80 flex-shrink-0"
         >
           <ChevronDown className="h-4 w-4" />
         </motion.div>
@@ -69,7 +148,29 @@ function PackageItem({ pkg }: { pkg: Pkg }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ height: { duration: 0.3 }, opacity: { duration: 0.2 } }}
           >
-            <div className="px-4 md:px-5 pb-4 pt-0 text-sm text-white/70">{pkg.desc}</div>
+            <div className="px-4 md:px-5 pb-4 pt-1 space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.whp}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.fuel}</span>
+                <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{pkg.useCase}</span>
+              </div>
+              <ul className="space-y-1">
+                {pkg.components.map((c) => (
+                  <li key={c} className="flex items-start gap-1.5 text-xs text-white/60">
+                    <span className="mt-0.5 flex-shrink-0 text-white/30">—</span>{c}
+                  </li>
+                ))}
+              </ul>
+              <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                <span className="text-sm font-semibold text-white">{pkg.price}</span>
+                <a
+                  href={pkg.href}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
+                >
+                  View Full Build →
+                </a>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
