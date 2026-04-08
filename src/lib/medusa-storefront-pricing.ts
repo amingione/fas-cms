@@ -209,6 +209,30 @@ export function resolveProductMedusaVariant(
   return resolvePreferredVariant(product as any);
 }
 
+/**
+ * Pricing authority guard.
+ *
+ * Returns `true` when the product has a Medusa variant attached with a resolved
+ * calculated price — i.e. the product's displayed price is authoritative.
+ *
+ * Returns `false` when Medusa pricing is absent so callers can render
+ * "Contact for price" or suppress price-dependent UI instead of falling back
+ * to a Sanity-sourced value.
+ *
+ * ✅ CORRECT:
+ *   if (hasMedusaAuthoritativePricing(product)) { renderPrice(...) }
+ *   else { renderContactForPrice() }
+ *
+ * ❌ WRONG (never do this):
+ *   const price = hasMedusaAuthoritativePricing(product)
+ *     ? resolveProductCalculatedPriceAmount(product)
+ *     : product.sanityPrice;  // NOT a valid fallback
+ */
+export function hasMedusaAuthoritativePricing(product: unknown): boolean {
+  const amount = resolveProductCalculatedPriceAmount(product);
+  return typeof amount === 'number' && Number.isFinite(amount);
+}
+
 export async function listStoreProductsForPricing(
   opts: { regionId?: string; limit?: number } = {}
 ): Promise<MedusaStoreProduct[]> {

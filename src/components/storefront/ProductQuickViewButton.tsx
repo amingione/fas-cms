@@ -11,7 +11,6 @@ import type { QuickViewOptionGroup, QuickViewOptionValue } from '@/lib/quick-vie
 import { portableTextToPlainText } from '@/lib/portableText';
 import { resolveProductCartMeta } from '@/lib/product-flags';
 import { formatCents, formatDollarsWithSign } from '@/lib/pricing';
-import { resolveProductCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const sanitizeAnalyticsPayload = (payload: Record<string, unknown>) =>
   Object.fromEntries(
@@ -132,14 +131,11 @@ export default function ProductQuickViewButton({
     };
   }, []);
 
-  // ✅ PRICING AUTHORITY: Product quick view may only display prices sourced from Medusa.
-  const resolvedCalculatedPrice = resolveProductCalculatedPriceAmount(product);
-  const medusaPrice =
-    typeof resolvedCalculatedPrice === 'number'
-      ? resolvedCalculatedPrice
-      : typeof product.price === 'number'
-        ? product.price
-        : undefined;
+  // ✅ PRICING AUTHORITY: product.price is the pre-resolved Medusa calculated price set by the
+  // calling component (e.g. ProductCardLite.astro via resolveProductCalculatedPriceAmount).
+  // QuickViewProduct carries no Medusa variant data of its own, so we use product.price directly.
+  // Never substitute a Sanity-sourced price here.
+  const medusaPrice = typeof product.price === 'number' ? product.price : undefined;
   const formattedPrice =
     typeof medusaPrice === 'number' && Number.isFinite(medusaPrice)
       ? formatCents(medusaPrice)
