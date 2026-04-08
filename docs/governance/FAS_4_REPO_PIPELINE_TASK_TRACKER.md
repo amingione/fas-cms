@@ -24,7 +24,7 @@ Sanity (content) -> Medusa (commerce authority) -> fas-cms-fresh (storefront) an
 
 | ID | Task | Repo(s) | Status | Notes |
 | --- | --- | --- | --- | --- |
-| WS1-1 | Remove or quarantine legacy direct Stripe commerce calls outside Medusa | fas-cms-fresh, fas-dash | done | fas-dash: orphaned stripe.ts deleted (2026-04-02). fas-cms-fresh: legacy checkout routes 410'd. No direct Stripe SDK usage outside Medusa. |
+| WS1-1 | Remove or quarantine legacy direct Stripe commerce calls outside Medusa | fas-cms-fresh, fas-dash | done | fas-dash: orphaned stripe.ts deleted (2026-04-02). fas-cms-fresh: legacy checkout routes 410'd. Customer checkout: no direct Stripe SDK calls. B2B/vendor exception (vendor invoice pay) isolated, auth-gated, and documented. (2026-04-08) |
 | WS1-2 | Remove or quarantine direct Shippo commerce calls outside Medusa | fas-cms-fresh, fas-dash | done | fas-dash: orphaned shippo.ts deleted (2026-04-02). fas-cms-fresh: all Shippo paths route via Medusa fulfillment-shippo module. |
 | WS1-3 | Enforce read-only labeling for mirrored commerce data in Sanity | fas-sanity | done | Verified 2026-04-02: all fields in integration group on product + productVariant schemas have readOnly: true. |
 
@@ -127,6 +127,15 @@ Notes:
 - CODE (fas-medusa): fix-variant-prices.ts, fix-variant-prices-simple.ts, fix-variant-prices-direct.ts all patched. Raw Math.round(sanityPrice * 100) replaced with normalizeSanityPriceToCents(sanityPrice).cents guard.
 - NEW SCRIPT: fix-powerstroke-variant-prices.ts added. Dry-run safe, PR-RM6S-FAS* SKU scoped, parameterized queries, reasonable-price-range safety check ($1k-$5k). npm run fix-powerstroke (dry) / npm run fix-powerstroke:apply.
 - DB ACCESS: admin API at https://api.fasmotorsports.com with MEDUSA_ADMIN_JWT from .env-railway works for price reads. No Railway exec tunnel needed for read-only verification.
+
+### 2026-04-08 WS1-1 Storefront Stripe Path Removal Pass
+
+**Remaining direct Stripe paths removed from customer checkout flows**
+
+- FIXED: `src/pages/order/confirmation.astro` — removed `new Stripe()` instantiation and `stripe.paymentIntents.retrieve()` call. Page now sources all order details (total, email, shipping address) exclusively from Medusa via `/api/orders/by-payment-intent`. Order summary and shipping address boxes are populated client-side from the Medusa-authoritative response.
+- ENHANCED: `src/pages/api/orders/by-payment-intent.ts` — extended response to include `total`, `shippingTotal`, `email`, and `shippingAddress` fields from Medusa admin order object. Medusa admin query expanded with `+total,+shipping_total,+email,+shipping_address` fields.
+- DOCUMENTED: `src/pages/api/vendor/invoices/[id]/pay.ts` — approved B2B/vendor exception. Direct Stripe PaymentIntent retrieve is auth-gated (`requireVendor`), read-only, and scoped exclusively to the vendor billing flow. Not reachable from customer checkout paths. Exception boundary defined in REPO_GOVERNANCE.md.
+- UPDATED: `docs/governance/REPO_GOVERNANCE.md` — authority boundary status updated, B2B exception boundary table added.
 
 ### 2026-04-02 Authority Boundary Closure Pass (WS1-1, WS1-2, WS1-3, WS2-1, WS2-2, WS2-3, WS3-1, WS3-2, WS4-1, WS4-3, WS5-1, WS5-2, WS6-1, WS6-2, WS6-3)
 
