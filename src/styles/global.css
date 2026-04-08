@@ -2703,25 +2703,33 @@ input[type='checkbox'] {
 
 /* ── Skip navigation (WCAG 2.4.1 / 2.1.1) ───────────────────────────────── */
 .skip-to-main {
-  position: absolute;
-  /* Off-screen until focused — no CSS transition so position is instant (avoids E2E timing issues) */
-  top: -9999px;
-  left: 1rem;
-  z-index: 9999;
-  padding: 0.6rem 1.2rem;
-  background: #c41218;
+  position: fixed;
+  /* Keep it available to keyboard users while fully hidden until focus */
+  top: max(0.5rem, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 10000;
+  transform: translate(-50%, calc(-100% - 0.75rem));
+  padding: 0.55rem 0.95rem;
+  background: #101010;
   color: #ffffff;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  border-radius: 0 0 6px 6px;
+  border: 1px solid #c41218;
+  border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
 }
 
-.skip-to-main:focus {
-  top: 0;
-  outline: 3px solid #ffffff;
+html.user-is-tabbing .skip-to-main:focus,
+html.user-is-tabbing .skip-to-main:focus-visible {
+  transform: translate(-50%, 0);
+  outline: 2px solid #ffffff;
   outline-offset: 2px;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ── Screen reader only (visually hidden but accessible) ────────────────── */

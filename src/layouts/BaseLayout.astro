@@ -786,7 +786,23 @@ document.dispatchEvent(new Event('gtag:loaded'));
   </head>
 
   <body class={bodyClass}>
-    <!-- Skip navigation: visually hidden until focused — WCAG 2.4.1 / 2.1.1 -->
+    <script is:inline>
+      (() => {
+        if (typeof window === 'undefined') return;
+        const root = document.documentElement;
+
+        const setKeyboardMode = (event) => {
+          if (event.key === 'Tab') root.classList.add('user-is-tabbing');
+        };
+        const clearKeyboardMode = () => root.classList.remove('user-is-tabbing');
+
+        window.addEventListener('keydown', setKeyboardMode, { passive: true });
+        window.addEventListener('mousedown', clearKeyboardMode, { passive: true });
+        window.addEventListener('touchstart', clearKeyboardMode, { passive: true });
+      })();
+    </script>
+
+    <!-- Skip navigation: shown only during keyboard tabbing -->
     <a
       href="#main-content"
       class="skip-to-main"
