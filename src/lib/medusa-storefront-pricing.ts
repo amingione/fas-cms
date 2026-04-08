@@ -226,7 +226,7 @@ export function resolveProductMedusaVariant(
  * ❌ WRONG (never do this):
  *   const price = hasMedusaAuthoritativePricing(product)
  *     ? resolveProductCalculatedPriceAmount(product)
- *     : product.sanityPrice;  // NOT a valid fallback
+ *     : (product as any).price;  // `product.price` is a @deprecated Sanity field — NOT a valid fallback
  */
 export function hasMedusaAuthoritativePricing(product: unknown): boolean {
   const amount = resolveProductCalculatedPriceAmount(product);
