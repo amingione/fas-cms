@@ -612,19 +612,42 @@ export interface Product {
   title: string;
   displayTitle?: string | null;
   slug: { current: string };
+  /**
+   * @deprecated NOT fetched from Sanity. Medusa is the sole pricing authority.
+   * Use `resolveProductCalculatedPriceAmount(product)` from
+   * `@/lib/medusa-storefront-pricing` for all display and cart operations.
+   */
   price?: number | null;
   stripePriceId?: string | null;
   medusaVariantId?: string | null;
-  // Legacy sale fields retained for compatibility; Medusa now owns sale state.
+  /**
+   * @deprecated Legacy sale fields — NOT included in any active GROQ projection.
+   * Medusa owns all sale/discount state. Do NOT populate these from Sanity
+   * or use them for transactional pricing. `saleHelpers.ts` reads them for
+   * display-only badge text when present, but they will never be set by the
+   * current fetch layer.
+   */
   onSale?: boolean | null;
+  /** @deprecated See `onSale` note above. */
   salePrice?: number | null;
+  /** @deprecated See `onSale` note above. */
   compareAtPrice?: number | null;
+  /** @deprecated See `onSale` note above. */
   discountPercent?: number | null;
+  /** @deprecated See `onSale` note above. */
   discountPercentage?: number | null;
+  /** @deprecated See `onSale` note above. */
   saleStartDate?: string | null;
+  /** @deprecated See `onSale` note above. */
   saleEndDate?: string | null;
+  /** @deprecated See `onSale` note above. */
   saleLabel?: string | null;
+  /** @deprecated See `onSale` note above. */
   saleActive?: boolean | null;
+  /**
+   * @deprecated NOT fetched from Sanity. Medusa owns all pricing data.
+   * This nested object will always be `undefined` in practice.
+   */
   pricing?: {
     price?: number | null;
     salePrice?: number | null;
@@ -1165,9 +1188,21 @@ export interface StorefrontProductFilters {
   filterSlugs?: string[];
   vehicleSlug?: string;
   vehicleSlugs?: string[];
+  /**
+   * ✅ PRICING AUTHORITY: minPrice/maxPrice are applied AFTER Medusa pricing is
+   * attached (in shop/index.astro), using `resolveProductCalculatedPriceAmount`.
+   * They are NOT used inside the Sanity GROQ query — Sanity never filters by price.
+   * The params are passed here so callers can forward them through the fetch layer,
+   * but the actual price filtering is done server-side against Medusa data.
+   */
   minPrice?: number | null;
   maxPrice?: number | null;
   searchTerm?: string | null;
+  /**
+   * ✅ PRICING AUTHORITY: 'price-asc' / 'price-desc' sort is applied AFTER Medusa
+   * pricing is attached (in shop/index.astro) using `resolveProductCalculatedPriceAmount`.
+   * The GROQ query itself ignores price sorting — Sanity never provides authoritative prices.
+   */
   sortBy?: 'price-asc' | 'price-desc' | 'newest' | 'featured' | 'name';
   page?: number;
   pageSize?: number;
