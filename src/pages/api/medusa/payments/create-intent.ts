@@ -33,12 +33,7 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const medusaResponse = await medusaFetch('/store/payment-intents', {
       method: 'POST',
-      body: JSON.stringify({
-        cartId,
-        ...(body?.shippoRate && typeof body.shippoRate === 'object'
-          ? { shippoRate: body.shippoRate }
-          : {})
-      })
+      body: JSON.stringify({ cartId })
     });
 
     const payload = await readJsonSafe<any>(medusaResponse);
