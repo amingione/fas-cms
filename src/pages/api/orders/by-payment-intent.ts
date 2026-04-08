@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getSecret } from '@/server/aws-secrets';
+import { rateLimit } from '@/server/vendor-portal/rateLimit';
 
 /**
  * Look up a Medusa order by Stripe PaymentIntent ID
@@ -17,20 +18,38 @@ import { getSecret } from '@/server/aws-secrets';
  * No authentication required (the payment intent ID is secret enough and only known
  * to the customer who completed payment).
  *
+ * Security mitigations:
+ * - Rate limiting: 10 requests per payment intent per 60 seconds
+ * - In-memory caching: Successful lookups cached for 5 minutes
+ * - Strict scan limits: Maximum 500 orders scanned per request
+ * - Reduced retries: Only 2 attempts instead of 3
+ *
  * Returns:
  *   {
  *     orderId: string,
  *     displayId: number,
- *     total: number,           // order total in cents
- *     shippingTotal: number,   // shipping total in cents
- *     email: string,
+ *     total: number | null,           // order total in cents when present
+ *     shippingTotal: number | null,   // shipping total in cents when present
+ *     email: string | null,
  *     shippingAddress: { name, line1, line2, city, state, postalCode, country } | null
  *   } on success
  *   404 if order not found after retries
- *   400 if payment_intent parameter missing
+ *   400 if id query parameter missing (?id=pi_xxx)
+ *   429 if rate limit exceeded
  */
 
-export const GET: APIRoute = async ({ url }) => {
+// In-memory cache for successful order lookups
+// Maps payment intent ID -> cached response
+interface CachedOrder {
+  data: any;
+  expiresAt: number;
+}
+const orderCache = new Map<string, CachedOrder>();
+
+// Cache TTL: 5 minutes
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+export const GET: APIRoute = async ({ url, clientAddress }) => {
   const paymentIntentId = url.searchParams.get('id');
 
   if (!paymentIntentId) {
@@ -41,6 +60,59 @@ export const GET: APIRoute = async ({ url }) => {
         headers: { 'Content-Type': 'application/json' }
       }
     );
+  }
+
+  // Rate limiting: 10 requests per payment intent per 60 seconds
+  // Use payment intent ID as the rate limit key to prevent abuse
+  const rateLimitResult = rateLimit(paymentIntentId, {
+    limit: 10,
+    windowMs: 60 * 1000 // 60 seconds
+  });
+
+  if (!rateLimitResult.allowed) {
+    const retryAfterSeconds = rateLimitResult.retryAfter
+      ? Math.ceil(rateLimitResult.retryAfter / 1000)
+      : 60;
+
+    return new Response(
+      JSON.stringify({
+        error: 'Rate limit exceeded. Please try again later.',
+        retryAfter: retryAfterSeconds
+      }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfterSeconds),
+          'X-RateLimit-Limit': '10',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': String(Math.ceil(Date.now() / 1000) + retryAfterSeconds)
+        }
+      }
+    );
+  }
+
+  // Check cache first
+  const cached = orderCache.get(paymentIntentId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return new Response(JSON.stringify(cached.data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Cache': 'HIT',
+        'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+      }
+    });
+  }
+
+  // Clear expired cache entries periodically
+  if (orderCache.size > 1000) {
+    const now = Date.now();
+    for (const [key, value] of orderCache.entries()) {
+      if (value.expiresAt <= now) {
+        orderCache.delete(key);
+      }
+    }
   }
 
   // Get Medusa config
@@ -87,8 +159,9 @@ export const GET: APIRoute = async ({ url }) => {
     });
   }
 
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 2; // Reduced from 3 to 2
   const RETRY_DELAY_MS = 1000;
+  const MAX_SCAN_LIMIT = 500; // Reduced from 3000 to 500
 
   /** Resolve a display name from Medusa shipping address fields. */
   function formatShippingName(sa: Record<string, any>): string | null {
@@ -103,9 +176,11 @@ export const GET: APIRoute = async ({ url }) => {
       let scanned = 0;
       let totalCount = Number.POSITIVE_INFINITY;
 
-      while (offset < totalCount && scanned < 3000) {
+      // Scan orders starting from most recent (likely to find the order faster)
+      // Most orders are completed within minutes, so recent orders are more likely
+      while (offset < totalCount && scanned < MAX_SCAN_LIMIT) {
         const response = await fetch(
-          `${medusaBackendUrl}/admin/orders?limit=${pageSize}&offset=${offset}&fields=+total,+shipping_total,+email,+shipping_address`,
+          `${medusaBackendUrl}/admin/orders?limit=${pageSize}&offset=${offset}&fields=+total,+shipping_total,+email,+shipping_address&order=-created_at`,
           {
             method: 'GET',
             headers: {
@@ -174,19 +249,31 @@ export const GET: APIRoute = async ({ url }) => {
                 }
               : null;
 
+            const responseData = {
+              orderId: order.id,
+              displayId: order.display_id,
+              total: typeof order.total === 'number' ? order.total : null,
+              shippingTotal:
+                typeof order.shipping_total === 'number' ? order.shipping_total : null,
+              email: order.email ?? null,
+              shippingAddress
+            };
+
+            // Cache successful lookup for 5 minutes
+            orderCache.set(paymentIntentId, {
+              data: responseData,
+              expiresAt: Date.now() + CACHE_TTL_MS
+            });
+
             return new Response(
-              JSON.stringify({
-                orderId: order.id,
-                displayId: order.display_id,
-                total: typeof order.total === 'number' ? order.total : null,
-                shippingTotal:
-                  typeof order.shipping_total === 'number' ? order.shipping_total : null,
-                email: order.email ?? null,
-                shippingAddress
-              }),
+              JSON.stringify(responseData),
               {
                 status: 200,
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-Cache': 'MISS',
+                  'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+                }
               }
             );
           }
