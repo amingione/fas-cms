@@ -1,59 +1,19 @@
 ---
 /**
  * Order Confirmation Page
- * Displayed after successful payment
+ * Displayed after successful payment.
+ *
+ * Architecture rule: All order data is sourced exclusively from Medusa.
+ * No direct Stripe SDK calls are made from this page.
+ * The client-side script fetches order details via /api/orders/by-payment-intent,
+ * which queries the Medusa admin API as the single source of truth.
  */
-import Stripe from 'stripe';
-import { STRIPE_API_VERSION } from '@/lib/stripe-config';
-
-const stripe = new Stripe(import.meta.env.STRIPE_SECRET_KEY!, {
-  apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
-});
 
 // Get payment_intent from query params
 const url = new URL(Astro.request.url);
 const paymentIntentId = url.searchParams.get('payment_intent');
 
 if (!paymentIntentId) {
-  return Astro.redirect('/checkout');
-}
-
-// Fetch Payment Intent to get order details
-let paymentIntent;
-let orderDetails;
-try {
-  paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-  if (paymentIntent.status !== 'succeeded') {
-    return Astro.redirect('/checkout');
-  }
-
-  // Extract order details from metadata and shipping
-  const shipping = paymentIntent.shipping || {};
-  const metadata = paymentIntent.metadata || {};
-
-  orderDetails = {
-    amount: paymentIntent.amount,
-    shippingAmount: parseInt(metadata.shipping_amount_cents || '0'),
-    subtotal: paymentIntent.amount - parseInt(metadata.shipping_amount_cents || '0'),
-    customerEmail: paymentIntent.receipt_email || 'your email',
-    shippingAddress: {
-      name: shipping.name || 'Customer',
-      line1: shipping.address?.line1,
-      line2: shipping.address?.line2,
-      city: shipping.address?.city,
-      state: shipping.address?.state,
-      postal_code: shipping.address?.postal_code,
-      country: shipping.address?.country
-    },
-    shippingMethod: {
-      carrier: metadata.carrier || 'UPS',
-      serviceName: metadata.service_name || 'Ground',
-      deliveryDays: metadata.delivery_days || '3-5'
-    }
-  };
-} catch (error) {
-  console.error('Failed to fetch payment intent:', error);
   return Astro.redirect('/checkout');
 }
 ---
@@ -286,8 +246,8 @@ try {
 
       <!-- Title -->
       <h1>Order Confirmed!</h1>
-      <p class="subtitle">
-        A confirmation email has been sent to {orderDetails.customerEmail}
+      <p class="subtitle" id="confirmation-subtitle">
+        A confirmation email will be sent to your address on file.
       </p>
 
       <!-- Order Number Display -->
@@ -295,47 +255,28 @@ try {
         <!-- Will be populated by client-side script -->
       </div>
 
-      <!-- Order Summary -->
-      <div class="info-box">
+      <!-- Order Summary (populated from Medusa via client-side script) -->
+      <div class="info-box" id="order-summary-box" style="display:none">
         <h2>Order Summary</h2>
         <div class="info-row">
           <span>Subtotal</span>
-          <strong>${(orderDetails.subtotal / 100).toFixed(2)}</strong>
+          <strong id="order-subtotal">—</strong>
         </div>
         <div class="info-row">
-          <span
-            >Shipping ({orderDetails.shippingMethod.carrier}
-            {orderDetails.shippingMethod.serviceName})</span
-          >
-          <strong>${(orderDetails.shippingAmount / 100).toFixed(2)}</strong>
+          <span>Shipping</span>
+          <strong id="order-shipping">—</strong>
         </div>
         <div class="total-row">
           <span>Total</span>
-          <span class="total-amount">${(orderDetails.amount / 100).toFixed(2)}</span>
+          <span class="total-amount" id="order-total">—</span>
         </div>
       </div>
 
-      <!-- Shipping Info -->
-      <div class="info-box">
+      <!-- Shipping Info (populated from Medusa via client-side script) -->
+      <div class="info-box" id="shipping-info-box" style="display:none">
         <h2>Shipping Address</h2>
-        <div class="address-block">
-          {orderDetails.shippingAddress.name}<br />
-          {orderDetails.shippingAddress.line1}<br />
-          {
-            orderDetails.shippingAddress.line2 && (
-              <>
-                {orderDetails.shippingAddress.line2}
-                <br />
-              </>
-            )
-          }
-          {orderDetails.shippingAddress.city}, {orderDetails.shippingAddress.state}
-          {orderDetails.shippingAddress.postal_code}<br />
-          {orderDetails.shippingAddress.country}
-        </div>
-        <div class="info-row" style="margin-top: 1rem;">
-          <span>Estimated Delivery</span>
-          <strong>{orderDetails.shippingMethod.deliveryDays} business days</strong>
+        <div class="address-block" id="shipping-address-block">
+          <!-- Populated by script -->
         </div>
       </div>
 
@@ -386,7 +327,9 @@ try {
     <!--
       Clear all checkout state (local cart items + Medusa cart ID) after a
       successful order so returning to /checkout starts a completely fresh session.
-      Also fetch and display the Medusa order ID from the payment intent.
+
+      Fetch and display order number and order details from Medusa exclusively.
+      Architecture rule: All order data comes from Medusa — never from Stripe directly.
     -->
     <script>
       (async () => {
@@ -400,7 +343,7 @@ try {
           // localStorage may be unavailable in private browsing — silently ignore
         }
 
-        // Fetch and display the order number from Medusa
+        // Fetch order details from Medusa (single source of truth)
         try {
           const params = new URLSearchParams(window.location.search);
           const paymentIntentId = params.get('payment_intent');
@@ -411,27 +354,69 @@ try {
           }
 
           const displayDiv = document.getElementById('order-number-display');
-          if (!displayDiv) return;
 
-          // Attempt to fetch order by payment intent ID
+          // Attempt to fetch order by payment intent ID (Medusa-sourced)
           const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`);
 
           if (response.ok) {
             const data = await response.json();
-            if (data.displayId) {
-              displayDiv.classList.add('loaded');
-              displayDiv.innerHTML = `<span class="order-number-label">Order #${data.displayId}</span>`;
-            } else {
-              displayDiv.classList.add('error');
-              displayDiv.innerHTML = 'Order received — check your email for confirmation';
+
+            // Populate order number
+            if (displayDiv) {
+              if (data.displayId) {
+                displayDiv.classList.add('loaded');
+                displayDiv.innerHTML = `<span class="order-number-label">Order #${data.displayId}</span>`;
+              } else {
+                displayDiv.classList.add('error');
+                displayDiv.innerHTML = 'Order received — check your email for confirmation';
+              }
+            }
+
+            // Populate confirmation subtitle with email if available
+            if (data.email) {
+              const subtitle = document.getElementById('confirmation-subtitle');
+              if (subtitle) {
+                subtitle.textContent = `A confirmation email has been sent to ${data.email}`;
+              }
+            }
+
+            // Populate order summary from Medusa data
+            const summaryBox = document.getElementById('order-summary-box');
+            if (summaryBox && typeof data.total === 'number') {
+              const shipping = typeof data.shippingTotal === 'number' ? data.shippingTotal : 0;
+              const subtotal = data.total - shipping;
+              const formatCents = (cents) => `$${(cents / 100).toFixed(2)}`;
+              document.getElementById('order-subtotal').textContent = formatCents(subtotal);
+              document.getElementById('order-shipping').textContent = formatCents(shipping);
+              document.getElementById('order-total').textContent = formatCents(data.total);
+              summaryBox.style.display = '';
+            }
+
+            // Populate shipping address from Medusa data (using safe DOM methods to avoid XSS)
+            const shippingBox = document.getElementById('shipping-info-box');
+            const addrBlock = document.getElementById('shipping-address-block');
+            if (shippingBox && addrBlock && data.shippingAddress) {
+              const sa = data.shippingAddress;
+              const cityStatePostalLine = [sa.city, sa.state, sa.postalCode].filter(Boolean).join(', ');
+              const lines = [sa.name, sa.line1, sa.line2, cityStatePostalLine, sa.country].filter(Boolean);
+              addrBlock.textContent = '';
+              for (const line of lines) {
+                const span = document.createElement('span');
+                span.textContent = line;
+                addrBlock.appendChild(span);
+                addrBlock.appendChild(document.createElement('br'));
+              }
+              shippingBox.style.display = '';
             }
           } else {
             // 404 or error — order not yet available or not found
-            displayDiv.classList.add('error');
-            displayDiv.innerHTML = 'Order received — check your email for confirmation';
+            if (displayDiv) {
+              displayDiv.classList.add('error');
+              displayDiv.innerHTML = 'Order received — check your email for confirmation';
+            }
           }
         } catch (err) {
-          console.error('[confirmation] Failed to fetch order ID:', err);
+          console.error('[confirmation] Failed to fetch order details:', err);
           const displayDiv = document.getElementById('order-number-display');
           if (displayDiv) {
             displayDiv.classList.add('error');

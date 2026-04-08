@@ -6,14 +6,26 @@ import { getSecret } from '@/server/aws-secrets';
  *
  * GET /api/orders/by-payment-intent?id=pi_xxx
  *
- * This endpoint is used by the order confirmation page to display the order number.
- * It polls Medusa admin API searching for an order with a payment session/intent matching the ID.
+ * This endpoint is used by the order confirmation page to display the order number
+ * and order details. It polls Medusa admin API searching for an order with a payment
+ * session/intent matching the ID.
+ *
+ * Architecture: Medusa is the sole source of truth for order data.
+ * All order details (total, email, shipping address) are sourced from Medusa,
+ * never directly from Stripe.
  *
  * No authentication required (the payment intent ID is secret enough and only known
  * to the customer who completed payment).
  *
  * Returns:
- *   { orderId: string, displayId: number } on success
+ *   {
+ *     orderId: string,
+ *     displayId: number,
+ *     total: number,           // order total in cents
+ *     shippingTotal: number,   // shipping total in cents
+ *     email: string,
+ *     shippingAddress: { name, line1, line2, city, state, postalCode, country } | null
+ *   } on success
  *   404 if order not found after retries
  *   400 if payment_intent parameter missing
  */
@@ -78,6 +90,12 @@ export const GET: APIRoute = async ({ url }) => {
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 1000;
 
+  /** Resolve a display name from Medusa shipping address fields. */
+  function formatShippingName(sa: Record<string, any>): string | null {
+    const parts = [sa.first_name, sa.last_name].filter(Boolean);
+    return parts.length > 0 ? parts.join(' ') : (sa.name as string | undefined) || null;
+  }
+
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       const pageSize = 100;
@@ -87,7 +105,7 @@ export const GET: APIRoute = async ({ url }) => {
 
       while (offset < totalCount && scanned < 3000) {
         const response = await fetch(
-          `${medusaBackendUrl}/admin/orders?limit=${pageSize}&offset=${offset}`,
+          `${medusaBackendUrl}/admin/orders?limit=${pageSize}&offset=${offset}&fields=+total,+shipping_total,+email,+shipping_address`,
           {
             method: 'GET',
             headers: {
@@ -114,6 +132,8 @@ export const GET: APIRoute = async ({ url }) => {
 
         // Search for order with matching payment intent in payment sessions or metadata
         for (const order of orders) {
+          let matched = false;
+
           // Check payment sessions (Medusa's standard location)
           if (Array.isArray(order.payment_sessions)) {
             for (const session of order.payment_sessions) {
@@ -122,38 +142,53 @@ export const GET: APIRoute = async ({ url }) => {
                 session?.data?.payment_intent_id === paymentIntentId ||
                 session?.data?.payment_intent === paymentIntentId
               ) {
-                return new Response(
-                  JSON.stringify({
-                    orderId: order.id,
-                    displayId: order.display_id
-                  }),
-                  {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' }
-                  }
-                );
+                matched = true;
+                break;
               }
             }
           }
 
           // Also check metadata in case the PI ID was stored there
-          if (order?.metadata && typeof order.metadata === 'object') {
+          if (!matched && order?.metadata && typeof order.metadata === 'object') {
             const meta = order.metadata as Record<string, any>;
             if (
               meta.stripe_payment_intent_id === paymentIntentId ||
               meta.payment_intent_id === paymentIntentId
             ) {
-              return new Response(
-                JSON.stringify({
-                  orderId: order.id,
-                  displayId: order.display_id
-                }),
-                {
-                  status: 200,
-                  headers: { 'Content-Type': 'application/json' }
-                }
-              );
+              matched = true;
             }
+          }
+
+          if (matched) {
+            // Extract shipping address from Medusa order (source of truth — never from Stripe)
+            const sa = order.shipping_address ?? null;
+            const shippingAddress = sa
+              ? {
+                  name: formatShippingName(sa) ?? null,
+                  line1: sa.address_1 || null,
+                  line2: sa.address_2 || null,
+                  city: sa.city || null,
+                  state: sa.province || null,
+                  postalCode: sa.postal_code || null,
+                  country: sa.country_code || null
+                }
+              : null;
+
+            return new Response(
+              JSON.stringify({
+                orderId: order.id,
+                displayId: order.display_id,
+                total: typeof order.total === 'number' ? order.total : null,
+                shippingTotal:
+                  typeof order.shipping_total === 'number' ? order.shipping_total : null,
+                email: order.email ?? null,
+                shippingAddress
+              }),
+              {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+              }
+            );
           }
         }
 
