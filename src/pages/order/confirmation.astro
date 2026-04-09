@@ -338,7 +338,9 @@ if (!paymentIntentId) {
           window.localStorage.removeItem('fas_cart_v1');
           window.localStorage.removeItem('fas_medusa_cart_id');
           // Notify any mounted cart islands that the cart is now empty
-          window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart: { items: [] } } }));
+          window.dispatchEvent(
+            new CustomEvent('cart:changed', { detail: { cart: { items: [] } } })
+          );
         } catch (_) {
           // localStorage may be unavailable in private browsing — silently ignore
         }
@@ -356,7 +358,9 @@ if (!paymentIntentId) {
           const displayDiv = document.getElementById('order-number-display');
 
           // Attempt to fetch order by payment intent ID (Medusa-sourced)
-          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`);
+          const response = await fetch(
+            `/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`
+          );
 
           if (response.ok) {
             const data = await response.json();
@@ -407,8 +411,12 @@ if (!paymentIntentId) {
             const addrBlock = document.getElementById('shipping-address-block');
             if (shippingBox && addrBlock && data.shippingAddress) {
               const sa = data.shippingAddress;
-              const cityStatePostalLine = [sa.city, sa.state, sa.postalCode].filter(Boolean).join(', ');
-              const lines = [sa.name, sa.line1, sa.line2, cityStatePostalLine, sa.country].filter(Boolean);
+              const cityStatePostalLine = [sa.city, sa.state, sa.postalCode]
+                .filter(Boolean)
+                .join(', ');
+              const lines = [sa.name, sa.line1, sa.line2, cityStatePostalLine, sa.country].filter(
+                Boolean
+              );
               addrBlock.textContent = '';
               for (const line of lines) {
                 const span = document.createElement('span');
