@@ -209,7 +209,7 @@ export default function MedusaShippingOptions() {
     } catch (err: any) {
       setError(err?.message || 'Unable to calculate delivery rates.');
       setShippingOptions([]);
-      setSelectedRate(null);
+      setSelectedOptionId('');
     } finally {
       setLoading(false);
     }

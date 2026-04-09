@@ -385,10 +385,20 @@ if (!paymentIntentId) {
             if (summaryBox && typeof data.total === 'number') {
               const shipping = typeof data.shippingTotal === 'number' ? data.shippingTotal : 0;
               const subtotal = data.total - shipping;
-              const formatCents = (cents) => `$${(cents / 100).toFixed(2)}`;
-              document.getElementById('order-subtotal').textContent = formatCents(subtotal);
-              document.getElementById('order-shipping').textContent = formatCents(shipping);
-              document.getElementById('order-total').textContent = formatCents(data.total);
+              const formatCents = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+              const subtotalEl = document.getElementById('order-subtotal');
+              const shippingEl = document.getElementById('order-shipping');
+              const totalEl = document.getElementById('order-total');
+
+              if (subtotalEl) {
+                subtotalEl.textContent = formatCents(subtotal);
+              }
+              if (shippingEl) {
+                shippingEl.textContent = formatCents(shipping);
+              }
+              if (totalEl) {
+                totalEl.textContent = formatCents(data.total);
+              }
               summaryBox.style.display = '';
             }
 
