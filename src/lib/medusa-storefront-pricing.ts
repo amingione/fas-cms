@@ -258,7 +258,7 @@ export async function listStoreProductsForPricing(
 
     const response = await medusaFetch(`/store/products?${search.toString()}`, {
       method: 'GET',
-      cache: 'no-store'
+      next: { revalidate: 300 } // Cache for 5 minutes to prevent 504 timeouts
     });
     const data = await readJsonSafe<any>(response);
     if (!response.ok) {
