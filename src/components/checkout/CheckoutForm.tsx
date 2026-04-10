@@ -37,6 +37,7 @@ type SelectableShippingRate = {
   optionId: string;
   label: string;
   amountCents: number;
+  shippingData?: Record<string, any>;
 };
 
 interface CartItem {
@@ -425,9 +426,10 @@ function buildSelectableRates(shippingRates: ShippingRate[]): SelectableShipping
   return shippingRates
     .map((rate) => ({
       id: rate.id,
-      optionId: rate.id,
+      optionId: typeof (rate as any)?.option_id === 'string' ? (rate as any).option_id : rate.id,
       label: normalizeShippingLabel(rate),
-      amountCents: resolveShippingOptionAmountCents(rate) ?? 0
+      amountCents: resolveShippingOptionAmountCents(rate) ?? 0,
+      shippingData: rate.data
     }))
     .sort((a, b) => {
       const rankDelta = rankShippingLabel(a.label) - rankShippingLabel(b.label);
@@ -855,7 +857,8 @@ export default function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId,
-          optionId: rate.optionId
+          optionId: rate.optionId,
+          shippingData: rate.shippingData
         })
       });
 

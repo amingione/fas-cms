@@ -100,6 +100,10 @@ export const POST: APIRoute = async ({ request }) => {
 
   const cartId = typeof body?.cartId === 'string' ? body.cartId.trim() : '';
   const optionId = typeof body?.optionId === 'string' ? body.optionId.trim() : '';
+  const shippingData =
+    body?.shippingData && typeof body.shippingData === 'object' && !Array.isArray(body.shippingData)
+      ? body.shippingData
+      : undefined;
 
   if (!cartId || !optionId) {
     return jsonResponse({ error: 'Missing cartId or optionId.' }, { status: 400 }, { noIndex: true });
@@ -130,7 +134,8 @@ export const POST: APIRoute = async ({ request }) => {
   const response = await medusaFetch(`/store/carts/${cartId}/shipping-methods`, {
     method: 'POST',
     body: JSON.stringify({
-      option_id: optionId
+      option_id: optionId,
+      ...(shippingData ? { data: shippingData } : {})
     })
   });
   const data = await readJsonSafe<any>(response);

@@ -99,6 +99,20 @@ async function fetchShippingOptions(cartId: string) {
   return primary;
 }
 
+function toShippoEstimatedDeliveryLabel(estimatedDays: unknown): string | undefined {
+  if (typeof estimatedDays !== 'number' || !Number.isFinite(estimatedDays) || estimatedDays <= 0) {
+    return undefined;
+  }
+  const days = Math.round(estimatedDays);
+  return days === 1 ? '1 business day' : `${days} business days`;
+}
+
+function maskCartToken(value: string): string {
+  if (!value) return 'unknown';
+  if (value.length <= 8) return '***';
+  return `${value.slice(0, 4)}...${value.slice(-4)}`;
+}
+
 export const POST: APIRoute = async ({ request }) => {
   const config = getMedusaConfig();
   if (!config) {
@@ -159,6 +173,82 @@ export const POST: APIRoute = async ({ request }) => {
     return carrier === 'ups';
   });
   const candidates = upsOnly.length ? upsOnly : options;
+
+  // If Medusa is configured with a single generic UPS option, enrich it with
+  // service-level rates from Medusa's store/shippo-rates endpoint.
+  if (candidates.length === 1) {
+    const baseOption = candidates[0];
+    const baseCarrier = String(baseOption?.data?.carrier || '').toLowerCase();
+    if (baseCarrier === 'ups') {
+      const shippoRatesResponse = await medusaFetch(
+        `/store/shippo-rates?cart_id=${encodeURIComponent(cartId)}&carrier=ups`,
+        { method: 'GET' }
+      );
+      const shippoRatesData = await readJsonSafe<any>(shippoRatesResponse);
+      const shippoRates = Array.isArray(shippoRatesData?.rates) ? shippoRatesData.rates : [];
+
+      if (shippoRatesResponse.ok && shippoRates.length > 0) {
+        const serviceLevelOptions = shippoRates
+          .map((rate: any, index: number) => {
+            const rateId = typeof rate?.rate_id === 'string' ? rate.rate_id.trim() : '';
+            const serviceLevel =
+              typeof rate?.servicelevel === 'string' ? rate.servicelevel.trim() : '';
+            const amount =
+              typeof rate?.amount === 'string' || typeof rate?.amount === 'number'
+                ? String(rate.amount).trim()
+                : '';
+            const currency =
+              typeof rate?.currency === 'string' ? rate.currency.trim().toUpperCase() : 'USD';
+
+            if (!rateId || !amount) return null;
+
+            return {
+              ...baseOption,
+              id: `${baseOption.id}::${rateId}`,
+              option_id: baseOption.id,
+              name: serviceLevel || `UPS ${index + 1}`,
+              amount,
+              data: {
+                ...(baseOption?.data || {}),
+                carrier: 'ups',
+                shippo_rate_id: rateId,
+                shippo_rate_amount: amount,
+                shippo_rate_currency: currency,
+                shippo_servicelevel: serviceLevel,
+                estimated_delivery: toShippoEstimatedDeliveryLabel(rate?.estimated_days)
+              }
+            };
+          })
+          .filter(Boolean);
+
+        if (serviceLevelOptions.length > 0) {
+          return jsonResponse(
+            { shippingOptions: serviceLevelOptions },
+            { status: 200 },
+            { noIndex: true }
+          );
+        }
+      }
+
+      // Diagnostics guard for staging: when Medusa's Shippo rate endpoint yields no
+      // usable options, log enough context to spot env/config drift quickly.
+      if (!shippoRates.length) {
+        const diagnostic = {
+          cart: maskCartToken(cartId),
+          status: shippoRatesResponse.status,
+          ok: shippoRatesResponse.ok,
+          rateCount: shippoRates.length,
+          error: shippoRatesData?.error || shippoRatesData?.message || null,
+          shipmentMessages: Array.isArray(shippoRatesData?.messages)
+            ? shippoRatesData.messages
+            : Array.isArray(shippoRatesData?.shipment_messages)
+              ? shippoRatesData.shipment_messages
+              : null
+        };
+        console.warn('[checkout] /store/shippo-rates returned no rates', diagnostic);
+      }
+    }
+  }
 
   const withRates = [];
   for (const option of candidates) {
