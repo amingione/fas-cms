@@ -864,11 +864,14 @@ export default function CheckoutForm() {
         throw new Error(payload?.error || 'Failed to apply shipping option');
       }
       if (requestId !== shippingSelectionRequestIdRef.current) return;
+      const shippingPayload = await response.json().catch(() => null);
 
-      // Refresh base cart state (Medusa returns shipping_total=0 for calculated
-      // price options until checkout completion — display is patched below using
-      // the confirmed PaymentIntent amount as the source of truth).
-      await loadCart(cartId);
+      if (shippingPayload?.cart && typeof shippingPayload.cart === 'object') {
+        setCart(shippingPayload.cart);
+        reconcileLocalCartFromCheckoutCart(shippingPayload.cart);
+      } else {
+        await loadCart(cartId);
+      }
 
       const intentResponse = await fetch('/api/medusa/payments/create-intent', {
         method: 'POST',
@@ -880,51 +883,18 @@ export default function CheckoutForm() {
         throw new Error(payload?.error || 'Failed to initialize payment');
       }
       if (requestId !== shippingSelectionRequestIdRef.current) return;
-      const payload = await intentResponse.json().catch(() => null);
-      if (!payload?.client_secret) {
+      const intentPayload = await intentResponse.json().catch(() => null);
+      if (!intentPayload?.client_secret) {
         throw new Error('Payment intent not ready');
       }
       if (
-        typeof payload?.publishable_key === 'string' &&
-        payload.publishable_key.trim() &&
-        payload.publishable_key.trim() !== stripePublishableKey.trim()
+        typeof intentPayload?.publishable_key === 'string' &&
+        intentPayload.publishable_key.trim() &&
+        intentPayload.publishable_key.trim() !== stripePublishableKey.trim()
       ) {
-        setStripePublishableKey(payload.publishable_key.trim());
+        setStripePublishableKey(intentPayload.publishable_key.trim());
       }
-
-      const breakdown = payload?.breakdown;
-      if (breakdown && typeof breakdown === 'object') {
-        const totalCents =
-          typeof breakdown.total_cents === 'number' && Number.isFinite(breakdown.total_cents)
-            ? breakdown.total_cents
-            : 0;
-        const shippingCents =
-          typeof breakdown.shipping_amount_cents === 'number' &&
-          Number.isFinite(breakdown.shipping_amount_cents)
-            ? breakdown.shipping_amount_cents
-            : 0;
-        const taxCents =
-          typeof breakdown.tax_amount_cents === 'number' &&
-          Number.isFinite(breakdown.tax_amount_cents)
-            ? breakdown.tax_amount_cents
-            : 0;
-        const subtotalCents =
-          typeof breakdown.subtotal_cents === 'number' && Number.isFinite(breakdown.subtotal_cents)
-            ? breakdown.subtotal_cents
-            : 0;
-        setCart((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            subtotal_cents: subtotalCents || prev.subtotal_cents,
-            shipping_amount_cents: shippingCents,
-            tax_amount_cents: taxCents,
-            total_cents: totalCents || prev.total_cents
-          };
-        });
-      }
-
-      setClientSecret(payload.client_secret);
+      setClientSecret(intentPayload.client_secret);
       console.info('[cart-debug] shipping selection completed', { requestId, rateId: rate.id });
     } catch (err) {
       if (requestId !== shippingSelectionRequestIdRef.current) return;

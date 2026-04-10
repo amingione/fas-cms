@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
-import { normalizeCartTotals } from '@/lib/money';
+import { buildStorefrontCartFromMedusaCart } from '@/lib/cart/transform';
 
 function parseBooleanLike(value: unknown): boolean | undefined {
   if (typeof value === 'boolean') return value;
@@ -119,8 +119,11 @@ export const POST: APIRoute = async ({ request }) => {
     const items = Array.isArray(cartData.cart.items) ? cartData.cart.items : [];
     const requiresShipping = items.some((item: any) => itemRequiresShipping(item));
     if (!requiresShipping) {
-      normalizeCartTotals(cartData.cart);
-      return jsonResponse({ cart: cartData.cart }, { status: 200 }, { noIndex: true });
+      return jsonResponse(
+        { cart: buildStorefrontCartFromMedusaCart(cartData.cart) },
+        { status: 200 },
+        { noIndex: true }
+      );
     }
   }
 
@@ -136,8 +139,11 @@ export const POST: APIRoute = async ({ request }) => {
     const message = String(data?.message || data?.error || '').toLowerCase();
     if (message.includes('does not require shipping') || message.includes('shipping is not required')) {
       const fallbackCart = cartData?.cart ?? null;
-      if (fallbackCart) normalizeCartTotals(fallbackCart);
-      return jsonResponse({ cart: fallbackCart }, { status: 200 }, { noIndex: true });
+      return jsonResponse(
+        { cart: fallbackCart ? buildStorefrontCartFromMedusaCart(fallbackCart) : null },
+        { status: 200 },
+        { noIndex: true }
+      );
     }
     return jsonResponse(
       { error: data?.message || 'Failed to select shipping option.', details: data },
@@ -146,12 +152,8 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  if (data?.cart) {
-    normalizeCartTotals(data.cart);
-  }
-
   return jsonResponse(
-    { cart: data?.cart ?? null },
+    { cart: data?.cart ? buildStorefrontCartFromMedusaCart(data.cart) : null },
     { status: 200 },
     { noIndex: true }
   );
