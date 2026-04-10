@@ -94,15 +94,19 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
 
   // Check cache first
   const cached = orderCache.get(paymentIntentId);
-  if (cached && cached.expiresAt > Date.now()) {
-    return new Response(JSON.stringify(cached.data), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Cache': 'HIT',
-        'X-RateLimit-Remaining': String(rateLimitResult.remaining)
-      }
-    });
+  if (cached) {
+    if (cached.expiresAt > Date.now()) {
+      return new Response(JSON.stringify(cached.data), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Cache': 'HIT',
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+        }
+      });
+    }
+
+    orderCache.delete(paymentIntentId);
   }
 
   // Clear expired cache entries periodically
