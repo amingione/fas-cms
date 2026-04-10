@@ -19,6 +19,7 @@ import { rateLimit } from '@/server/vendor-portal/rateLimit';
  * to the customer who completed payment).
  *
  * Security mitigations:
+ * - Rate limiting: 30 requests per client IP per 60 seconds (cycling-ID bypass prevention)
  * - Rate limiting: 10 requests per payment intent per 60 seconds
  * - In-memory caching: Successful lookups cached for 5 minutes
  * - Strict scan limits: Maximum 500 orders scanned per request
@@ -112,7 +113,7 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
         headers: {
           'Content-Type': 'application/json',
           'X-Cache': 'HIT',
-          'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+          'X-RateLimit-Remaining': String(paymentIntentRateLimitResult.remaining)
         }
       });
     }
@@ -287,7 +288,7 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
                 headers: {
                   'Content-Type': 'application/json',
                   'X-Cache': 'MISS',
-                  'X-RateLimit-Remaining': String(rateLimitResult.remaining)
+                  'X-RateLimit-Remaining': String(paymentIntentRateLimitResult.remaining)
                 }
               }
             );
