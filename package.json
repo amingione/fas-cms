@@ -27,7 +27,7 @@
     "audit:sanity-addons": "dotenv -e .env -- tsx src/scripts/audit-sanity-addons.ts",
     "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts",
     "audit:unused-files": "node ./scripts/audit-unused-files.mjs",
-    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env",
+    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:check:local": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:sync": "node scripts/sync-env-to-netlify.js",
     "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",

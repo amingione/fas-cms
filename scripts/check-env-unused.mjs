@@ -7,7 +7,7 @@ import { parse } from "dotenv";
 
 function parseArgs(argv) {
   const options = {
-    file: process.env.NETLIFY_ENV_FILE || ".env",
+    file: process.env.DOTENVX_ENV_FILE || ".env.local",
     allow: new Set(),
   };
 
@@ -19,7 +19,7 @@ function parseArgs(argv) {
       const value = argv[++i] || "";
       value.split(",").map((k) => k.trim()).filter(Boolean).forEach((k) => options.allow.add(k));
     } else if (arg === "-h" || arg === "--help") {
-      console.log(`Check env file keys are referenced in repo code.\n\nUsage:\n  node ./scripts/check-env-unused.mjs [options]\n\nOptions:\n  --file <path>      Env file to check (default: .env)\n  --allow <A,B,C>    Comma-separated keys to ignore\n  -h, --help         Show help`);
+      console.log(`Check env file keys are referenced in repo code.\n\nUsage:\n  node ./scripts/check-env-unused.mjs [options]\n\nOptions:\n  --file <path>      Env file to check (default: .env.local)\n  --allow <A,B,C>    Comma-separated keys to ignore\n  -h, --help         Show help`);
       process.exit(0);
     } else {
       console.error(`Unknown argument: ${arg}`);

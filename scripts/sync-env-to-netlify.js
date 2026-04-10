@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+// ⚠️  DEPRECATED (2026-04-10) — dotenvx migration complete.
+// Netlify now receives a single DOTENV_PRIVATE_KEY_PRODUCTION secret and decrypts
+// .env.production at build time. This mass-sync script is no longer needed.
+// Keep for DR reference only.
 
 /**
  * Sync .env variables to Netlify
