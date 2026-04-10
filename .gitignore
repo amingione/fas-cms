@@ -18,6 +18,8 @@ pnpm-debug.log*
 .env.*
 .env.development
 !.env.example
+!.env.production
+.env.keys
 .env.local
 .env-CLEANUP-REPORT.md
 .env.canonical

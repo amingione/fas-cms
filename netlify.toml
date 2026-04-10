@@ -1022,7 +1022,7 @@
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
-  command = "yarn build"
+  command = "yarn dotenvx run -f .env.production -- yarn build"
   publish = "dist"
 
 [build.environment]
@@ -1120,11 +1120,15 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["sharp", "ssh2"]
+  external_node_modules = ["sharp", "ssh2", "@dotenvx/dotenvx"]
   included_files = [
+    ".env.production",
     "node_modules/sharp/**/*",
     "node_modules/ssh2/lib/protocol/crypto/build/Release/**"
   ]
+
+[functions.environment]
+  NODE_OPTIONS = "--require /var/task/node_modules/@dotenvx/dotenvx/src/lib/config.js"
 
 # Help Netlify Dev choose the right framework command
 [dev]
@@ -1134,9 +1138,10 @@
   port = 8888
   autoLaunch = false
 
-# Local dev should not preload the Netlify build container shim.
+# dotenvx handles all secrets at build/runtime via .env.production.
+# .env.local (symlink to ~/.local_secrets/fas-cms-fresh) is used for local dev only.
 [context.dev.environment]
-  NODE_OPTIONS = "" # Clear aws-secrets-shim preload for netlify dev.
+  NODE_OPTIONS = "" # dotenvx not used in local dev; .env.local loaded natively by Astro/Vite.
 
 # Build plugins
 [[plugins]]
