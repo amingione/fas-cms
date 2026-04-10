@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+// ⚠️  DEPRECATED (2026-04-10) — dotenvx migration complete.
+// Netlify now receives a single DOTENV_PRIVATE_KEY_PRODUCTION secret and decrypts
+// .env.production at build time. This mass-sync script is no longer needed.
+// Keep for DR reference only.
 
 /**
  * Sync .env variables to Netlify
@@ -130,6 +134,8 @@ const INLINE_GMC_KEY_VARS = new Set([
   'GMC_SERVICE_ACCOUNT_KEY',
 ]);
 const syncInlineGmcKeys = process.env.NETLIFY_SYNC_GMC_INLINE_KEYS === 'true';
+const ACCOUNT_ID_ERROR_PATTERN = /Missing required path variable 'account_id'/;
+let cachedNetlifySiteContext = null;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -182,6 +188,52 @@ function getNetlifyVars() {
   }
 }
 
+function getNetlifySiteContext() {
+  if (cachedNetlifySiteContext) return cachedNetlifySiteContext;
+
+  try {
+    const statusOutput = execSync('netlify status --json', {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    const status = JSON.parse(statusOutput);
+    const siteId = status?.siteData?.['site-id'];
+    if (!siteId) {
+      throw new Error('site-id missing from `netlify status --json` output');
+    }
+
+    const payload = JSON.stringify({ site_id: siteId }).replace(/'/g, "'\\''");
+    const siteOutput = execSync(`netlify api getSite --data '${payload}'`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+    const site = JSON.parse(siteOutput);
+    const accountId = site?.account_id;
+    if (!accountId) {
+      throw new Error('account_id missing from Netlify site metadata');
+    }
+
+    cachedNetlifySiteContext = { siteId, accountId };
+    return cachedNetlifySiteContext;
+  } catch (error) {
+    throw new Error(`Could not resolve Netlify site/account context: ${error.message}`);
+  }
+}
+
+function removeNetlifyVarViaApi(key) {
+  const { siteId, accountId } = getNetlifySiteContext();
+  const payload = JSON.stringify({
+    account_id: accountId,
+    site_id: siteId,
+    key,
+  }).replace(/'/g, "'\\''");
+
+  execSync(`netlify api deleteEnvVar --data '${payload}'`, {
+    encoding: 'utf8',
+    stdio: 'pipe'
+  });
+}
+
 function contextsFor(key) {
   if (contextOverride) return [contextOverride];
   return ALL_CONTEXT_KEYS.has(key) ? ALL_CONTEXTS : RUNTIME_CONTEXTS;
@@ -213,7 +265,14 @@ function removeNetlifyVar(key) {
       console.log(`   [DRY RUN] Would remove: ${key}`);
       return true;
     }
-    execSync(`netlify env:unset ${key}`, { encoding: 'utf8', stdio: 'pipe' });
+    try {
+      execSync(`netlify env:unset ${key}`, { encoding: 'utf8', stdio: 'pipe' });
+    } catch (error) {
+      const message = error?.message || '';
+      if (!ACCOUNT_ID_ERROR_PATTERN.test(message)) throw error;
+      // Fallback for CLI account context bug: delete directly via API with explicit account/site IDs.
+      removeNetlifyVarViaApi(key);
+    }
     // Verify it's actually gone — team-level vars override site-level unset silently
     const check = execSync(`netlify env:get ${key} 2>/dev/null || echo ""`, { encoding: 'utf8', stdio: 'pipe' }).trim();
     if (check) {

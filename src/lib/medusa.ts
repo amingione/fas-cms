@@ -82,9 +82,13 @@ export async function medusaFetch(
       console.log(`[Medusa] ${method} ${url}`);
     }
 
+    // Add 30-second timeout to prevent indefinite hangs (unless signal already provided)
+    const signal = init.signal ?? AbortSignal.timeout(30000);
+
     const response = await fetch(url, {
       ...init,
-      headers
+      headers,
+      signal
     });
 
     if (debugLog) {

@@ -29,6 +29,7 @@ type DrawerCategory = {
   title?: string;
   slug?: { current?: string } | string;
   postCount?: number;
+  color?: string;
 };
 
 interface BlogDrawerProps {

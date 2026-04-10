@@ -338,7 +338,9 @@ if (!paymentIntentId) {
           window.localStorage.removeItem('fas_cart_v1');
           window.localStorage.removeItem('fas_medusa_cart_id');
           // Notify any mounted cart islands that the cart is now empty
-          window.dispatchEvent(new CustomEvent('cart:changed', { detail: { cart: { items: [] } } }));
+          window.dispatchEvent(
+            new CustomEvent('cart:changed', { detail: { cart: { items: [] } } })
+          );
         } catch (_) {
           // localStorage may be unavailable in private browsing — silently ignore
         }
@@ -356,7 +358,9 @@ if (!paymentIntentId) {
           const displayDiv = document.getElementById('order-number-display');
 
           // Attempt to fetch order by payment intent ID (Medusa-sourced)
-          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`);
+          const response = await fetch(
+            `/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}`
+          );
 
           if (response.ok) {
             const data = await response.json();
@@ -385,10 +389,20 @@ if (!paymentIntentId) {
             if (summaryBox && typeof data.total === 'number') {
               const shipping = typeof data.shippingTotal === 'number' ? data.shippingTotal : 0;
               const subtotal = data.total - shipping;
-              const formatCents = (cents) => `$${(cents / 100).toFixed(2)}`;
-              document.getElementById('order-subtotal').textContent = formatCents(subtotal);
-              document.getElementById('order-shipping').textContent = formatCents(shipping);
-              document.getElementById('order-total').textContent = formatCents(data.total);
+              const formatCents = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+              const subtotalEl = document.getElementById('order-subtotal');
+              const shippingEl = document.getElementById('order-shipping');
+              const totalEl = document.getElementById('order-total');
+
+              if (subtotalEl) {
+                subtotalEl.textContent = formatCents(subtotal);
+              }
+              if (shippingEl) {
+                shippingEl.textContent = formatCents(shipping);
+              }
+              if (totalEl) {
+                totalEl.textContent = formatCents(data.total);
+              }
               summaryBox.style.display = '';
             }
 
@@ -397,8 +411,12 @@ if (!paymentIntentId) {
             const addrBlock = document.getElementById('shipping-address-block');
             if (shippingBox && addrBlock && data.shippingAddress) {
               const sa = data.shippingAddress;
-              const cityStatePostalLine = [sa.city, sa.state, sa.postalCode].filter(Boolean).join(', ');
-              const lines = [sa.name, sa.line1, sa.line2, cityStatePostalLine, sa.country].filter(Boolean);
+              const cityStatePostalLine = [sa.city, sa.state, sa.postalCode]
+                .filter(Boolean)
+                .join(', ');
+              const lines = [sa.name, sa.line1, sa.line2, cityStatePostalLine, sa.country].filter(
+                Boolean
+              );
               addrBlock.textContent = '';
               for (const line of lines) {
                 const span = document.createElement('span');

@@ -4,17 +4,26 @@ import { ChevronDoubleRightIcon } from '@heroicons/react/20/solid';
 
 const bullets = [
   {
-    label: 'Dyno proven targets',
-    body: 'Every package is validated in-house with baseline pulls, incremental revisions, and final verification so you know exactly what power to expect when you leave.'
+    label: 'AWD dyno verified, every time',
+    body: 'Every Hellcat build leaves our shop with full-pull datalogs and a final dyno sheet confirming the power target. Not an estimate — verified numbers on your specific vehicle.'
   },
   {
-    label: 'Factory-level drivability',
-    body: 'We calibrate throttle, shift logic, cold-start and idle using OEM tools so the truck or car behaves like stock until you stand on the throttle.'
+    label: 'Pinned crank is standard at 850 WHP and above',
+    body: 'The factory Hellcat crank nose is not rated for sustained 850+ WHP. FAS pins every crank at that tier and up — it\'s a non-negotiable reliability item, not an upsell.'
   },
   {
-    label: 'Transparent parts list',
-    body: 'Each build sheet documents hardware, torque specs, and service intervals—making future maintenance simple whether you stay with FAS or wrench at home.'
+    label: 'Fuel system matched to power level',
+    body: 'From stock injectors at 800 WHP through full E85 conversion at 1000 WHP, we size the fuel system to the build — not the other way around. No lean pulls. No surprises.'
   }
+];
+
+const packages = [
+  { tier: 'FAS800', hp: '800 WHP', fuel: '91–93 Oct', price: 'From $6,499', href: '/packages/fas800' },
+  { tier: 'FAS850', hp: '850 WHP', fuel: '91–93 Oct', price: 'From $6,699', href: '/packages/fas850' },
+  { tier: 'FAS900', hp: '900 WHP', fuel: '91–93 Oct', price: '$9,999', href: '/packages/fas900' },
+  { tier: 'FAS1000', hp: '1000+ WHP', fuel: 'E85', price: 'From $16,999', href: '/packages/fas1000' },
+  { tier: 'FAS 1X', hp: '1200–1500 HP', fuel: 'E85', price: 'Call for pricing', href: '/packages/fas-1x' },
+  { tier: 'FAS 2X', hp: '1600+ HP', fuel: 'E85 + Meth', price: 'Call for pricing', href: '/packages/fas-2x' },
 ];
 
 export default function PowerPackagesComponent() {
@@ -28,15 +37,16 @@ export default function PowerPackagesComponent() {
       </div>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:mx-0">
-          <h1 className="mt-2 text-4xl font-semibold tracking-tight text-pretty font-ethno italic text-primary sm:text-5xl">
-            Built to Pull Hard. <span className="text-white/70">Built to Last.</span>
-          </h1>
+          <h2 className="mt-2 text-4xl font-semibold tracking-tight text-pretty font-ethno italic text-primary sm:text-5xl">
+            Hellcat Platform.{' '}
+            <span className="text-white/70">800 to 1600+ WHP.</span>
+          </h2>
           <p className="mt-6 text-xl text-gray-300">
             <span className="font-borg italic text-white">FAS </span>
-            <span className="font-ethno text-primaryB italic">Motorsports</span> power packages are
-            engineered for Hellcat, TRX, and Coyote platforms that actually see street miles. We
-            port the chargers, upgrade fueling, and tune with real-world drivability so you get
-            repeatable, reliable horsepower—not just a peak number on a dyno sheet.
+            <span className="font-ethno text-primaryB italic">Motorsports</span> power packages
+            cover every tier of the Hellcat supercharged platform — Charger, Challenger,
+            Trackhawk, Durango SRT, and RAM TRX. Street-daily to full drag program, every build
+            is installed and calibrated at our Punta Gorda, FL shop.
           </p>
         </div>
         <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:mt-10 lg:max-w-none lg:grid-cols-12">
@@ -47,7 +57,7 @@ export default function PowerPackagesComponent() {
             >
               <defs>
                 <pattern
-                  id="e87443c8-56e4-4c20-9111-55b82fa704e3"
+                  id="power-pkg-grid"
                   width={200}
                   height={200}
                   patternUnits="userSpaceOnUse"
@@ -55,30 +65,36 @@ export default function PowerPackagesComponent() {
                   <path d="M0.5 0V200M200 0.5L0 0.499983" />
                 </pattern>
               </defs>
-              <rect
-                fill="url(#e87443c8-56e4-4c20-9111-55b82fa704e3)"
-                width="100%"
-                height="100%"
-                strokeWidth={0}
-              />
+              <rect fill="url(#power-pkg-grid)" width="100%" height="100%" strokeWidth={0} />
             </svg>
-            <figure className="border-l border-primary pl-8">
-              <blockquote className="text-base font-mono tracking-wide text-white/90">
-                <p>
-                  “FAS handled the entire package—pulley swap, fuel system, porting, and
-                  calibration. The truck still cruises like stock, but it’s a completely different
-                  animal when you lay into it. The datalogs, dyno sheets, and follow-up support were
-                  worth every penny.”
-                </p>
-              </blockquote>
-            </figure>
+
+            {/* Package ladder */}
+            <div className="space-y-2">
+              <p className="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Full Package Ladder</p>
+              {packages.map((pkg) => (
+                <a
+                  key={pkg.tier}
+                  href={pkg.href}
+                  className="flex items-center justify-between gap-4 rounded border border-white/10 bg-white/5 px-4 py-3 hover:border-red-500/40 hover:bg-white/10 transition-colors group"
+                >
+                  <div>
+                    <span className="block text-sm font-semibold text-white group-hover:text-red-400 transition-colors">{pkg.tier}</span>
+                    <span className="block text-xs text-white/50">{pkg.fuel}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-sm font-mono text-white/80">{pkg.hp}</span>
+                    <span className="block text-xs text-white/40">{pkg.price}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
           </div>
+
           <div className="max-w-xl text-base text-gray-400 lg:col-span-7">
             <p>
-              We start with a baseline inspection, record OEM parameters, and build a parts list
-              around your power target and fuel choice. After assembly we heat-cycle, road test, and
-              dyno the vehicle before handing it back with supporting documentation and service
-              intervals.
+              Every build starts with a baseline inspection and a power target matched to your
+              platform, fuel, and goals. We work up the build sheet, install everything in-house,
+              heat-cycle the vehicle, and run final dyno pulls before you see the car.
             </p>
             <ul role="list" className="mt-8 max-w-xl space-y-8 text-gray-400">
               {bullets.map(({ label, body }) => (
@@ -94,18 +110,33 @@ export default function PowerPackagesComponent() {
               ))}
             </ul>
             <p className="mt-8">
-              Whether it’s a 800 HP street build or a 1600 HP track truck, we document every
-              calibration revision, torque spec, and component change. That transparency keeps your
-              investment easy to service and ready for the next round of upgrades.
+              At 800 WHP you're running pump gas, factory drivability, and a street tune that
+              works in traffic. At 1000 WHP you're on E85, race-ported supercharger, longtube
+              headers, and a full custom calibration. Every tier in between is a clean step, not a
+              gamble.
             </p>
             <h2 className="mt-16 text-2xl font-bold tracking-tight text-white">
-              No guesswork. Just results.
+              Pick your power level. We handle the rest.
             </h2>
             <p className="mt-6">
-              Schedule a consultation to talk through your platform, fuel strategy, and timeline.
-              We’ll map out the hardware, labor, and support you need so your FAS build delivers
-              the power you expect with the manners you want.
+              Use the package ladder to find your tier, or call us to talk through your platform,
+              fuel choice, and target. We'll spec the build and give you a straight answer on
+              timeline and cost before anything gets ordered.
             </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <a
+                href="/shop?categorySlug=power-packages&category=power-packages&priceMin=0&priceMax=100000&page=1"
+                className="inline-flex items-center gap-2 rounded bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-500 transition-colors"
+              >
+                Shop All Packages
+              </a>
+              <a
+                href="/contact"
+                className="inline-flex items-center gap-2 rounded border border-white/20 px-5 py-2.5 text-sm font-semibold text-white hover:border-white/40 transition-colors"
+              >
+                Talk to a Builder
+              </a>
+            </div>
           </div>
         </div>
       </div>

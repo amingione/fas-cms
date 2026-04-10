@@ -32,21 +32,11 @@ interface ShippingRate {
   region?: { currency_code?: string };
 }
 
-type ShippoRate = {
-  rate_id: string;
-  amount: string;
-  currency: string;
-  provider?: string;
-  servicelevel?: string;
-  estimated_days?: number | null;
-};
-
 type SelectableShippingRate = {
   id: string;
   optionId: string;
   label: string;
   amountCents: number;
-  shippoRate?: ShippoRate | null;
 };
 
 interface CartItem {
@@ -226,14 +216,6 @@ function resolveCheckoutImageSrc(thumbnail: string | null | undefined): string {
     return value;
   }
   return CHECKOUT_IMAGE_FALLBACK;
-}
-
-function toShippoAmountCents(value: unknown): number {
-  if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value * 100);
-  if (typeof value !== 'string') return 0;
-  const parsed = Number.parseFloat(value.trim());
-  if (!Number.isFinite(parsed)) return 0;
-  return Math.round(parsed * 100);
 }
 
 function toLocalCartId(input: unknown): string {
@@ -425,76 +407,33 @@ function isInstallOnlyLineItem(item: CartItem): boolean {
   );
 }
 
-function normalizeShippoServiceLabel(rate: ShippoRate): string {
-  const raw = `${rate.servicelevel || ''}`.trim().toLowerCase();
-  if (!raw) return 'UPS';
-  if (raw.includes('ground')) return 'Standard Ground';
-  if (raw.includes('3') && raw.includes('day')) return '3 Day';
-  if (raw.includes('2') && raw.includes('day')) return '2nd Day';
-  if (raw.includes('second') && raw.includes('day')) return '2nd Day';
-  if (raw.includes('next') && raw.includes('day')) return 'Next Day';
-  if (raw.includes('overnight')) return 'Next Day';
-  return rate.servicelevel || 'UPS';
+function normalizeShippingLabel(rate: ShippingRate): string {
+  return rate.name || (rate as any)?.data?.service_name || 'Shipping option';
 }
 
-function rankServiceLabel(label: string): number {
-  switch (label) {
-    case 'Standard Ground':
-      return 0;
-    case '3 Day':
-      return 1;
-    case '2nd Day':
-      return 2;
-    case 'Next Day':
-      return 3;
-    default:
-      return 10;
-  }
+function rankShippingLabel(label: string): number {
+  const normalized = label.toLowerCase();
+  if (normalized.includes('ground') || normalized.includes('standard')) return 0;
+  if (normalized.includes('3') && normalized.includes('day')) return 1;
+  if (normalized.includes('2') && normalized.includes('day')) return 2;
+  if (normalized.includes('next') || normalized.includes('overnight')) return 3;
+  return 10;
 }
 
-function buildSelectableRates(
-  shippingRates: ShippingRate[],
-  shippoRates: ShippoRate[]
-): SelectableShippingRate[] {
+function buildSelectableRates(shippingRates: ShippingRate[]): SelectableShippingRate[] {
   if (!shippingRates.length) return [];
-  const upsOption =
-    shippingRates.find((rate) => String(rate?.data?.carrier || '').toLowerCase() === 'ups') ??
-    shippingRates[0];
-  const baseOption = upsOption;
-  if (!baseOption?.id) return [];
-
-  if (!shippoRates.length) {
-    return shippingRates.map((rate) => ({
+  return shippingRates
+    .map((rate) => ({
       id: rate.id,
       optionId: rate.id,
-      label: rate.name || rate.data?.service_name || 'Shipping option',
-      amountCents: resolveShippingOptionAmountCents(rate) ?? 0,
-      shippoRate: null
-    }));
-  }
-
-  const byLabel = new Map<string, SelectableShippingRate>();
-  for (const shippoRate of shippoRates) {
-    if (!shippoRate?.rate_id) continue;
-    const label = normalizeShippoServiceLabel(shippoRate);
-    const choice: SelectableShippingRate = {
-      id: `${baseOption.id}:${shippoRate.rate_id}`,
-      optionId: baseOption.id,
-      label,
-      amountCents: toShippoAmountCents(shippoRate.amount),
-      shippoRate
-    };
-    const existing = byLabel.get(label);
-    if (!existing || choice.amountCents < existing.amountCents) {
-      byLabel.set(label, choice);
-    }
-  }
-
-  return Array.from(byLabel.values()).sort((a, b) => {
-    const rankDelta = rankServiceLabel(a.label) - rankServiceLabel(b.label);
-    if (rankDelta !== 0) return rankDelta;
-    return a.amountCents - b.amountCents;
-  });
+      label: normalizeShippingLabel(rate),
+      amountCents: resolveShippingOptionAmountCents(rate) ?? 0
+    }))
+    .sort((a, b) => {
+      const rankDelta = rankShippingLabel(a.label) - rankShippingLabel(b.label);
+      if (rankDelta !== 0) return rankDelta;
+      return a.amountCents - b.amountCents;
+    });
 }
 
 export default function CheckoutForm() {
@@ -504,10 +443,8 @@ export default function CheckoutForm() {
   const [loadingCart, setLoadingCart] = useState(true);
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>(EMPTY_ADDRESS);
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
-  const [shippoRates, setShippoRates] = useState<ShippoRate[]>([]);
   const [selectedRateId, setSelectedRateId] = useState<string | null>(null);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [selectedShippoRate, setSelectedShippoRate] = useState<ShippoRate | null>(null);
   const [loadingRates, setLoadingRates] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -879,21 +816,16 @@ export default function CheckoutForm() {
       }
 
       const options = Array.isArray(data?.shippingOptions) ? data.shippingOptions : [];
-      const liveRates = Array.isArray(data?.shippoRates) ? data.shippoRates : [];
       setShippingRates(options);
-      setShippoRates(liveRates);
       setSelectedRateId(null);
       setSelectedOptionId(null);
-      setSelectedShippoRate(null);
       await loadCart(cartId);
     } catch (err) {
       console.error('Shipping rates error:', err);
       setError('Unable to calculate shipping for this address. Please verify your address.');
       setShippingRates([]);
-      setShippoRates([]);
       setSelectedRateId(null);
       setSelectedOptionId(null);
-      setSelectedShippoRate(null);
     } finally {
       setLoadingRates(false);
     }
@@ -905,7 +837,6 @@ export default function CheckoutForm() {
     setSelectingShipping(true);
     setSelectedRateId(rate.id);
     setSelectedOptionId(rate.optionId);
-    setSelectedShippoRate(rate.shippoRate || null);
     setError(null);
     setClientSecret(null);
     console.info('[cart-debug] shipping selection started', {
@@ -924,8 +855,7 @@ export default function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           cartId,
-          optionId: rate.optionId,
-          shippoRate: rate.shippoRate || undefined
+          optionId: rate.optionId
         })
       });
 
@@ -934,70 +864,37 @@ export default function CheckoutForm() {
         throw new Error(payload?.error || 'Failed to apply shipping option');
       }
       if (requestId !== shippingSelectionRequestIdRef.current) return;
+      const shippingPayload = await response.json().catch(() => null);
 
-      // Refresh base cart state (Medusa returns shipping_total=0 for calculated
-      // price options until checkout completion — display is patched below using
-      // the confirmed PaymentIntent amount as the source of truth).
-      await loadCart(cartId);
+      if (shippingPayload?.cart && typeof shippingPayload.cart === 'object') {
+        setCart(shippingPayload.cart);
+        reconcileLocalCartFromCheckoutCart(shippingPayload.cart);
+      } else {
+        await loadCart(cartId);
+      }
 
       const intentResponse = await fetch('/api/medusa/payments/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cartId,
-          shippoRate: rate.shippoRate || undefined
-        })
+        body: JSON.stringify({ cartId })
       });
       if (!intentResponse.ok) {
         const payload = await intentResponse.json().catch(() => null);
         throw new Error(payload?.error || 'Failed to initialize payment');
       }
       if (requestId !== shippingSelectionRequestIdRef.current) return;
-      const payload = await intentResponse.json().catch(() => null);
-      if (!payload?.client_secret) {
+      const intentPayload = await intentResponse.json().catch(() => null);
+      if (!intentPayload?.client_secret) {
         throw new Error('Payment intent not ready');
       }
       if (
-        typeof payload?.publishable_key === 'string' &&
-        payload.publishable_key.trim() &&
-        payload.publishable_key.trim() !== stripePublishableKey.trim()
+        typeof intentPayload?.publishable_key === 'string' &&
+        intentPayload.publishable_key.trim() &&
+        intentPayload.publishable_key.trim() !== stripePublishableKey.trim()
       ) {
-        setStripePublishableKey(payload.publishable_key.trim());
+        setStripePublishableKey(intentPayload.publishable_key.trim());
       }
-
-      const breakdown = payload?.breakdown;
-      if (breakdown && typeof breakdown === 'object') {
-        const totalCents =
-          typeof breakdown.total_cents === 'number' && Number.isFinite(breakdown.total_cents)
-            ? breakdown.total_cents
-            : 0;
-        const shippingCents =
-          typeof breakdown.shipping_amount_cents === 'number' &&
-          Number.isFinite(breakdown.shipping_amount_cents)
-            ? breakdown.shipping_amount_cents
-            : 0;
-        const taxCents =
-          typeof breakdown.tax_amount_cents === 'number' &&
-          Number.isFinite(breakdown.tax_amount_cents)
-            ? breakdown.tax_amount_cents
-            : 0;
-        const subtotalCents =
-          typeof breakdown.subtotal_cents === 'number' && Number.isFinite(breakdown.subtotal_cents)
-            ? breakdown.subtotal_cents
-            : 0;
-        setCart((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            subtotal_cents: subtotalCents || prev.subtotal_cents,
-            shipping_amount_cents: shippingCents,
-            tax_amount_cents: taxCents,
-            total_cents: totalCents || prev.total_cents
-          };
-        });
-      }
-
-      setClientSecret(payload.client_secret);
+      setClientSecret(intentPayload.client_secret);
       console.info('[cart-debug] shipping selection completed', { requestId, rateId: rate.id });
     } catch (err) {
       if (requestId !== shippingSelectionRequestIdRef.current) return;
@@ -1005,7 +902,6 @@ export default function CheckoutForm() {
       setError('Failed to update shipping. Please try again.');
       setSelectedRateId(null);
       setSelectedOptionId(null);
-      setSelectedShippoRate(null);
       console.info('[cart-debug] shipping selection failed', { requestId, rateId: rate.id });
     } finally {
       if (requestId === shippingSelectionRequestIdRef.current) {
@@ -1025,14 +921,7 @@ export default function CheckoutForm() {
   const displayTotals = useMemo(() => {
     const discountCents = Math.max(0, cart?.discount_amount_cents ?? 0);
     const authoritativeTotalCents = Math.max(0, cart?.total_cents ?? 0);
-    const shippingFromSelection = selectedShippoRate
-      ? toShippoAmountCents(selectedShippoRate.amount)
-      : null;
-    const shippingFromCart = Math.max(0, cart?.shipping_amount_cents ?? 0);
-    const selectedShippingCents =
-      typeof shippingFromSelection === 'number' && Number.isFinite(shippingFromSelection)
-        ? Math.max(0, shippingFromSelection)
-        : shippingFromCart;
+    const selectedShippingCents = Math.max(0, cart?.shipping_amount_cents ?? 0);
 
     // Until the shopper explicitly selects a rate this session, prevent stale persisted
     // shipping/tax totals from previous carts/addresses from being rendered.
@@ -1067,8 +956,7 @@ export default function CheckoutForm() {
     cart?.shipping_amount_cents,
     cart?.total_cents,
     itemSubtotalCents,
-    selectedOptionId,
-    selectedShippoRate
+    selectedOptionId
   ]);
 
   async function refreshPaymentIntentAfterCartChange(currentCartId: string): Promise<void> {
@@ -1076,10 +964,7 @@ export default function CheckoutForm() {
     const response = await fetch('/api/medusa/payments/create-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cartId: currentCartId,
-        shippoRate: selectedShippoRate || undefined
-      })
+      body: JSON.stringify({ cartId: currentCartId })
     });
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
@@ -1385,9 +1270,7 @@ export default function CheckoutForm() {
                 requiresShipping={!allItemsInstallOnly}
                 loadingRates={loadingRates}
                 shippingRates={shippingRates}
-                shippoRates={shippoRates}
                 selectedRateId={selectedRateId}
-                selectedShippoRate={selectedShippoRate}
                 onAddressChange={updateAddressField}
                 onApplyAddressSuggestion={applyAddressSuggestion}
                 onCalculateShipping={handleCalculateShipping}
@@ -1410,9 +1293,7 @@ function NonReadyPaymentPane({
   requiresShipping,
   loadingRates,
   shippingRates,
-  shippoRates,
   selectedRateId,
-  selectedShippoRate,
   selectingShipping,
   onAddressChange,
   onApplyAddressSuggestion,
@@ -1424,9 +1305,7 @@ function NonReadyPaymentPane({
   requiresShipping: boolean;
   loadingRates: boolean;
   shippingRates: ShippingRate[];
-  shippoRates: ShippoRate[];
   selectedRateId: string | null;
-  selectedShippoRate: ShippoRate | null;
   selectingShipping: boolean;
   onAddressChange: (
     field: keyof ShippingAddress
@@ -1450,8 +1329,8 @@ function NonReadyPaymentPane({
   const lookupErrorLoggedRef = useRef(false);
 
   const selectableRates = useMemo(
-    () => buildSelectableRates(shippingRates, shippoRates),
-    [shippingRates, shippoRates]
+    () => buildSelectableRates(shippingRates),
+    [shippingRates]
   );
 
   const syncAddressFieldFromInput =
@@ -1830,13 +1709,6 @@ function NonReadyPaymentPane({
           </div>
           </fieldset>
         </>
-      )}
-
-      {selectedShippoRate && (
-        <p className="muted">
-          UPS quote: {normalizeShippoServiceLabel(selectedShippoRate)} {selectedShippoRate.amount}{' '}
-          {selectedShippoRate.currency}
-        </p>
       )}
 
       <p id="nonready-card-information-label" className="checkout-v2-field-label">

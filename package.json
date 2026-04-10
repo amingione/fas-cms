@@ -26,7 +26,8 @@
     "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
     "audit:sanity-addons": "dotenv -e .env -- tsx src/scripts/audit-sanity-addons.ts",
     "audit:create-priority-list": "dotenv -e .env -- tsx src/scripts/create-migration-priority-list.ts",
-    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env",
+    "audit:unused-files": "node ./scripts/audit-unused-files.mjs",
+    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:check:local": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:sync": "node scripts/sync-env-to-netlify.js",
     "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",
@@ -80,6 +81,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.28.5",
+    "@dotenvx/dotenvx": "^1.61.0",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "9.39.2",
     "@playwright/test": "^1.58.2",
