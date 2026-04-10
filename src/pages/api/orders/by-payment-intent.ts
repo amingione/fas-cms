@@ -62,17 +62,28 @@ export const GET: APIRoute = async ({ url, clientAddress }) => {
     );
   }
 
-  // Rate limiting: 10 requests per payment intent per 60 seconds
-  // Use payment intent ID as the rate limit key to prevent abuse
-  const rateLimitResult = rateLimit(paymentIntentId, {
+  // Rate limiting:
+  // - Per client address to prevent one source from bypassing limits by cycling IDs
+  // - Per payment intent to limit repeated polling for the same order lookup
+  const clientRateLimitKey = `orders-by-payment-intent:client:${clientAddress ?? 'unknown-client'}`;
+  const paymentIntentRateLimitKey = `orders-by-payment-intent:intent:${paymentIntentId}`;
+
+  const clientRateLimitResult = rateLimit(clientRateLimitKey, {
+    limit: 30,
+    windowMs: 60 * 1000 // 60 seconds
+  });
+
+  const paymentIntentRateLimitResult = rateLimit(paymentIntentRateLimitKey, {
     limit: 10,
     windowMs: 60 * 1000 // 60 seconds
   });
 
-  if (!rateLimitResult.allowed) {
-    const retryAfterSeconds = rateLimitResult.retryAfter
-      ? Math.ceil(rateLimitResult.retryAfter / 1000)
-      : 60;
+  if (!clientRateLimitResult.allowed || !paymentIntentRateLimitResult.allowed) {
+    const retryAfterMs = Math.max(
+      clientRateLimitResult.allowed ? 0 : (clientRateLimitResult.retryAfter ?? 60 * 1000),
+      paymentIntentRateLimitResult.allowed ? 0 : (paymentIntentRateLimitResult.retryAfter ?? 60 * 1000)
+    );
+    const retryAfterSeconds = Math.ceil(retryAfterMs / 1000);
 
     return new Response(
       JSON.stringify({
