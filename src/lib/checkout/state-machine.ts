@@ -9,8 +9,6 @@ export function checkoutReducer(
   state: CheckoutState,
   action: CheckoutAction
 ): CheckoutState {
-  console.log('[Checkout State]', state, '→', action.type);
-
   switch (state) {
     case 'CART_LOADING':
       if (action.type === 'CART_LOADED') {

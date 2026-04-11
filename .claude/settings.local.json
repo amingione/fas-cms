@@ -35,7 +35,10 @@
       "Bash(chmod:*)",
       "Bash(jq:*)",
       "Bash(grep -r slug.current /Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/.claude/worktrees/awesome-brattain/src/lib/sanity-utils.ts --include=*.ts)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(echo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

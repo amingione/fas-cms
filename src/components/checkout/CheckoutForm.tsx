@@ -497,9 +497,6 @@ export default function CheckoutForm() {
       try {
         const id = await ensureMedusaCartId();
         if (cancelled) return;
-        console.info('[cart-debug] checkout load', {
-          hasCartId: Boolean(id)
-        });
         setCartId(id);
         if (!id) return;
 
@@ -512,10 +509,6 @@ export default function CheckoutForm() {
         let loaded: { loaded: boolean; driftDetected: boolean };
         try {
           loaded = await loadCart(id);
-          console.info('[cart-debug] checkout cart fetched', {
-            itemCount: loaded.loaded ? (cart?.items?.length ?? 0) : 0,
-            driftDetected: loaded.driftDetected
-          });
         } catch (loadError) {
           console.warn('[checkout] initial cart load failed, attempting recovery', loadError);
           const recoveredId = await recoverMissingCart();
@@ -570,10 +563,6 @@ export default function CheckoutForm() {
 
     const data = await response.json();
     const driftDetected = hasCheckoutCartDrift(localBeforeLoad, data.cart);
-    console.info('[cart-debug] checkout cart fetch result', {
-      itemCount: Array.isArray(data?.cart?.items) ? data.cart.items.length : 0,
-      driftDetected
-    });
     setCart(data.cart);
     reconcileLocalCartFromCheckoutCart(data.cart);
     return { loaded: true, driftDetected };
@@ -841,11 +830,6 @@ export default function CheckoutForm() {
     setSelectedOptionId(rate.optionId);
     setError(null);
     setClientSecret(null);
-    console.info('[cart-debug] shipping selection started', {
-      requestId,
-      rateId: rate.id,
-      optionId: rate.optionId
-    });
 
     try {
       const synced = await syncCheckoutCart('shipping selection', { allowIfNoDrift: true });
@@ -898,14 +882,12 @@ export default function CheckoutForm() {
         setStripePublishableKey(intentPayload.publishable_key.trim());
       }
       setClientSecret(intentPayload.client_secret);
-      console.info('[cart-debug] shipping selection completed', { requestId, rateId: rate.id });
     } catch (err) {
       if (requestId !== shippingSelectionRequestIdRef.current) return;
       console.error('Failed to update shipping:', err);
       setError('Failed to update shipping. Please try again.');
       setSelectedRateId(null);
       setSelectedOptionId(null);
-      console.info('[cart-debug] shipping selection failed', { requestId, rateId: rate.id });
     } finally {
       if (requestId === shippingSelectionRequestIdRef.current) {
         setSelectingShipping(false);
