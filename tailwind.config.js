@@ -50,9 +50,9 @@ export default {
     extend: {
       colors: {
         // Brand palette used by utilities like text-primary, bg-accent, etc.
-        primary: '#c41218',
-        'primary-hover': '#e01420',
-        'fas-red': '#c41218',
+        primary: '#dc3539', // Brightened from #c41218 for WCAG AA compliance
+        'primary-hover': '#ff4444',
+        'fas-red': '#dc3539',
         'fas-red-dark': '#e01420',
         secondary: '#eef2fb',
         red: '#7d0107',

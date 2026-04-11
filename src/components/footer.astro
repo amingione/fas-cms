@@ -11,7 +11,7 @@ const socialLinks = [
 ---
 
 <footer
-  class="hidden lg:block mt-16 bg-gradient-to-b from-red-950/10 to-black/60 text-white text-xs font-mono tracking-wide px-4 py-8 relative overflow-hidden"
+  class="hidden lg:block mt-16 bg-gradient-to-b from-red-950/10 to-neutral-900 text-white text-xs font-mono tracking-wide px-4 py-8 relative overflow-hidden"
 >
   <div
     class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-primary via-white/70 to-primary"
@@ -27,7 +27,7 @@ const socialLinks = [
 
   <div class="container mx-auto max-w-6xl px-4">
     <div class="flex flex-col gap-6 items-center">
-      <div class="text-center space-y-2 text-[11px] text-white/65 font-sans">
+      <div class="text-center space-y-2 text-[11px] text-white/90 font-sans">
         <p>MODIFYING YOUR VEHICLE COULD LEAD TO THE LOSS OF YOUR FACTORY WARRANTY!</p>
         <p>
           <span class="font-borg text-primaryB">FAS </span>
@@ -59,14 +59,14 @@ const socialLinks = [
             >
           </div>
         </div>
-        <p class="max-w-3xl text-white/65 text-xs font-mono">
+        <p class="max-w-3xl text-white/90 text-xs font-mono">
           Vehicle-specific performance packages, in-house fabrication, and billet components built
           for your exact platform and goals.
         </p>
       </div>
 
       <div
-        class="flex flex-col gap-3 text-white/70 text-xs font-medium font-kwajong md:flex-row md:flex-wrap md:items-center md:justify-center"
+        class="flex flex-col gap-3 text-white/95 text-xs font-medium font-kwajong md:flex-row md:flex-wrap md:items-center md:justify-center"
       >
         <a
           href="/contact#location"
@@ -120,19 +120,19 @@ const socialLinks = [
         </a>
       </div>
 
-      <div class="flex flex-wrap justify-center gap-6 text-center text-xs text-white/70">
+      <div class="flex flex-wrap justify-center gap-6 text-center text-xs text-white/95">
         {
           socialLinks.map((social) => (
             <a href={social.href} class="group transition-colors hover:text-primary">
               <div class="font-ethno text-sm">{social.name}</div>
-              <div class="font-kwajong text-[11px] text-white/60">{social.handle}</div>
+              <div class="font-kwajong text-[11px] text-white/85">{social.handle}</div>
             </a>
           ))
         }
       </div>
 
       <div
-        class="border-t border-white/10 pt-4 flex flex-col items-center gap-3 text-[11px] text-white/65"
+        class="border-t border-white/10 pt-4 flex flex-col items-center gap-3 text-[11px] text-white/90"
       >
         <div class="flex flex-wrap justify-center gap-2">
           <a href="/privacypolicy" class="hover:text-white transition-colors">Privacy Policy</a>
@@ -145,8 +145,8 @@ const socialLinks = [
           <span class="text-primary">|</span>
           <a href="/returnRefundPolicy" class="hover:text-white transition-colors">Refund Policy</a>
         </div>
-        <p class="font-kwajong text-white/70">© 2026 FAS Motorsports. All rights reserved.</p>
-        <p class="flex flex-col items-center gap-2 font-montserrat text-white/80 sm:flex-row">
+        <p class="font-kwajong text-white/95">© 2026 FAS Motorsports. All rights reserved.</p>
+        <p class="flex flex-col items-center gap-2 font-montserrat text-white sm:flex-row">
           <Image
             src={launchwellLogo}
             alt="LaunchWell Brands"
