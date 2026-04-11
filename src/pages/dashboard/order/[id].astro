@@ -166,8 +166,7 @@ try {
       ),
       "productUrl": select(
         defined(product->slug.current) => "/shop/" + product->slug.current,
-        productUrl,
-        href
+        coalesce(productUrl, href)
       )
     },
     invoiceRef->{

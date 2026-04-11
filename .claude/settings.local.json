@@ -34,7 +34,8 @@
       "Bash(export FIREHOSE_MGMT_KEY=\"fhm_j44D2QQqW0RlSoFRfnZelxKkjjuORRSjOtYWhSWb\")",
       "Bash(chmod:*)",
       "Bash(jq:*)",
-      "Bash(grep -r slug.current /Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/.claude/worktrees/awesome-brattain/src/lib/sanity-utils.ts --include=*.ts)"
+      "Bash(grep -r slug.current /Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-cms-fresh/.claude/worktrees/awesome-brattain/src/lib/sanity-utils.ts --include=*.ts)",
+      "Bash(npm run build:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
