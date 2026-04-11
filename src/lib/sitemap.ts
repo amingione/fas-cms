@@ -93,6 +93,7 @@ const CORE_ROUTE_CANDIDATES = new Set<string>([
 
 const PLATFORM_ROUTE_PREFIXES = [
   '/builds',
+  '/platform',
   '/hellcat-performance',
   '/trackhawk-performance',
   '/trx-performance',
@@ -154,9 +155,7 @@ const KNOWN_PUBLIC_ROUTES: RouteFileEntry[] = [
   '/about',
   '/become-a-vendor',
   '/contact',
-  '/contact/success',
   '/faq',
-  '/faq2',
   '/hellcat-supercharger',
   '/internalPolicy',
   '/press-media',
@@ -168,9 +167,6 @@ const KNOWN_PUBLIC_ROUTES: RouteFileEntry[] = [
   '/termsandconditions',
   '/warranty',
   '/wheels',
-  // Seasonal / sales
-  '/blackFridaySale',
-  '/sales/cyberMonday',
   // Wheel brand pages
   '/belak/series2',
   '/belak/series3',
@@ -197,6 +193,18 @@ const KNOWN_PUBLIC_ROUTES: RouteFileEntry[] = [
   '/builds/mustang',
   '/builds/trackhawk',
   '/builds/trx',
+  '/platform/392',
+  '/platform/eaton',
+  '/platform/hellcat',
+  '/platform/ls',
+  '/platform/lt4',
+  '/platform/trackhawk',
+  '/platform/trx',
+  // Service-specific pages
+  '/dominator-supercharger-package',
+  '/hellcat-billet-snout',
+  '/hellcat-supercharger-porting',
+  '/ihi-supercharger-rebuild',
   // Packages
   '/packages',
   '/packages/fas-1x',
