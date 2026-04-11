@@ -748,11 +748,13 @@ const faqs = [
     align-items: center;
     transition:
       border-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out);
+      color var(--dur-fast) var(--ease-out),
+      background var(--dur-fast) var(--ease-out);
   }
   .btn-pkg-ghost:hover {
     border-color: var(--text-secondary);
     color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
   }
   @media (max-width: 640px) {
     .stat-bar {

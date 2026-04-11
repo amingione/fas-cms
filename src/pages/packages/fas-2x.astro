@@ -666,9 +666,13 @@ const faqs = [
   border-radius: 2px;
   display: inline-flex;
   align-items: center;
-  transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap);
+  transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
 }
-.btn-pkg-ghost:hover { border-color: var(--text-secondary); color: var(--text-primary); }
+.btn-pkg-ghost:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
 
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (max-width: 640px) {

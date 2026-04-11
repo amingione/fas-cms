@@ -757,8 +757,9 @@ export default function CheckoutForm() {
       return;
     }
 
-    if (!isAddressComplete(currentAddress)) {
-      setError('Please complete your shipping address before calculating rates.');
+    const validationError = getAddressValidationError(currentAddress, 'shipping_rates');
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -1880,9 +1881,12 @@ function StripePaymentPane({
       return;
     }
 
-    if (requiresShipping && !isAddressComplete(shippingAddress)) {
-      setError('Please complete shipping address before paying');
-      return;
+    if (requiresShipping) {
+      const validationError = getAddressValidationError(shippingAddress, 'payment');
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
     }
 
     setProcessing(true);
@@ -2036,13 +2040,39 @@ function StripePaymentPane({
   );
 }
 
-function isAddressComplete(address: ShippingAddress): boolean {
-  return !!(
-    address.address1 &&
-    address.city &&
-    address.province &&
-    address.postalCode &&
-    address.countryCode &&
-    address.email
-  );
+function isBasicEmailValid(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function getAddressValidationError(
+  address: ShippingAddress,
+  context: 'shipping_rates' | 'payment'
+): string | null {
+  const email = String(address.email || '').trim();
+  if (!email) {
+    return context === 'shipping_rates'
+      ? 'Please enter your email address before calculating shipping rates.'
+      : 'Please enter your email address before paying.';
+  }
+
+  if (!isBasicEmailValid(email)) {
+    return context === 'shipping_rates'
+      ? 'Please enter a valid email address before calculating shipping rates.'
+      : 'Please enter a valid email address before paying.';
+  }
+
+  const hasCompleteAddress =
+    String(address.address1 || '').trim() &&
+    String(address.city || '').trim() &&
+    String(address.province || '').trim() &&
+    String(address.postalCode || '').trim() &&
+    String(address.countryCode || '').trim();
+
+  if (!hasCompleteAddress) {
+    return context === 'shipping_rates'
+      ? 'Please complete your shipping address before calculating rates.'
+      : 'Please complete shipping address before paying';
+  }
+
+  return null;
 }
