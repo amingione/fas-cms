@@ -1,8 +1,20 @@
 # fas-cms-fresh — Phase Progress Log
-_Last updated: 2026-03-15_
+_Last updated: 2026-04-10_
 
 Tracks completion against the Strategic Execution Plan and fas-cms-fresh storefront goals.
 Full plan: `docs/nextjs-medusa-takeover-plan/`
+
+## Recent Updates (2026-04-10)
+
+### ✅ Completed
+- **Phase 4: Dead Weight Cleanup** — Deleted 47 unused files (expired sales, duplicate components)
+- **Phase 2: Sitemap Updates** — Added platform/service pages, removed deleted routes, fixed URL formatting
+- **Phase 3: Navigation Integration** — Verified all navigation working (services, specs, vendor portal, belak/jtx)
+
+See detailed reports:
+- `docs/reports/phase4-deletion-summary.md`
+- `docs/reports/phase2-sitemap-update-summary.md`
+- `docs/reports/phase3-navigation-integration-summary.md`
 
 ---
 
@@ -23,6 +35,13 @@ Full plan: `docs/nextjs-medusa-takeover-plan/`
 
 ## Completed Work
 
+### Codebase Cleanup (April 2026)
+- ✅ **47 files deleted** — Expired sales pages, duplicate components, old checkout forms, never-integrated animated components
+- ✅ **Sitemap updated** — Added 7 platform pages, 4 service pages, removed 4 deleted routes
+- ✅ **Navigation verified** — Services index, specs accessible, vendor portal (40 pages), belak/jtx wheels functional
+- ✅ **URL formatting** — Canonical URLs with proper forward slashes and trailing slashes
+- ✅ **Build verified** — Vite compiled successfully, no import errors, no 404 risks
+
 ### Storefront — Products & Pricing
 - ✅ 75 products visible on storefront (all linked to Default Sales Channel — fixed 2026-03-15)
 - ✅ Medusa `/store/products` returns 75 products with correct pricing
@@ -42,12 +61,22 @@ Full plan: `docs/nextjs-medusa-takeover-plan/`
 
 ### Auth
 - ✅ Customer login portal (Medusa store auth)
-- ✅ Vendor login access point (separate auth flow, routes to fas-sanity Studio)
+- ✅ **Vendor portal** — Complete 40-page system with cookie-based authentication, dashboard, orders, invoices, products, analytics, onboarding
+  - Login: `/vendor-portal/login`
+  - Dashboard: `/vendor-portal/dashboard`
+  - 25+ API endpoints for vendor data
+  - Integration with Sanity Studio for vendor workspace
 
 ### Content Integration
 - ✅ Sanity GROQ queries for all content pages (blog, collections, product copy, navigation)
 - ✅ Astro ISR rebuild on Sanity publish webhook
 - ✅ Product pages pull commerce data from Medusa + content from Sanity
+- ✅ **Sitemap generation** — Multi-sitemap index (core, services, platforms, packages, shop, blog, vendors, images)
+- ✅ **Navigation architecture** — Unified MobileMenu component for mobile + desktop consistency
+- ✅ **Service pages** — 12 service pages accessible via `/services` hub
+- ✅ **Platform pages** — 7 platform pages (`/platform/hellcat`, `/platform/392`, etc.) with SEO structured data
+- ✅ **Specs pages** — 7 billet parts spec pages accessible via "Billet Parts" navigation section
+- ✅ **Vendor wheel pages** — Belak (5 pages) + JTX (13 pages) with custom quote forms, API integrations, thank-you pages
 
 ### Infrastructure
 - ✅ Netlify deployment (fasmotorsports.com)
