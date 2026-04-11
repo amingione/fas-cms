@@ -3,6 +3,7 @@ export const prerender = true;
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
+import PackageInquiryDialog from '@/components/packages/PackageInquiryDialog';
 
 const included = [
   {
@@ -108,7 +109,12 @@ const faqs = [
         <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--elite"
           >Call to Consult</a
         >
-        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email FAS</a>
+        <PackageInquiryDialog
+          packageName="FAS 1X"
+          buttonText="Request Consultation"
+          buttonClass="btn-pkg-ghost"
+          client:only="react"
+        />
       </div>
       <p class="pkg-hero__pricing-note">
         Pricing by consultation. Contact FAS to scope your 1X build.
@@ -275,9 +281,12 @@ const faqs = [
           class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--elite"
           >Call {BUSINESS_PHONE_NATIONAL}</a
         >
-        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost"
-          >Email sales@fasmotorsports.com</a
-        >
+        <PackageInquiryDialog
+          packageName="FAS 1X"
+          buttonText="Request Consultation"
+          buttonClass="btn-pkg-ghost"
+          client:only="react"
+        />
       </div>
       <address class="pkg-cta-final__address">
         FAS Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM

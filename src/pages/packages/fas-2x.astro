@@ -3,6 +3,7 @@ export const prerender = true;
 
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { BUSINESS_PHONE_E164, BUSINESS_PHONE_NATIONAL } from '@/lib/nap';
+import PackageInquiryDialog from '@/components/packages/PackageInquiryDialog';
 
 const included = [
   {
@@ -100,7 +101,12 @@ const faqs = [
       </p>
       <div class="pkg-hero__cta-row">
         <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--max">Call to Consult</a>
-        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email FAS</a>
+        <PackageInquiryDialog
+          packageName="FAS 2X"
+          buttonText="Request Consultation"
+          buttonClass="btn-pkg-ghost"
+          client:only="react"
+        />
       </div>
       <p class="pkg-hero__pricing-note">Pricing by consultation. Every 2X build is scoped individually.</p>
     </div>
@@ -254,7 +260,12 @@ const faqs = [
       <p class="pkg-cta-final__sub">The FAS 2X is the most capable build we produce. Every one is scoped individually. Call FAS to talk through your platform, your goals, and what a 2X build realistically looks like for your car.</p>
       <div class="pkg-cta-final__row">
         <a href={`tel:${BUSINESS_PHONE_E164}`} class="btn-pkg-primary btn-pkg-primary--large btn-pkg-primary--max">Call {BUSINESS_PHONE_NATIONAL}</a>
-        <a href="mailto:sales@fasmotorsports.com" class="btn-pkg-ghost">Email sales@fasmotorsports.com</a>
+        <PackageInquiryDialog
+          packageName="FAS 2X"
+          buttonText="Request Consultation"
+          buttonClass="btn-pkg-ghost"
+          client:only="react"
+        />
       </div>
       <address class="pkg-cta-final__address">
         FAS Motorsports · 6161 Riverside Dr, Punta Gorda, FL 33982 · Mon–Fri 9AM–5PM
