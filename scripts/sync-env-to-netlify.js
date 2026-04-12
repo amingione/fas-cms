@@ -5,20 +5,20 @@
 // Keep for DR reference only.
 
 /**
- * Sync .env variables to Netlify
+ * Sync env variables to Netlify
  *
  * Usage:
  *   node scripts/sync-env-to-netlify.js [options]
  *   node scripts/sync-env-to-netlify.js --dry-run
  *   node scripts/sync-env-to-netlify.js --remove
  *   node scripts/sync-env-to-netlify.js --context=production
- *   node scripts/sync-env-to-netlify.js --file=.env
+ *   node scripts/sync-env-to-netlify.js --file=.env.local
  *
  * Options:
  *   --dry-run    Show what would be updated without making changes
- *   --remove     Remove Netlify vars not in .env (careful!)
+ *   --remove     Remove Netlify vars not in env file (careful!)
  *   --context    Override context (default: per-var rules below)
- *   --file       Override env file path (default: .env)
+ *   --file       Override env file path (default: .env.local)
  *
  * Context strategy:
  *   - Secrets (API keys, tokens, passwords) → all 5 contexts
@@ -28,7 +28,7 @@
  * Prerequisites:
  *   - Netlify CLI installed: npm install -g netlify-cli
  *   - Authenticated: netlify login
- *   - NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN in .env
+ *   - NETLIFY_SITE_ID and NETLIFY_AUTH_TOKEN in .env.local
  */
 
 import fs from 'fs';
@@ -49,7 +49,7 @@ const envFileOverride = fileArg ? fileArg.split('=')[1] : process.env.NETLIFY_EN
 
 const ENV_FILE = envFileOverride
   ? path.resolve(__dirname, '..', envFileOverride)
-  : path.join(__dirname, '../.env');
+  : path.join(__dirname, '../.env.local');
 
 // ─── Context definitions ───────────────────────────────────────────────────
 // All 5 Netlify contexts:
@@ -296,11 +296,11 @@ async function main() {
   console.log(`Remove unused:  ${removeUnused ? 'YES ⚠️' : 'NO'}\n`);
 
   if (!fs.existsSync(ENV_FILE)) {
-    console.error(`❌ .env file not found at ${ENV_FILE}`);
+    console.error(`❌ Env file not found at ${ENV_FILE}`);
     process.exit(1);
   }
 
-  console.log('📖 Reading .env file...');
+  console.log(`📖 Reading env file: ${ENV_FILE}`);
   const localVars = parseEnvFile(ENV_FILE);
   const localKeys = Object.keys(localVars);
   console.log(`   Found ${localKeys.length} variables\n`);
@@ -344,7 +344,7 @@ async function main() {
     (k) => !netlifyVars[k] || netlifyVars[k] !== localVars[k]
   );
 
-  // Remove: vars in Netlify but not in .env AND not build-only (those should be removed too if --remove)
+  // Remove: vars in Netlify but not in env file AND not build-only (those should be removed too if --remove)
   const toRemove = removeUnused
     ? netlifyKeys.filter((k) => !localKeys.includes(k) || BUILD_ONLY_KEYS.has(k))
     : [];
@@ -397,9 +397,9 @@ async function main() {
   }
 
   if (toRemove.length > 0) {
-    console.log('🗑️  Removing variables (in Netlify but not in .env or now build-only):\n');
+    console.log('🗑️  Removing variables (in Netlify but not in env file or now build-only):\n');
     toRemove.forEach((k) => {
-      const reason = BUILD_ONLY_KEYS.has(k) ? ' (moved to netlify.toml)' : ' (not in .env)';
+      const reason = BUILD_ONLY_KEYS.has(k) ? ' (moved to netlify.toml)' : ' (not in env file)';
       console.log(`   - ${k}${reason}`);
     });
     console.log('');

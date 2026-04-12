@@ -1,0 +1,1 @@
+../../../fas-sanity/docs/ai-governance/GOVERNANCE_MAKE_COMMANDS.md

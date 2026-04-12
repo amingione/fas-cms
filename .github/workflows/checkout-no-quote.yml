@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
       - run: yarn vitest run tests/checkout.no-quote.spec.ts
         env:
           SESSION_SECRET: 'test_session_secret_32_chars_123456'

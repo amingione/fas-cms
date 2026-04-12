@@ -38,6 +38,11 @@ PDP -> canonical cart -> Medusa cart -> PaymentIntent -> Stripe webhook -> Medus
 ## Commands
 Use existing scripts in `package.json`.
 
+## Package Manager Policy
+- Yarn 4 is the canonical package manager for this repo.
+- Use `yarn install` and `yarn <script>`.
+- Do not run `npm install`; it can desynchronize Yarn state files and break `yarn run dev`.
+
 Common checks:
 - `yarn env:check:local`
 - `yarn env:check:netlify`

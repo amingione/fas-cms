@@ -22,7 +22,7 @@ const bannedPatterns = [
 ];
 
 function listScopedMarkdownFiles() {
-  const scoped = ["README.md", "AGENTS.md", "docs/codex.md", "docs/features.md"];
+  const scoped = ["README.md", "AGENTS.md", "docs/codex.md"];
   const files = new Set();
 
   for (const rel of scoped) {

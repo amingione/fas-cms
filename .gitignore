@@ -6,6 +6,7 @@ dist/
 
 # dependencies
 node_modules/
+package-lock.json
 
 # logs
 npm-debug.log*
@@ -55,5 +56,6 @@ docs/*
 !docs/ai-governance/
 !docs/ai-governance/templates/
 !docs/ai-governance/templates/**
+
 
 .early.coverage

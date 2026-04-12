@@ -16,16 +16,10 @@ import React from 'react';
 
 /**
  * Button component
+ * @param {ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement> & React.AnchorHTMLAttributes<HTMLAnchorElement> & Record<string, any>} props
  */
-export default function Button({
-  href,
-  text,
-  children,
-  className = '',
-  size = 'md',
-  onClick,
-  ...rest
-}) {
+export default function Button(props) {
+  const { href, text, children, className = '', size = 'md', onClick, ...rest } = props;
   /** @type {{[key in ButtonSize]: string}} */
   const sizeMap = {
     sm: 'h-9 px-3 text-xs',

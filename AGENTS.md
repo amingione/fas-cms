@@ -7,6 +7,14 @@
 
 If this file conflicts with canonical authority, canonical authority wins.
 
+## Symlink Registry — CRITICAL
+
+The following paths in this repo are **symlinks to fas-sanity** (the canonical source). Do NOT create regular files at these paths. Any write goes through to fas-sanity automatically. To update, edit in fas-sanity.
+
+Symlinked paths: `docs/governance/RELEASE_CHECKLIST.md`, `docs/governance/FAS_4_REPO_PIPELINE_TASK_TRACKER.md`, `docs/architecture/canonical-commerce-architecture.md`, `docs/architecture/migration-status.md`, `docs/architecture/schema-authority-checklist.yml`, `docs/ai-governance.md`, `docs/ai-governance/AI_TASK_RUNBOOK.MD`, `docs/ai-governance/GOVERNANCE_MAKE_COMMANDS.md`, `docs/ai-governance/HOW_WE_FIX_BUGS.md`, `docs/ai-governance/Makefile.template`, `docs/ai-governance/PROD_IDENTIFICATION_RULES.md`, `docs/ai-governance/System_Architecture_And_API_Reference.md`, `docs/ai-governance/ai-governance.md`, `docs/ai-governance/contracts/` (dir), `docs/ai-governance/guards/` (dir), `docs/ai-governance/templates/` (dir), `docs/system/SANITY_MEDUSA_CONTRACT.md`.
+
+Full registry with edit locations: see `fas-sanity/AGENTS.md` → "Cross-Repo Symlink Registry" section.
+
 ## Repo Role
 
 fas-cms-fresh is the customer storefront UI and API consumer.
