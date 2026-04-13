@@ -1,4 +1,4 @@
-# FAS Storefront (`fas-cms-fresh`)
+# FAS Storefront (`fas-cms-fresh`) _fas-cms_ now
 
 DOCS_VERSION: v2026.03.07  
 Role: Customer-facing storefront
