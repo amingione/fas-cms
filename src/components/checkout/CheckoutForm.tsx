@@ -1895,16 +1895,20 @@ function StripePaymentPane({
 
         if (tokenResponse.ok) {
           const { token } = await tokenResponse.json();
-          window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}&token=${token}`;
+          const encodedPaymentIntentId = encodeURIComponent(paymentIntent.id);
+          const encodedToken = encodeURIComponent(token);
+          window.location.href = `/order/confirmation?payment_intent=${encodedPaymentIntentId}&token=${encodedToken}`;
         } else {
           // Fall back to redirect without token (will fail auth but shows order received)
           console.warn('[checkout] Failed to generate confirmation token');
-          window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}`;
+          const encodedPaymentIntentId = encodeURIComponent(paymentIntent.id);
+          window.location.href = `/order/confirmation?payment_intent=${encodedPaymentIntentId}`;
         }
       } catch (err) {
         console.error('[checkout] Error generating confirmation token:', err);
         // Fall back to redirect without token
-        window.location.href = `/order/confirmation?payment_intent=${paymentIntent.id}`;
+        const encodedPaymentIntentId = encodeURIComponent(paymentIntent.id);
+        window.location.href = `/order/confirmation?payment_intent=${encodedPaymentIntentId}`;
       }
       return true;
     }
