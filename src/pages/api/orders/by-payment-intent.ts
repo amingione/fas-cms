@@ -82,9 +82,12 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
     );
   }
 
-  // Apply rate limiting (10 requests per minute per IP)
-  const clientIp = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const rateLimitResult = rateLimit(clientIp, { limit: 10, windowMs: 60_000 });
+  // Apply rate limiting (10 requests per minute per client).
+  // Use only trusted runtime-provided clientAddress for IP-based limiting.
+  // If it is unavailable, fall back to the validated payment intent ID rather than
+  // trusting a user-controlled forwarding header such as x-forwarded-for.
+  const rateLimitKey = clientAddress || `payment-intent:${paymentIntentId}`;
+  const rateLimitResult = rateLimit(rateLimitKey, { limit: 10, windowMs: 60_000 });
 
   if (!rateLimitResult.allowed) {
     const retryAfterSeconds = Math.ceil((rateLimitResult.retryAfter || 60_000) / 1000);
