@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import jwt from 'jsonwebtoken';
 import {
   issueOrderConfirmationToken,
   verifyOrderConfirmationToken
@@ -9,17 +10,41 @@ beforeEach(() => {
   process.env.JWT_SECRET = 'test-secret-key-for-jwt-tokens-12345';
 });
 
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('Order Confirmation Tokens', () => {
   describe('issueOrderConfirmationToken', () => {
     it('should generate a valid JWT token', () => {
       const paymentIntentId = 'pi_test123';
-      const orderId = 'order_test456';
 
-      const token = issueOrderConfirmationToken(paymentIntentId, orderId);
+      const token = issueOrderConfirmationToken(paymentIntentId);
 
       expect(token).toBeTruthy();
       expect(typeof token).toBe('string');
       expect(token.length).toBeGreaterThan(0);
+    });
+
+    it('should include orderId in token when provided', () => {
+      const paymentIntentId = 'pi_test123';
+      const orderId = 'order_test456';
+
+      const token = issueOrderConfirmationToken(paymentIntentId, orderId);
+      const result = verifyOrderConfirmationToken(token);
+
+      expect(result.valid).toBe(true);
+      expect(result.payload?.orderId).toBe(orderId);
+    });
+
+    it('should omit orderId from token when not provided', () => {
+      const paymentIntentId = 'pi_test123';
+
+      const token = issueOrderConfirmationToken(paymentIntentId);
+      const result = verifyOrderConfirmationToken(token);
+
+      expect(result.valid).toBe(true);
+      expect(result.payload?.orderId).toBeUndefined();
     });
 
     it('should throw error when JWT_SECRET is missing', () => {
@@ -28,7 +53,7 @@ describe('Order Confirmation Tokens', () => {
       delete process.env.ORDER_CONFIRMATION_TOKEN_SECRET;
 
       expect(() => {
-        issueOrderConfirmationToken('pi_test', 'order_test');
+        issueOrderConfirmationToken('pi_test');
       }).toThrow(/No secret configured/);
 
       // Restore for other tests
@@ -79,36 +104,39 @@ describe('Order Confirmation Tokens', () => {
       process.env.JWT_SECRET = 'test-secret-key-for-jwt-tokens-12345';
     });
 
-    it('should reject an expired token', async () => {
-      // Create a token that expires immediately
-      const paymentIntentId = 'pi_test123';
-      const orderId = 'order_test456';
+    it('should reject an expired token', () => {
+      vi.useFakeTimers();
+      const now = new Date('2025-01-01T12:00:00Z');
+      vi.setSystemTime(now);
 
-      // We can't easily test expiration without mocking time or waiting,
-      // but we can at least verify the structure includes expiration
-      const token = issueOrderConfirmationToken(paymentIntentId, orderId);
+      const token = issueOrderConfirmationToken('pi_test123');
+
+      // Advance time past the 15-minute expiration window
+      vi.setSystemTime(new Date(now.getTime() + 16 * 60 * 1000));
+
       const result = verifyOrderConfirmationToken(token);
 
-      expect(result.valid).toBe(true);
-      expect(result.payload?.exp).toBeDefined();
-      expect(result.payload?.iat).toBeDefined();
-
-      // Verify expiration is in the future
-      const now = Math.floor(Date.now() / 1000);
-      expect(result.payload!.exp!).toBeGreaterThan(now);
+      expect(result.valid).toBe(false);
+      expect(result.error).toMatch(/expired/i);
     });
 
     it('should reject a token missing paymentIntentId', () => {
-      // This tests internal validation by creating a malformed token
-      // In practice, this would require manually crafting a JWT
-      const result = verifyOrderConfirmationToken('');
+      const secret = process.env.JWT_SECRET!;
+      // Manually sign a JWT that is missing the paymentIntentId claim
+      const token = jwt.sign(
+        { orderId: 'order_test', purpose: 'order-confirmation' },
+        secret,
+        { algorithm: 'HS256', issuer: 'fas-order-confirmation', expiresIn: '15m' }
+      );
+
+      const result = verifyOrderConfirmationToken(token);
 
       expect(result.valid).toBe(false);
-      expect(result.error).toBeDefined();
+      expect(result.error).toMatch(/paymentIntentId/i);
     });
 
     it('should include correct purpose in token', () => {
-      const token = issueOrderConfirmationToken('pi_test', 'order_test');
+      const token = issueOrderConfirmationToken('pi_test');
       const result = verifyOrderConfirmationToken(token);
 
       expect(result.valid).toBe(true);

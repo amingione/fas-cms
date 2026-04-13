@@ -1890,7 +1890,7 @@ function StripePaymentPane({
         const tokenResponse = await fetch('/api/orders/generate-confirmation-token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ paymentIntentId: paymentIntent.id })
+          body: JSON.stringify({ paymentIntentId: paymentIntent.id, clientSecret })
         });
 
         if (tokenResponse.ok) {

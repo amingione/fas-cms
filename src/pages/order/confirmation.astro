@@ -349,6 +349,16 @@ if (!paymentIntentId) {
           const paymentIntentId = params.get('payment_intent');
           const token = params.get('token');
 
+          // Remove sensitive parameters from the URL immediately after reading them
+          // to prevent leakage via browser history, Referer headers, or shared links.
+          if (paymentIntentId || token) {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('token');
+            cleanUrl.searchParams.delete('payment_intent');
+            const newSearch = cleanUrl.searchParams.toString();
+            history.replaceState(null, '', cleanUrl.pathname + (newSearch ? '?' + newSearch : ''));
+          }
+
           if (!paymentIntentId) {
             console.warn('[confirmation] No payment_intent in URL');
             return;

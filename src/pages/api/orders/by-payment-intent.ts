@@ -44,48 +44,16 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
       JSON.stringify({ error: 'Missing "id" parameter (Stripe PaymentIntent ID)' }),
       {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
       }
     );
   }
 
-  if (!token) {
-    return new Response(
-      JSON.stringify({ error: 'Missing "token" parameter (access token required)' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-
-  // Verify the access token
-  const tokenVerification = verifyOrderConfirmationToken(token);
-  if (!tokenVerification.valid) {
-    return new Response(
-      JSON.stringify({ error: tokenVerification.error || 'Invalid access token' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-
-  // Ensure the token's payment intent ID matches the requested one
-  if (tokenVerification.payload?.paymentIntentId !== paymentIntentId) {
-    return new Response(
-      JSON.stringify({ error: 'Token does not match payment intent ID' }),
-      {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-
-  // Apply rate limiting (10 requests per minute per client).
-  // Use only trusted runtime-provided clientAddress for IP-based limiting.
-  // If it is unavailable, fall back to the validated payment intent ID rather than
-  // trusting a user-controlled forwarding header such as x-forwarded-for.
+  // Apply rate limiting as early as possible so all requests — including those
+  // with missing or invalid tokens — consume rate-limit budget. This prevents
+  // brute-force against JWT verification and DoS against the endpoint.
+  // Use only trusted runtime-provided clientAddress; fall back to the validated
+  // payment intent ID rather than trusting a user-controlled header.
   const rateLimitKey = clientAddress || `payment-intent:${paymentIntentId}`;
   const rateLimitResult = rateLimit(rateLimitKey, { limit: 10, windowMs: 60_000 });
 
@@ -97,9 +65,44 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
         status: 429,
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0, must-revalidate',
+          'Pragma': 'no-cache',
           'Retry-After': String(retryAfterSeconds),
           'X-RateLimit-Remaining': '0'
         }
+      }
+    );
+  }
+
+  if (!token) {
+    return new Response(
+      JSON.stringify({ error: 'Missing "token" parameter (access token required)' }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
+      }
+    );
+  }
+
+  // Verify the access token
+  const tokenVerification = verifyOrderConfirmationToken(token);
+  if (!tokenVerification.valid) {
+    return new Response(
+      JSON.stringify({ error: tokenVerification.error || 'Invalid access token' }),
+      {
+        status: 401,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
+      }
+    );
+  }
+
+  // Ensure the token's payment intent ID matches the requested one
+  if (tokenVerification.payload?.paymentIntentId !== paymentIntentId) {
+    return new Response(
+      JSON.stringify({ error: 'Token does not match payment intent ID' }),
+      {
+        status: 403,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
       }
     );
   }
@@ -114,7 +117,7 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
     console.error('[by-payment-intent] MEDUSA_BACKEND_URL not configured');
     return new Response(JSON.stringify({ error: 'Server configuration error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
     });
   }
 
@@ -144,7 +147,7 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
     console.error('[by-payment-intent] No Medusa admin auth configured (MEDUSA_ADMIN_API_TOKEN or MEDUSA_SECRET_KEY)');
     return new Response(JSON.stringify({ error: 'Server configuration error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
     });
   }
 
@@ -249,6 +252,8 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
                 status: 200,
                 headers: {
                   'Content-Type': 'application/json',
+                  'Cache-Control': 'no-store, max-age=0, must-revalidate',
+                  'Pragma': 'no-cache',
                   'X-RateLimit-Remaining': String(rateLimitResult.remaining)
                 }
               }
@@ -281,6 +286,6 @@ export const GET: APIRoute = async ({ url, request, clientAddress }) => {
   // Order not found after all retries
   return new Response(JSON.stringify({ error: 'Order not found' }), {
     status: 404,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store, max-age=0, must-revalidate', 'Pragma': 'no-cache' }
   });
 };

@@ -4,8 +4,12 @@ import crypto from 'node:crypto';
 /**
  * Order Confirmation Access Tokens
  *
- * These short-lived tokens are issued when an order is created and are required
- * to access PII (email, shipping address) from the order confirmation endpoint.
+ * These short-lived tokens are issued after payment is confirmed by the client
+ * and are required to access PII (email, shipping address) from the order
+ * confirmation endpoint.
+ *
+ * Issuance requires proof of possession (Stripe client_secret) to prevent
+ * unauthorized token minting even if a payment intent ID leaks via URL/logs.
  *
  * This prevents PII exposure via URL leakage (logs, history, sharing).
  */
@@ -33,18 +37,25 @@ function getTokenSecret(): string {
 /**
  * Generate a short-lived access token for order confirmation.
  *
+ * Tokens are issued after payment confirmation, not when the Medusa order
+ * is created. The `orderId` is optional because orders are created
+ * asynchronously by webhook and may not be available at issuance time.
+ *
  * @param paymentIntentId - Stripe payment intent ID
- * @param orderId - Medusa order ID
+ * @param orderId - Medusa order ID (optional; not yet known at issuance time)
  * @returns Signed JWT token valid for TOKEN_EXPIRY_MINUTES
  */
-export function issueOrderConfirmationToken(paymentIntentId: string, orderId: string): string {
+export function issueOrderConfirmationToken(paymentIntentId: string, orderId?: string): string {
   const secret = getTokenSecret();
 
-  const payload = {
+  const payload: Record<string, string> = {
     paymentIntentId,
-    orderId,
     purpose: 'order-confirmation'
   };
+
+  if (orderId) {
+    payload.orderId = orderId;
+  }
 
   const options: SignOptions = {
     algorithm: 'HS256',
@@ -66,7 +77,7 @@ export function verifyOrderConfirmationToken(token: string): {
   valid: boolean;
   payload?: {
     paymentIntentId: string;
-    orderId: string;
+    orderId?: string;
     purpose: string;
     iat?: number;
     exp?: number;
@@ -86,10 +97,6 @@ export function verifyOrderConfirmationToken(token: string): {
       return { valid: false, error: 'Invalid token: missing paymentIntentId' };
     }
 
-    if (!decoded.orderId || typeof decoded.orderId !== 'string') {
-      return { valid: false, error: 'Invalid token: missing orderId' };
-    }
-
     if (decoded.purpose !== 'order-confirmation') {
       return { valid: false, error: 'Invalid token: wrong purpose' };
     }
@@ -98,7 +105,7 @@ export function verifyOrderConfirmationToken(token: string): {
       valid: true,
       payload: {
         paymentIntentId: decoded.paymentIntentId,
-        orderId: decoded.orderId,
+        orderId: typeof decoded.orderId === 'string' ? decoded.orderId : undefined,
         purpose: decoded.purpose,
         iat: decoded.iat,
         exp: decoded.exp
