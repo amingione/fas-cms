@@ -1,5 +1,12 @@
 # CLAUDE.md — fas-cms-fresh
 
+> **Synced Block — Authority & Session Discipline**
+>
+> - **Canonical authority is `AGENTS.md`** for architecture and commerce rules across all four FAS repos.
+> - **Use `CLAUDE.md` as working memory** for session learnings, decisions, rationale, and action items.
+> - **No exceptions to commerce authority rules** without first updating `AGENTS.md` and referencing that change here.
+> - **Start each session with a quick `CLAUDE.md` review** to preserve continuity and reduce context drift.
+
 ## Role
 Astro storefront — public customer UI, BFF API layer, login portal (customers + vendors).
 **This repo renders. It does NOT own commerce data.**
@@ -17,13 +24,13 @@ Astro storefront — public customer UI, BFF API layer, login portal (customers 
 - Never own or store commerce records
 
 ## BFF API Routes (Key)
-| Route | Orchestrates |
-|-------|-------------|
-| /api/create-payment-intent | Stripe + Medusa |
-| /api/shipping-rates | Shippo + Medusa |
-| /api/update-payment-intent | Stripe |
-| /api/cart/[id] | Medusa cart proxy |
-| /api/complete-order | Medusa order creation + Sanity write |
+| Route                      | Orchestrates                         |
+| -------------------------- | ------------------------------------ |
+| /api/create-payment-intent | Stripe + Medusa                      |
+| /api/shipping-rates        | Shippo + Medusa                      |
+| /api/update-payment-intent | Stripe                               |
+| /api/cart/[id]             | Medusa cart proxy                    |
+| /api/complete-order        | Medusa order creation + Sanity write |
 
 ## Key Env Vars
 ```
