@@ -1743,11 +1743,15 @@ function StripePaymentPane({
 
   const handleConfirmedPaymentIntent = (paymentIntent: { id: string; status?: string } | null | undefined): boolean => {
     if (paymentIntent?.status === 'succeeded') {
+      // Clear cart and Medusa cart ID to prevent old session data from persisting
+      abandonCheckout();
       window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
       return true;
     }
 
     if (paymentIntent?.status === 'processing') {
+      // Clear cart and Medusa cart ID to prevent old session data from persisting
+      abandonCheckout();
       window.location.href = '/order/confirmation?payment_intent=' + paymentIntent.id;
       return true;
     }
