@@ -1885,6 +1885,10 @@ function StripePaymentPane({
 
   const handleConfirmedPaymentIntent = async (paymentIntent: { id: string; status?: string } | null | undefined): Promise<boolean> => {
     if (paymentIntent?.status === 'succeeded' || paymentIntent?.status === 'processing') {
+      // Clear cart and Medusa cart ID to prevent old session data from persisting
+      // This must happen BEFORE redirect so new sessions start with a fresh cart
+      abandonCheckout();
+
       // Generate access token for order confirmation endpoint
       try {
         const tokenResponse = await fetch('/api/orders/generate-confirmation-token', {
