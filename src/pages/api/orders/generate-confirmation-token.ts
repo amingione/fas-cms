@@ -1,7 +1,5 @@
 import type { APIRoute } from 'astro';
-import Stripe from 'stripe';
-import { issueOrderConfirmationToken } from '@/server/order-confirmation-tokens';
-import { STRIPE_API_VERSION } from '@/lib/stripe-config';
+import { medusaFetch } from '@/lib/medusa';
 
 /**
  * Generate an order confirmation access token
@@ -9,19 +7,13 @@ import { STRIPE_API_VERSION } from '@/lib/stripe-config';
  * POST /api/orders/generate-confirmation-token
  * Body: { paymentIntentId: string, clientSecret: string }
  *
- * This endpoint generates a short-lived JWT token that grants access to
- * PII data on the order confirmation endpoint. The token is required to
- * prevent data exposure via URL leakage.
- *
- * Requires proof of possession: the caller must supply the Stripe
- * PaymentIntent `client_secret`. The server verifies it against the Stripe
- * API before issuing a token, ensuring only the party who initiated the
- * payment can mint an access token — even if the payment intent ID leaks.
+ * This storefront endpoint is a Medusa proxy.
+ * Medusa is the sole commerce authority and owns Stripe access.
  *
  * Returns:
  *   { token: string } on success
  *   400 if paymentIntentId or clientSecret is missing / invalid format
- *   401 if clientSecret does not match the payment intent (proof of possession failed)
+ *   401 if payment proof fails
  *   500 on server configuration error
  */
 
@@ -73,56 +65,42 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
-  // Proof-of-possession: verify the supplied client_secret matches the
-  // payment intent on Stripe's side. This prevents token minting by anyone
-  // who only has the payment intent ID (e.g. from a leaked URL).
-  const stripeSecret =
-    process.env.STRIPE_SECRET_KEY || (import.meta as any).env?.STRIPE_SECRET_KEY;
-
-  if (!stripeSecret) {
-    console.error('[generate-confirmation-token] STRIPE_SECRET_KEY not configured');
-    return new Response(
-      JSON.stringify({ error: 'Server configuration error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-
   try {
-    const stripe = new Stripe(stripeSecret, {
-      apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion
+    const upstream = await medusaFetch('/store/order-confirmation/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payment_intent_id: paymentIntentId,
+        payment_intent_client_secret: clientSecret
+      })
     });
 
-    const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-    if (pi.client_secret !== clientSecret) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid client secret (proof of possession failed)' }),
-        {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    const token = issueOrderConfirmationToken(paymentIntentId);
-
-    return new Response(
-      JSON.stringify({ token }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
+    const responseText = await upstream.text();
+    return new Response(responseText, {
+      status: upstream.status,
+      headers: {
+        'Content-Type': upstream.headers.get('Content-Type') || 'application/json',
+        'Cache-Control': 'no-store, max-age=0, must-revalidate',
+        'Pragma': 'no-cache',
+        ...(upstream.headers.get('X-RateLimit-Remaining')
+          ? { 'X-RateLimit-Remaining': upstream.headers.get('X-RateLimit-Remaining') as string }
+          : {}),
+        ...(upstream.headers.get('Retry-After')
+          ? { 'Retry-After': upstream.headers.get('Retry-After') as string }
+          : {})
       }
-    );
-  } catch (error: any) {
-    console.error('[generate-confirmation-token] Failed to generate token:', error);
+    });
+  } catch (error) {
+    console.error('[generate-confirmation-token] Proxy request failed:', error);
     return new Response(
       JSON.stringify({ error: 'Failed to generate token' }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, max-age=0, must-revalidate',
+          'Pragma': 'no-cache'
+        }
       }
     );
   }

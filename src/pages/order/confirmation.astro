@@ -348,13 +348,15 @@ if (!paymentIntentId) {
           const params = new URLSearchParams(window.location.search);
           const paymentIntentId = params.get('payment_intent');
           const token = params.get('token');
+          const paymentIntentClientSecret = params.get('payment_intent_client_secret');
 
           // Remove sensitive parameters from the URL immediately after reading them
           // to prevent leakage via browser history, Referer headers, or shared links.
-          if (paymentIntentId || token) {
+          if (paymentIntentId || token || paymentIntentClientSecret) {
             const cleanUrl = new URL(window.location.href);
             cleanUrl.searchParams.delete('token');
             cleanUrl.searchParams.delete('payment_intent');
+            cleanUrl.searchParams.delete('payment_intent_client_secret');
             const newSearch = cleanUrl.searchParams.toString();
             history.replaceState(null, '', cleanUrl.pathname + (newSearch ? '?' + newSearch : ''));
           }
@@ -364,8 +366,28 @@ if (!paymentIntentId) {
             return;
           }
 
-          if (!token) {
-            console.warn('[confirmation] No access token in URL');
+          let accessToken = token;
+          if (!accessToken && paymentIntentClientSecret) {
+            try {
+              const tokenResponse = await fetch('/api/orders/generate-confirmation-token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentIntentId,
+                  clientSecret: paymentIntentClientSecret
+                })
+              });
+              if (tokenResponse.ok) {
+                const data = await tokenResponse.json();
+                accessToken = typeof data?.token === 'string' ? data.token : null;
+              }
+            } catch (tokenError) {
+              console.warn('[confirmation] Failed to generate access token from return params', tokenError);
+            }
+          }
+
+          if (!accessToken) {
+            console.warn('[confirmation] No access token available');
             const displayDiv = document.getElementById('order-number-display');
             if (displayDiv) {
               displayDiv.classList.add('error');
@@ -377,7 +399,7 @@ if (!paymentIntentId) {
           const displayDiv = document.getElementById('order-number-display');
 
           // Attempt to fetch order by payment intent ID with access token (Medusa-sourced)
-          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}&token=${encodeURIComponent(token)}`);
+          const response = await fetch(`/api/orders/by-payment-intent?id=${encodeURIComponent(paymentIntentId)}&token=${encodeURIComponent(accessToken)}`);
 
           if (response.ok) {
             const data = await response.json();
@@ -406,10 +428,13 @@ if (!paymentIntentId) {
             if (summaryBox && typeof data.total === 'number') {
               const shipping = typeof data.shippingTotal === 'number' ? data.shippingTotal : 0;
               const subtotal = data.total - shipping;
-              const formatCents = (cents) => `$${(cents / 100).toFixed(2)}`;
-              document.getElementById('order-subtotal').textContent = formatCents(subtotal);
-              document.getElementById('order-shipping').textContent = formatCents(shipping);
-              document.getElementById('order-total').textContent = formatCents(data.total);
+              const formatCents = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+              const subtotalEl = document.getElementById('order-subtotal');
+              const shippingEl = document.getElementById('order-shipping');
+              const totalEl = document.getElementById('order-total');
+              if (subtotalEl) subtotalEl.textContent = formatCents(subtotal);
+              if (shippingEl) shippingEl.textContent = formatCents(shipping);
+              if (totalEl) totalEl.textContent = formatCents(data.total);
               summaryBox.style.display = '';
             }
 
