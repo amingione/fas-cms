@@ -6,6 +6,8 @@ import tailwind from '@astrojs/tailwind';
 import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
 
+import sentry from '@sentry/astro';
+
 process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA =
   process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA || '1';
 process.env.BROWSERSLIST_IGNORE_OLD_DATA = process.env.BROWSERSLIST_IGNORE_OLD_DATA || '1';
@@ -93,7 +95,12 @@ export default defineConfig({
   }),
   integrations: [
     react(),
-    tailwind()
+    tailwind(),
+    sentry({
+      project: 'fas-cms',
+      org: 'fas-moto',
+      authToken: process.env.SENTRY_AUTH_TOKEN
+    })
   ],
   image: {
     ...(isLocalDev

@@ -1138,10 +1138,9 @@
   port = 8888
   autoLaunch = false
 
-# dotenvx handles all secrets at build/runtime via .env.production.
-# .env.local (symlink to ~/.local_secrets/fas-cms-fresh) is used for local dev only.
+# dotenvx handles all secrets via encrypted .env.production in all environments.
 [context.dev.environment]
-  NODE_OPTIONS = "" # dotenvx not used in local dev; .env.local loaded natively by Astro/Vite.
+  NODE_OPTIONS = "" # keep empty: local commands load dotenvx explicitly.
 
 # Build plugins
 [[plugins]]
