@@ -153,7 +153,6 @@ export function buildStorefrontCartFromMedusaCart(medusaCart: any) {
     ? toCentsStrict(medusaCart.discount_total, 'cart.discount_total') ?? 0
     : 0;
 
-  // Recalculate subtotal from line items (more reliable than Medusa's subtotal field)
   const itemSubtotalCents = (Array.isArray(medusaCart.items) ? medusaCart.items : []).reduce(
     (sum: number, item: any) => {
       const itemTotal = toCentsStrict(item.total, 'item.total') ?? 0;
@@ -169,39 +168,9 @@ export function buildStorefrontCartFromMedusaCart(medusaCart: any) {
   const medusaShippingCents =
     toCentsStrict(medusaCart.shipping_total, 'cart.shipping_total') ?? 0;
 
-  // Recalculate cart total from components instead of trusting Medusa's total field
-  // This fixes bug where Medusa returns unit_price instead of quantity-adjusted total
-  const recalculatedTotalCents = Math.max(
-    0,
-    itemSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents
-  );
-
+  // Medusa is the single source of truth for cart totals.
   const medusaReportedTotal = toCentsStrict(medusaCart.total, 'cart.total');
-
-  // Use recalculated total if there's a mismatch (>1 cent difference)
-  // This guards against Medusa cart total calculation bugs
-  const hasMismatch =
-    medusaReportedTotal != null &&
-    Math.abs(medusaReportedTotal - recalculatedTotalCents) > 1;
-
-  const medusaTotalCents = hasMismatch
-    ? recalculatedTotalCents
-    : (medusaReportedTotal ?? recalculatedTotalCents);
-
-  // Log discrepancy for debugging
-  if (hasMismatch) {
-    console.warn('[cart-transform] Medusa cart total mismatch - using recalculated value:', {
-      medusa_total: medusaReportedTotal,
-      recalculated_total: recalculatedTotalCents,
-      using: recalculatedTotalCents,
-      items_subtotal: itemSubtotalCents,
-      medusa_subtotal: medusaSubtotalCents,
-      shipping: medusaShippingCents,
-      tax: medusaTaxCents,
-      discount: discountCents,
-      cart_id: medusaCart.id
-    });
-  }
+  const medusaTotalCents = medusaReportedTotal ?? Math.max(0, medusaSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents);
 
   const discountsArray: any[] = [];
   const promotions = Array.isArray(medusaCart?.promotions) ? medusaCart.promotions : [];

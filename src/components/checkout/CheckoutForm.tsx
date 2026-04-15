@@ -900,48 +900,40 @@ export default function CheckoutForm() {
     () => (cart?.items || []).reduce((sum, p) => sum + Number(p.quantity || 0), 0),
     [cart]
   );
-  const itemSubtotalCents = useMemo(
-    () => (cart?.items || []).reduce((sum, item) => sum + (toDisplayCents(item.total) ?? 0), 0),
-    [cart]
-  );
   const displayTotals = useMemo(() => {
     const discountCents = Math.max(0, cart?.discount_amount_cents ?? 0);
+    const authoritativeSubtotalCents = Math.max(0, cart?.subtotal_cents ?? 0);
+    const authoritativeTaxCents = Math.max(0, cart?.tax_amount_cents ?? 0);
+    const authoritativeShippingCents = Math.max(0, cart?.shipping_amount_cents ?? 0);
     const authoritativeTotalCents = Math.max(0, cart?.total_cents ?? 0);
-    const selectedShippingCents = Math.max(0, cart?.shipping_amount_cents ?? 0);
 
     // Until the shopper explicitly selects a rate this session, prevent stale persisted
     // shipping/tax totals from previous carts/addresses from being rendered.
     const hasCurrentShippingSelection = allItemsInstallOnly || Boolean(selectedOptionId);
     if (!hasCurrentShippingSelection) {
       return {
-        subtotalCents: Math.max(0, itemSubtotalCents),
+        subtotalCents: authoritativeSubtotalCents,
         shippingCents: 0,
         taxCents: 0,
-        totalCents: Math.max(0, itemSubtotalCents - discountCents),
+        totalCents: Math.max(0, authoritativeSubtotalCents - discountCents),
         discountCents
       };
     }
 
-    const taxCents = Math.max(
-      0,
-      authoritativeTotalCents -
-        Math.max(0, itemSubtotalCents) -
-        selectedShippingCents +
-        discountCents
-    );
     return {
-      subtotalCents: Math.max(0, itemSubtotalCents),
-      shippingCents: selectedShippingCents,
-      taxCents,
+      subtotalCents: authoritativeSubtotalCents,
+      shippingCents: authoritativeShippingCents,
+      taxCents: authoritativeTaxCents,
       totalCents: authoritativeTotalCents,
       discountCents
     };
   }, [
     allItemsInstallOnly,
     cart?.discount_amount_cents,
+    cart?.subtotal_cents,
+    cart?.tax_amount_cents,
     cart?.shipping_amount_cents,
     cart?.total_cents,
-    itemSubtotalCents,
     selectedOptionId
   ]);
 

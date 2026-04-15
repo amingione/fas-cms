@@ -1,4 +1,4 @@
-const VERSION = 'v2';
+const VERSION = 'v3';
 const RUNTIME_CACHE = `fas-runtime-${VERSION}`;
 
 self.addEventListener('install', (event) => {
@@ -22,6 +22,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/checkout')) return;
 
   // Keep navigation requests network-first so HTML stays fresh.
   if (request.mode === 'navigate') {
@@ -51,11 +52,7 @@ self.addEventListener('fetch', (event) => {
         .catch(async () => {
           const fallback = await caches.match(request);
           if (fallback) return fallback;
-
-          return new Response('Network error', {
-            status: 504,
-            statusText: 'Gateway Timeout',
-          });
+          return Response.error();
         });
     })
   );
