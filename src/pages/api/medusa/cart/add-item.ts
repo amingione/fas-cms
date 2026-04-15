@@ -43,6 +43,164 @@ function toRoundedNumber(value: unknown): number | null {
   return null;
 }
 
+function toCleanStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => String(entry ?? '').trim())
+    .filter(Boolean);
+}
+
+function normalizeLabelKey(value: unknown): string {
+  return String(value || '')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([-/–—])\s*/g, '$1')
+    .trim()
+    .toLowerCase();
+}
+
+function collectOptionValueEntries(source: any): Array<{ id: string; label: string }> {
+  const rows: Array<{ id: string; label: string }> = [];
+  const options = Array.isArray(source) ? source : [];
+  for (const option of options) {
+    const values = Array.isArray(option?.values) ? option.values : [];
+    for (const value of values) {
+      const id = String(value?.id || value?.value_id || '').trim();
+      const label = String(value?.value || value?.title || value?.label || '').trim();
+      if (!id || !label) continue;
+      rows.push({ id, label });
+    }
+  }
+  return rows;
+}
+
+function pickRequestedOptionValueIdsByLabels(
+  labels: string[],
+  entries: Array<{ id: string; label: string }>
+): string[] {
+  if (!labels.length || !entries.length) return [];
+  const byLabel = new Map<string, string[]>();
+  for (const entry of entries) {
+    const key = normalizeLabelKey(entry.label);
+    if (!key) continue;
+    const current = byLabel.get(key) || [];
+    if (!current.includes(entry.id)) current.push(entry.id);
+    byLabel.set(key, current);
+  }
+  const resolved: string[] = [];
+  for (const label of labels) {
+    const key = normalizeLabelKey(label);
+    if (!key) continue;
+    const matches = byLabel.get(key) || [];
+    const first = matches[0];
+    if (first && !resolved.includes(first)) resolved.push(first);
+  }
+  return resolved;
+}
+
+async function resolveOptionValueIdsFromMedusaCatalog(
+  baseVariantId: string,
+  labels: string[]
+): Promise<string[]> {
+  const normalizedLabels = labels.map((label) => String(label || '').trim()).filter(Boolean);
+  if (!baseVariantId || !normalizedLabels.length) return [];
+
+  try {
+    const variantResponse = await medusaFetch(`/store/variants/${baseVariantId}`);
+    const variantData = await readJsonSafe<any>(variantResponse);
+    const variant = variantData?.variant || null;
+    const fromVariantProduct = collectOptionValueEntries(variant?.product?.options);
+    const fromVariantRoot = collectOptionValueEntries(variantData?.product?.options);
+    const initialPool = [...fromVariantProduct, ...fromVariantRoot];
+
+    if (initialPool.length > 0) {
+      const requestedIds = pickRequestedOptionValueIdsByLabels(normalizedLabels, initialPool);
+      if (requestedIds.length > 0) return requestedIds;
+    }
+
+    const productId = String(
+      variant?.product_id || variant?.product?.id || variantData?.product?.id || ''
+    ).trim();
+    if (!productId) return [];
+
+    const productResponse = await medusaFetch(`/store/products/${productId}`);
+    const productData = await readJsonSafe<any>(productResponse);
+    const productOptions = collectOptionValueEntries(productData?.product?.options);
+    if (!productOptions.length) return [];
+
+    return pickRequestedOptionValueIdsByLabels(normalizedLabels, productOptions);
+  } catch (error) {
+    console.warn('[cart/add-item] option value catalog fallback failed', {
+      baseVariantId,
+      labels: normalizedLabels,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return [];
+  }
+}
+
+function buildLabelResolutionAttempts(labels: string[]): string[][] {
+  const normalizedLabels = labels
+    .map((label) => String(label || ''))
+    .map((label) => label.replace(/\u00A0/g, ' '))
+    .map((label) => label.replace(/\s+/g, ' '))
+    .map((label) => label.trim())
+    .filter(Boolean);
+  if (!normalizedLabels.length) return [];
+
+  const perLabelCandidates = normalizedLabels.map((label) => {
+    const variants = new Set<string>();
+    const collapsed = label.replace(/\s+/g, ' ').trim();
+    const hyphenSpaced = collapsed.replace(/\s*-\s*/g, ' - ');
+    const hyphenCompact = collapsed.replace(/\s*-\s*/g, '-');
+    const enDashSpaced = collapsed.replace(/\s*[–—]\s*/g, ' - ');
+    const enDashCompact = collapsed.replace(/\s*[–—]\s*/g, '-');
+    const noPunctSpace = collapsed.replace(/\s*([-/–—])\s*/g, '$1');
+    const loosePunctSpace = collapsed.replace(/\s*([-/–—])\s*/g, ' $1 ');
+    const upper = collapsed.toUpperCase();
+    const lower = collapsed.toLowerCase();
+    const leadingSpace = ` ${collapsed}`;
+    const trailingSpace = `${collapsed} `;
+    variants.add(collapsed);
+    variants.add(label);
+    variants.add(hyphenSpaced);
+    variants.add(hyphenCompact);
+    variants.add(enDashSpaced);
+    variants.add(enDashCompact);
+    variants.add(noPunctSpace);
+    variants.add(loosePunctSpace);
+    variants.add(upper);
+    variants.add(lower);
+    variants.add(leadingSpace);
+    variants.add(trailingSpace);
+    return Array.from(variants).filter(Boolean);
+  });
+
+  const attempts: string[][] = [];
+  const maxAttempts = 64;
+  const build = (idx: number, acc: string[]) => {
+    if (attempts.length >= maxAttempts) return;
+    if (idx >= perLabelCandidates.length) {
+      attempts.push(acc);
+      return;
+    }
+    const candidates = perLabelCandidates[idx];
+    for (const candidate of candidates) {
+      build(idx + 1, [...acc, candidate]);
+      if (attempts.length >= maxAttempts) return;
+    }
+  };
+  build(0, []);
+
+  const seen = new Set<string>();
+  return attempts.filter((entry) => {
+    const key = entry.join('||').toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function normalizeShippingClass(value: unknown): string {
   return String(value || '')
     .trim()
@@ -94,12 +252,18 @@ function buildLineItemMetadata(item: IncomingCartItem, baseVariantId: string, va
   const selectedOptions = Array.isArray(item.selectedOptions)
     ? item.selectedOptions.filter((v) => typeof v === 'string' && v.trim())
     : [];
-  if (selectedOptions.length) metadata.selected_options = selectedOptions;
+  if (selectedOptions.length) {
+    metadata.selected_options = selectedOptions;
+    metadata.option_summary = selectedOptions.join(' | ');
+  }
 
   const selectedUpgrades = Array.isArray(item.selectedUpgrades)
     ? item.selectedUpgrades.filter((v) => typeof v === 'string' && v.trim())
     : [];
-  if (selectedUpgrades.length) metadata.selected_upgrades = selectedUpgrades;
+  if (selectedUpgrades.length) {
+    metadata.selected_upgrades = selectedUpgrades;
+    metadata.upgrades = selectedUpgrades;
+  }
 
   const detailed = Array.isArray(item.selectedUpgradesDetailed)
     ? item.selectedUpgradesDetailed.filter(
@@ -110,7 +274,16 @@ function buildLineItemMetadata(item: IncomingCartItem, baseVariantId: string, va
           Number.isFinite(entry.priceCents)
       )
     : [];
-  if (detailed.length) metadata.selected_upgrades_detailed = detailed;
+  if (detailed.length) {
+    metadata.selected_upgrades_detailed = detailed;
+    const labels = detailed.map((entry) => entry.label).filter(Boolean);
+    if (labels.length) {
+      metadata.selected_upgrades = labels;
+      metadata.upgrades = labels;
+    }
+    const upgradesTotal = detailed.reduce((sum, entry) => sum + Math.max(0, Math.round(entry.priceCents)), 0);
+    metadata.upgrades_total = upgradesTotal;
+  }
 
   const optionValueIds = getSelectedUpgradeOptionValueIds(item);
   if (optionValueIds.length) metadata.selected_upgrade_option_value_ids = optionValueIds;
@@ -273,30 +446,49 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const cartItems = sanitizeCartItems(body?.cart?.items ?? body?.items ?? body?.cartItems);
-  const unresolvedUpgradeItems = cartItems.filter((item) => {
-    const labels = Array.isArray(item.selectedUpgrades) ? item.selectedUpgrades : [];
-    const detailed = Array.isArray(item.selectedUpgradesDetailed)
-      ? item.selectedUpgradesDetailed
-      : [];
-    if (labels.length > 0 && detailed.length === 0) return true;
-    return detailed.some(
-      (entry) => !entry.medusaOptionValueId && !(typeof entry?.label === 'string' && entry.label.trim())
-    );
-  });
+  const unresolvedUpgradeItems = cartItems
+    .map((item) => {
+      const labels = Array.isArray(item.selectedUpgrades)
+        ? item.selectedUpgrades.map((entry) => String(entry || '').trim()).filter(Boolean)
+        : [];
+      const detailed = Array.isArray(item.selectedUpgradesDetailed)
+        ? item.selectedUpgradesDetailed
+        : [];
+      if (labels.length > 0 && detailed.length === 0) {
+        return {
+          id: item.id,
+          name: item.name || item.id,
+          reason: 'selected_upgrades_without_detail',
+          selectedUpgrades: labels
+        };
+      }
+      const invalidDetailedEntries = detailed.filter((entry) => {
+        const label = typeof entry?.label === 'string' ? entry.label.trim() : '';
+        return !label;
+      });
+      if (invalidDetailedEntries.length > 0) {
+        return {
+          id: item.id,
+          name: item.name || item.id,
+          reason: 'invalid_selected_upgrades_detail',
+          selectedUpgrades: labels
+        };
+      }
+      return null;
+    })
+    .filter(Boolean);
   if (unresolvedUpgradeItems.length > 0) {
-    console.warn('[unmapped_addon_selection] cart_sync_blocked', {
+    console.warn('[unmapped_addon_selection] missing_medusa_option_ids', {
       cartId,
       count: unresolvedUpgradeItems.length,
-      itemIds: unresolvedUpgradeItems.map((item) => item.id)
+      itemIds: unresolvedUpgradeItems.map((item: any) => item.id)
     });
     return jsonResponse(
       {
         error:
-          'One or more selected options is not available for checkout right now. Please remove that option and try again.',
-        details: unresolvedUpgradeItems.map((entry) => ({
-          id: entry.id,
-          selectedUpgrades: entry.selectedUpgradesDetailed
-        }))
+          'Some selected add-ons are missing Medusa option mappings. Please remove those add-ons or fix their Medusa option value IDs before checkout.',
+        code: 'missing_medusa_option_value_ids',
+        details: unresolvedUpgradeItems
       },
       { status: 400 },
       { noIndex: true }
@@ -328,6 +520,15 @@ export const POST: APIRoute = async ({ request }) => {
   const desiredLocalIds = new Set<string>();
   const desiredVariantIds = new Set<string>();
   const resolvedVariantCache = new Map<string, string>();
+  const optionValueLabelCache = new Map<string, string[]>();
+  const optionValueAvailabilityIssues: Array<{
+    id: string;
+    name: string;
+    baseVariantId: string;
+    requestedOptionValueIds: string[];
+    availableOptionValueIds: string[];
+    selectedUpgrades: string[];
+  }> = [];
   const normalizedCartItems: IncomingCartItem[] = [];
 
   const resolveVariantIdForItem = async (
@@ -380,13 +581,42 @@ export const POST: APIRoute = async ({ request }) => {
 
     try {
       if (!optionValueIds.length && optionLabels.length > 0) {
-        const labelResolved = await resolveByLabels(optionLabels);
-        const resolvedIds: string[] = Array.isArray(labelResolved?.requested_option_value_ids)
-          ? labelResolved.requested_option_value_ids.map((value: unknown) => String(value || '').trim()).filter(Boolean)
-          : [];
-        if (resolvedIds.length > 0) {
-          optionValueIds = resolvedIds.sort();
-          workingItem = populateMissingUpgradeOptionValueIds(workingItem, optionValueIds);
+        const labelAttempts = buildLabelResolutionAttempts(optionLabels);
+        for (const attemptLabels of labelAttempts) {
+          const labelResolved = await resolveByLabels(attemptLabels);
+          const resolvedVariantId =
+            typeof labelResolved?.variant_id === 'string' ? labelResolved.variant_id.trim() : '';
+          const resolvedIds: string[] = Array.isArray(labelResolved?.requested_option_value_ids)
+            ? labelResolved.requested_option_value_ids
+                .map((value: unknown) => String(value || '').trim())
+                .filter(Boolean)
+            : [];
+          if (resolvedIds.length > 0) {
+            optionValueIds = resolvedIds.sort();
+            workingItem = populateMissingUpgradeOptionValueIds(workingItem, optionValueIds);
+            break;
+          }
+          if (resolvedVariantId && resolvedVariantId !== baseVariantId) {
+            return { variantId: resolvedVariantId, item: workingItem };
+          }
+        }
+
+        if (!optionValueIds.length) {
+          const fallbackCacheKey = `${baseVariantId}::${optionLabels
+            .map((label) => normalizeLabelKey(label))
+            .sort()
+            .join('||')}`;
+          const cachedFallback = optionValueLabelCache.get(fallbackCacheKey);
+          const fallbackIds =
+            cachedFallback ??
+            (await resolveOptionValueIdsFromMedusaCatalog(baseVariantId, optionLabels));
+          if (!cachedFallback) {
+            optionValueLabelCache.set(fallbackCacheKey, fallbackIds);
+          }
+          if (fallbackIds.length > 0) {
+            optionValueIds = fallbackIds.sort();
+            workingItem = populateMissingUpgradeOptionValueIds(workingItem, optionValueIds);
+          }
         }
       }
 
@@ -405,7 +635,12 @@ export const POST: APIRoute = async ({ request }) => {
       const availableOptionValueIds: string[] = Array.isArray(resolved.data?.available_option_value_ids)
         ? resolved.data.available_option_value_ids
         : [];
-      if (resolved.data?.reason === 'no_matching_variant' && missingRequested.length > 0 && availableOptionValueIds.length === 1) {
+      if (
+        resolved.data?.reason === 'no_matching_variant' &&
+        missingRequested.length > 0 &&
+        availableOptionValueIds.length === 1 &&
+        missingRequested.length === 1
+      ) {
         const replacement = String(availableOptionValueIds[0] || '').trim();
         if (replacement) {
           const remap = new Map<string, string>();
@@ -428,6 +663,31 @@ export const POST: APIRoute = async ({ request }) => {
               return { variantId: resolved.variantId, item: workingItem };
             }
           }
+        }
+      }
+
+      if (resolved.data?.reason === 'no_matching_variant' && missingRequested.length > 0) {
+        const normalizedMissing = missingRequested
+          .map((value) => String(value || '').trim())
+          .filter(Boolean);
+        const normalizedAvailable = availableOptionValueIds
+          .map((value) => String(value || '').trim())
+          .filter(Boolean);
+        const existingIssue = optionValueAvailabilityIssues.find((entry) => entry.id === item.id);
+        if (!existingIssue) {
+          optionValueAvailabilityIssues.push({
+            id: item.id,
+            name: item.name || item.id,
+            baseVariantId,
+            requestedOptionValueIds: normalizedMissing,
+            availableOptionValueIds: normalizedAvailable,
+            selectedUpgrades: Array.from(
+              new Set([
+                ...getSelectedUpgradeLabels(workingItem),
+                ...toCleanStringArray(item.selectedUpgrades)
+              ])
+            )
+          });
         }
       }
 
@@ -616,15 +876,6 @@ export const POST: APIRoute = async ({ request }) => {
       }, 0);
       if (addOnTotal <= 0) return null;
 
-      // If none of the selected upgrades have a medusaOptionValueId, they are
-      // metadata-only add-ons (price tracked client-side, not via Medusa variants).
-      // Skip the strict Medusa price check — Medusa won't reflect the add-on delta
-      // and the mismatch is expected. Add-on details are stored in line item metadata.
-      const hasVariantBackedAddOns = detailed.some(
-        (entry) => typeof entry?.medusaOptionValueId === 'string' && entry.medusaOptionValueId.trim()
-      );
-      if (!hasVariantBackedAddOns) return null;
-
       const explicitBasePrice = toRoundedNumber(item.basePrice);
       const cartItemPrice = toRoundedNumber(item.price);
       const cartItemExtra = toRoundedNumber(item.extra);
@@ -645,34 +896,42 @@ export const POST: APIRoute = async ({ request }) => {
       const actualUnitPrice = toRoundedNumber(lineItem?.unit_price);
 
       if (actualUnitPrice == null) {
-        // Line item not resolved in Medusa cart (metadata lookup miss or item not yet indexed).
-        // Cannot verify price — log and skip rather than blocking checkout.
-        console.warn('[addon_price_check] line_item_not_found', {
+        // If line item cannot be resolved we cannot prove add-on pricing integrity.
+        // Block checkout to avoid undercharging.
+        console.warn('[addon_price_check] line_item_not_found_blocked', {
           itemId: item.id,
           expectedUnitPrice,
           addOnTotal
         });
-        return null;
+        return {
+          id: item.id,
+          name: item.name || item.id,
+          selectedUpgrades: Array.from(
+            new Set(
+              [
+                ...toCleanStringArray(item.selectedUpgrades),
+                ...detailed.map((entry) => String(entry?.label || '').trim()).filter(Boolean)
+              ]
+            )
+          ),
+          expectedUnitPrice,
+          actualUnitPrice: null,
+          addOnTotal
+        };
       }
 
       if (actualUnitPrice !== expectedUnitPrice) {
-        // Only flag as a hard error when Medusa applied a REAL add-on surcharge
-        // (actualUnitPrice > inferredBasePrice). If Medusa priced at base, the
-        // option value IDs are orphaned/not applied in Medusa — treat as
-        // metadata-only add-ons and skip the blocking check.
-        const medusaAppliedAddOnCost = inferredBasePrice != null ? actualUnitPrice - inferredBasePrice : -1;
-        if (medusaAppliedAddOnCost <= 0) {
-          console.warn('[addon_price_check] orphaned_option_ids_metadata_only', {
-            itemId: item.id,
-            inferredBasePrice,
-            actualUnitPrice,
-            expectedUnitPrice,
-            addOnTotal
-          });
-          return null;
-        }
         return {
           id: item.id,
+          name: item.name || item.id,
+          selectedUpgrades: Array.from(
+            new Set(
+              [
+                ...toCleanStringArray(item.selectedUpgrades),
+                ...detailed.map((entry) => String(entry?.label || '').trim()).filter(Boolean)
+              ]
+            )
+          ),
           expectedUnitPrice,
           actualUnitPrice,
           addOnTotal
@@ -683,14 +942,73 @@ export const POST: APIRoute = async ({ request }) => {
     .filter(Boolean);
 
   if (addOnPriceMismatches.length > 0) {
+    const variantAvailabilityMismatches = addOnPriceMismatches
+      .map((entry: any) => {
+        const issue = optionValueAvailabilityIssues.find((candidate) => candidate.id === entry?.id);
+        if (!issue) return null;
+        return {
+          id: entry.id,
+          name: entry.name,
+          selectedUpgrades: entry.selectedUpgrades,
+          expectedUnitPrice: entry.expectedUnitPrice,
+          actualUnitPrice: entry.actualUnitPrice,
+          addOnTotal: entry.addOnTotal,
+          baseVariantId: issue.baseVariantId,
+          requestedOptionValueIds: issue.requestedOptionValueIds,
+          availableOptionValueIds: issue.availableOptionValueIds
+        };
+      })
+      .filter(Boolean);
+
+    if (variantAvailabilityMismatches.length > 0) {
+      console.warn('[unmapped_addon_selection] option_values_not_available_for_variant', {
+        cartId,
+        mismatches: variantAvailabilityMismatches
+      });
+      return jsonResponse(
+        {
+          error:
+            'Selected add-ons are not available for the chosen Medusa variant. Please remove those add-ons or update Medusa option-value mappings for this variant before checkout.',
+          code: 'addon_option_values_not_available_for_variant',
+          details: variantAvailabilityMismatches
+        },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
+
+    const unresolvedIdMismatches = addOnPriceMismatches.filter((entry: any) => {
+      const rawItem = normalizedCartItems.find((item) => item.id === entry?.id);
+      const detailed = Array.isArray(rawItem?.selectedUpgradesDetailed)
+        ? rawItem!.selectedUpgradesDetailed
+        : [];
+      if (!detailed.length) return false;
+      return detailed.every(
+        (detail) =>
+          !(typeof detail?.medusaOptionValueId === 'string' && detail.medusaOptionValueId.trim())
+      );
+    });
+
     console.warn('[unmapped_addon_selection] medusa_price_mismatch', {
       cartId,
       mismatches: addOnPriceMismatches
     });
+    if (unresolvedIdMismatches.length > 0) {
+      return jsonResponse(
+        {
+          error:
+            'Some selected add-ons are missing Medusa option mappings. Please remove those add-ons or fix their Medusa option value IDs before checkout.',
+          code: 'missing_medusa_option_value_ids',
+          details: unresolvedIdMismatches
+        },
+        { status: 400 },
+        { noIndex: true }
+      );
+    }
     return jsonResponse(
       {
         error:
-          'We could not confirm pricing for one of your selected options. Please remove that option and try again.',
+          'Selected add-ons are not fully priced in Medusa yet. Please remove those add-ons or contact support before checkout.',
         details: addOnPriceMismatches
       },
       { status: 400 },

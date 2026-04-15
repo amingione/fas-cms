@@ -79,8 +79,9 @@ const parseOptionDetails = (metadata?: Record<string, unknown>): { summary?: str
   const meta = metadata as Record<string, unknown>;
 
   const optionSummary = toStringOrUndefined(
-    meta['option_summary'] ?? meta['selected_options'] ?? meta['options_readable']
+    meta['option_summary'] ?? meta['options_readable']
   );
+  const selectedOptions = normalizeStringArray(meta['selected_options'], /[|,]/);
   const optionDetailString = toStringOrUndefined(meta['Options Detail'] ?? meta['options_detail']);
 
   const detailSet: Set<string> = new Set();
@@ -121,6 +122,7 @@ const parseOptionDetails = (metadata?: Record<string, unknown>): { summary?: str
   normalizeStringArray(meta['optionDetails'] ?? meta['option_details'], /[•|,]/).forEach((entry) =>
     pushDetail(entry)
   );
+  selectedOptions.forEach((entry) => pushDetail(entry));
 
   if (!detailSet.size && optionSummary) {
     optionSummary
@@ -138,7 +140,8 @@ const parseOptionDetails = (metadata?: Record<string, unknown>): { summary?: str
       .forEach((entry) => pushDetail(entry));
   }
 
-  return { summary: optionSummary, details: detailSet.size ? Array.from(detailSet) : undefined };
+  const resolvedSummary = optionSummary ?? (selectedOptions.length ? selectedOptions.join(' | ') : undefined);
+  return { summary: resolvedSummary, details: detailSet.size ? Array.from(detailSet) : undefined };
 };
 
 const parseUpgrades = (metadata?: Record<string, unknown>): { list?: string[]; total?: number } => {
@@ -150,6 +153,7 @@ const parseUpgrades = (metadata?: Record<string, unknown>): { list?: string[]; t
   };
 
   addValues(meta['upgrades']);
+  addValues(meta['selected_upgrades']);
   addValues(meta['upgrades_readable']);
   addValues(meta['upgrade_list']);
   addValues(meta['upgrade_titles']);
@@ -159,8 +163,25 @@ const parseUpgrades = (metadata?: Record<string, unknown>): { list?: string[]; t
     .filter((key) => /^upgrade_\d+$/i.test(key))
     .forEach((key) => addValues(meta[key]));
 
+  const selectedUpgradeDetails = Array.isArray(meta['selected_upgrades_detailed'])
+    ? (meta['selected_upgrades_detailed'] as unknown[])
+    : [];
+  selectedUpgradeDetails.forEach((entry) => {
+    if (!entry || typeof entry !== 'object') return;
+    const label = toStringOrUndefined((entry as any).label);
+    if (label) values.add(label);
+  });
+  const selectedUpgradeDetailsTotal = selectedUpgradeDetails.reduce((sum: number, entry: unknown) => {
+    const cents = toNumber((entry as any)?.priceCents);
+    return sum + (typeof cents === 'number' ? Math.max(0, cents) : 0);
+  }, 0 as number);
+
   const total = toNumber(
-    meta['upgrades_total'] ?? meta['upgrade_total'] ?? meta['upgradesTotal'] ?? meta['upgradeTotal']
+    meta['upgrades_total'] ??
+      meta['upgrade_total'] ??
+      meta['upgradesTotal'] ??
+      meta['upgradeTotal'] ??
+      (selectedUpgradeDetailsTotal > 0 ? selectedUpgradeDetailsTotal : undefined)
   );
 
   return { list: values.size ? Array.from(values) : undefined, total: total ?? undefined };

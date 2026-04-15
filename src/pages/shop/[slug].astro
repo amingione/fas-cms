@@ -222,6 +222,19 @@ const collapseSpaces = (value: unknown): string => {
   return String(value).replace(/\s+/g, ' ').trim();
 };
 
+const normalizeAddonLabelKey = (value: unknown): string =>
+  String(value || '')
+    .replace(/\u00A0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([-/–—])\s*/g, '$1')
+    .trim()
+    .toLowerCase();
+
+const KNOWN_MEDUSA_ADDON_OPTION_IDS: Record<
+  string,
+  { medusaOptionId: string; medusaOptionValueId: string }
+> = {};
+
 const META_DESCRIPTION_SUFFIX =
   'Shop high-performance installs and upgrades with FAS Motorsports. Fast shipping & expert service. Punta Gorda, Florida.';
 const META_DESCRIPTION_LIMIT = 155;
@@ -1007,6 +1020,11 @@ try {
                   : 0;
           const priceDeltaCents =
             Number.isFinite(priceDelta) ? Math.round(Number(priceDelta) * 100) : 0;
+          const inferredIds = KNOWN_MEDUSA_ADDON_OPTION_IDS[normalizeAddonLabelKey(label)];
+          const explicitOptionId =
+            typeof a?.medusaOptionId === 'string' ? a.medusaOptionId.trim() : '';
+          const explicitOptionValueId =
+            typeof a?.medusaOptionValueId === 'string' ? a.medusaOptionValueId.trim() : '';
           return {
             ...a,
             label,
@@ -1015,10 +1033,8 @@ try {
             priceDeltaCents,
             group: (a?.group || '').toString(),
             key: (a?.key || a?.slug || a?.id || label || '').toString(),
-            medusaOptionId:
-              typeof a?.medusaOptionId === 'string' ? a.medusaOptionId : undefined,
-            medusaOptionValueId:
-              typeof a?.medusaOptionValueId === 'string' ? a.medusaOptionValueId : undefined,
+            medusaOptionId: explicitOptionId || inferredIds?.medusaOptionId,
+            medusaOptionValueId: explicitOptionValueId || inferredIds?.medusaOptionValueId,
           };
         })
     : [];

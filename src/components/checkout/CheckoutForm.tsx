@@ -53,6 +53,7 @@ interface CartItem {
   total: number;
   install_only?: boolean;
   shipping_class?: string | null;
+  metadata?: Record<string, any>;
 }
 
 interface Discount {
@@ -207,6 +208,42 @@ function resolveShippingOptionAmountCents(rate: ShippingRate): number | null {
 function formatCurrency(cents: number | null | undefined): string {
   const value = typeof cents === 'number' ? cents : 0;
   return `$${(value / 100).toFixed(2)}`;
+}
+
+function normalizeLineItemLabels(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry ?? '').trim())
+      .filter(Boolean);
+  }
+  if (typeof value === 'string') {
+    return value
+      .split(/[|,]/)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+type LineItemUpgradeDetail = {
+  label: string;
+  priceCents: number;
+};
+
+function readLineItemUpgradeDetails(item: CartItem): LineItemUpgradeDetail[] {
+  const raw = Array.isArray((item as any)?.metadata?.selected_upgrades_detailed)
+    ? (item as any).metadata.selected_upgrades_detailed
+    : [];
+  return raw
+    .map((entry: any) => {
+      if (!entry || typeof entry !== 'object') return null;
+      const label = String(entry.label ?? '').trim();
+      const priceRaw =
+        typeof entry.priceCents === 'number' ? entry.priceCents : Number(entry.priceCents);
+      if (!label || !Number.isFinite(priceRaw)) return null;
+      return { label, priceCents: Math.round(priceRaw) };
+    })
+    .filter((entry: LineItemUpgradeDetail | null): entry is LineItemUpgradeDetail => Boolean(entry));
 }
 
 function resolveCheckoutImageSrc(thumbnail: string | null | undefined): string {
@@ -900,6 +937,17 @@ export default function CheckoutForm() {
     () => (cart?.items || []).reduce((sum, p) => sum + Number(p.quantity || 0), 0),
     [cart]
   );
+  const hasSelectedAddOns = useMemo(() => {
+    const items = Array.isArray(cart?.items) ? cart.items : [];
+    return items.some((item) => {
+      const details = readLineItemUpgradeDetails(item);
+      if (details.length > 0) return true;
+      const selectedUpgrades = normalizeLineItemLabels(
+        (item as any)?.metadata?.selected_upgrades ?? (item as any)?.metadata?.upgrades
+      );
+      return selectedUpgrades.length > 0;
+    });
+  }, [cart?.items]);
   const displayTotals = useMemo(() => {
     const discountCents = Math.max(0, cart?.discount_amount_cents ?? 0);
     const authoritativeSubtotalCents = Math.max(0, cart?.subtotal_cents ?? 0);
@@ -1102,6 +1150,39 @@ export default function CheckoutForm() {
                       product.variant_title.trim().toLowerCase() !== 'default' && (
                         <p className="checkout-v2-variant">{product.variant_title.trim()}</p>
                       )}
+                    {(() => {
+                      const selectedOptions = normalizeLineItemLabels((product as any)?.metadata?.selected_options);
+                      if (!selectedOptions.length) return null;
+                      return (
+                        <p className="checkout-v2-variant">
+                          Options: {selectedOptions.join(', ')}
+                        </p>
+                      );
+                    })()}
+                    {(() => {
+                      const upgradeDetails = readLineItemUpgradeDetails(product);
+                      if (upgradeDetails.length > 0) {
+                        return (
+                          <div className="checkout-v2-variant">
+                            {upgradeDetails.map((upgrade) => (
+                              <div key={`${product.id}-${upgrade.label}`}>
+                                Add-on: {upgrade.label} ({formatCurrency(upgrade.priceCents)})
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      }
+                      const selectedUpgrades = normalizeLineItemLabels(
+                        (product as any)?.metadata?.selected_upgrades ??
+                          (product as any)?.metadata?.upgrades
+                      );
+                      if (!selectedUpgrades.length) return null;
+                      return (
+                        <p className="checkout-v2-variant">
+                          Add-ons: {selectedUpgrades.join(', ')}
+                        </p>
+                      );
+                    })()}
                   </div>
                   <p className="checkout-v2-price">{formatCurrency(product.total)}</p>
                 </div>
@@ -1182,7 +1263,7 @@ export default function CheckoutForm() {
 
             <div className="checkout-v2-totals">
               <div>
-                <span>Subtotal</span>
+                <span>{hasSelectedAddOns ? 'Subtotal (includes selected add-ons)' : 'Subtotal'}</span>
                 <span>{formatCurrency(displayTotals.subtotalCents)}</span>
               </div>
               <div>
@@ -1298,6 +1379,8 @@ function NonReadyPaymentPane({
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const addressLookupRequestIdRef = useRef(0);
   const addressLookupTimerRef = useRef<number | null>(null);
+  const addressLookupContainerRef = useRef<HTMLDivElement | null>(null);
+  const address1InputRef = useRef<HTMLInputElement | null>(null);
   const mapboxToken = useMemo(() => resolvePublicMapboxToken(), []);
   const addressLookupEnabled = useMemo(() => isAddressLookupEnabled(mapboxToken), [mapboxToken]);
   const lookupCountryCode = useMemo(
@@ -1324,6 +1407,22 @@ function NonReadyPaymentPane({
       onAddressValueChange(field, event.currentTarget.value);
     };
 
+  const cancelPendingAddressLookup = () => {
+    addressLookupRequestIdRef.current += 1;
+    if (addressLookupTimerRef.current) {
+      window.clearTimeout(addressLookupTimerRef.current);
+      addressLookupTimerRef.current = null;
+    }
+    setLoadingAddressSuggestions(false);
+  };
+
+  const dismissAddressSuggestions = (options?: { clearSuggestions?: boolean }) => {
+    setShowAddressSuggestions(false);
+    if (options?.clearSuggestions) {
+      setAddressSuggestions([]);
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (addressLookupTimerRef.current) {
@@ -1332,17 +1431,26 @@ function NonReadyPaymentPane({
     };
   }, []);
 
+  useEffect(() => {
+    if (!showAddressSuggestions) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      const container = addressLookupContainerRef.current;
+      if (!container) return;
+      if (container.contains(event.target as Node)) return;
+      dismissAddressSuggestions();
+    };
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [showAddressSuggestions]);
+
   const handleAddress1Change = (event: ChangeEvent<HTMLInputElement>) => {
     onAddressChange('address1')(event);
     const query = event.target.value.trim();
     if (!addressLookupEnabled || query.length < 3) {
-      setAddressSuggestions([]);
-      setLoadingAddressSuggestions(false);
-      setShowAddressSuggestions(false);
-      if (addressLookupTimerRef.current) {
-        window.clearTimeout(addressLookupTimerRef.current);
-        addressLookupTimerRef.current = null;
-      }
+      cancelPendingAddressLookup();
+      dismissAddressSuggestions({ clearSuggestions: true });
       return;
     }
 
@@ -1403,8 +1511,14 @@ function NonReadyPaymentPane({
               Boolean(entry.province) &&
               Boolean(entry.postalCode)
           );
+        const activeQuery = address1InputRef.current?.value.trim() ?? '';
+        if (activeQuery !== query) return;
         setAddressSuggestions(nextSuggestions);
-        setShowAddressSuggestions(nextSuggestions.length > 0);
+        const inputIsFocused =
+          typeof document !== 'undefined' &&
+          address1InputRef.current != null &&
+          document.activeElement === address1InputRef.current;
+        setShowAddressSuggestions(inputIsFocused && nextSuggestions.length > 0);
       } catch (lookupError) {
         if (requestId !== addressLookupRequestIdRef.current) return;
         if (!lookupErrorLoggedRef.current) {
@@ -1477,23 +1591,29 @@ function NonReadyPaymentPane({
                 autoComplete="shipping family-name"
               />
             </div>
-            <div className="span-2" style={{ position: 'relative' }}>
+            <div className="span-2" style={{ position: 'relative' }} ref={addressLookupContainerRef}>
               <label htmlFor="addr-line1" className="sr-only">Address line 1</label>
               <input
                 id="addr-line1"
+                ref={address1InputRef}
                 type="text"
                 name="address1"
                 value={shippingAddress.address1}
                 onChange={handleAddress1Change}
                 placeholder="Address line 1"
                 autoComplete="shipping address-line1"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    dismissAddressSuggestions();
+                  }
+                }}
                 onFocus={() => {
                   if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
                 }}
                 onInput={syncAddressFieldFromInput('address1')}
                 onBlur={(event) => {
                   onAddressValueChange('address1', event.currentTarget.value);
-                  window.setTimeout(() => setShowAddressSuggestions(false), 120);
+                  dismissAddressSuggestions();
                 }}
                 onAnimationStart={syncAddressFieldFromAutofill('address1')}
               />
@@ -1517,7 +1637,12 @@ function NonReadyPaymentPane({
                     <button
                       type="button"
                       key={suggestion.id}
-                      onMouseDown={() => onApplyAddressSuggestion(suggestion)}
+                      onMouseDown={(event) => {
+                        event.preventDefault();
+                        onApplyAddressSuggestion(suggestion);
+                        cancelPendingAddressLookup();
+                        dismissAddressSuggestions({ clearSuggestions: true });
+                      }}
                       style={{
                         display: 'block',
                         width: '100%',

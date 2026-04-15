@@ -90,6 +90,46 @@ function resolveItemShippingClass(item: any): string | null {
   return null;
 }
 
+function sanitizeLineItemMetadata(metadata: unknown): Record<string, unknown> | undefined {
+  if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
+  const source = metadata as Record<string, unknown>;
+  const selectedOptions = Array.isArray(source.selected_options)
+    ? source.selected_options
+        .map((entry) => String(entry ?? '').trim())
+        .filter(Boolean)
+    : [];
+  const selectedUpgrades = Array.isArray(source.selected_upgrades)
+    ? source.selected_upgrades
+        .map((entry) => String(entry ?? '').trim())
+        .filter(Boolean)
+    : [];
+  const selectedUpgradesDetailed = Array.isArray(source.selected_upgrades_detailed)
+    ? source.selected_upgrades_detailed
+        .map((entry) => {
+          if (!entry || typeof entry !== 'object') return null;
+          const rec = entry as Record<string, unknown>;
+          const label = String(rec.label ?? '').trim();
+          const optionValueId = String(rec.medusaOptionValueId ?? '').trim();
+          const rawPrice = typeof rec.priceCents === 'number' ? rec.priceCents : Number(rec.priceCents);
+          if (!label || !Number.isFinite(rawPrice)) return null;
+          return {
+            label,
+            medusaOptionValueId: optionValueId,
+            priceCents: Math.round(rawPrice)
+          };
+        })
+        .filter(Boolean)
+    : [];
+
+  const next: Record<string, unknown> = {
+    ...source
+  };
+  if (selectedOptions.length) next.selected_options = selectedOptions;
+  if (selectedUpgrades.length) next.selected_upgrades = selectedUpgrades;
+  if (selectedUpgradesDetailed.length) next.selected_upgrades_detailed = selectedUpgradesDetailed;
+  return next;
+}
+
 function resolveItemInstallOnly(item: any): boolean {
   const normalizedTitle = String(item?.title || '')
     .trim()
@@ -230,7 +270,8 @@ export function buildStorefrontCartFromMedusaCart(medusaCart: any) {
       variant_title: asString(item?.variant_title) ?? asString(item?.variant?.title),
       quantity: item.quantity,
       install_only: resolveItemInstallOnly(item),
-      shipping_class: resolveItemShippingClass(item)
+      shipping_class: resolveItemShippingClass(item),
+      metadata: sanitizeLineItemMetadata(item?.metadata)
     })),
     subtotal_cents: medusaSubtotalCents,
     tax_amount_cents: medusaTaxCents,

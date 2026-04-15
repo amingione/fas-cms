@@ -99,12 +99,13 @@ function emitCartChanged(cart: Cart) {
 
 function writeCartState(cart: Cart) {
   if (!isBrowser()) return;
+  const normalized = toDisplayCart(cart.items as CanonicalCartItem[]);
   try {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    localStorage.setItem(CART_KEY, JSON.stringify(normalized));
   } catch {
     // no-op
   }
-  emitCartChanged(cart);
+  emitCartChanged(normalized);
 }
 
 function toDisplayCart(items: CanonicalCartItem[]): Cart {
@@ -278,42 +279,44 @@ export async function createCartAndSetCookie() {
   await ensureMedusaCartId();
 }
 
-function buildLocalSignature(items: CartItem[]): string {
-  return items
-    .map((item) => {
-      const id = normalizeLocalItemId(item.id);
-      const variant = normalizeLocalItemId(item.medusaVariantId || '');
-      const qty = Math.max(1, Number(item.quantity) || 1);
-      return `${id}|${variant}|${qty}`;
-    })
+function buildIdentityQuantitySignature(entries: Array<{ key: string; qty: number }>): string {
+  const quantities = new Map<string, number>();
+  for (const entry of entries) {
+    const key = normalizeLocalItemId(entry.key);
+    const qty = Math.max(1, Number(entry.qty) || 1);
+    if (!key) continue;
+    quantities.set(key, (quantities.get(key) || 0) + qty);
+  }
+  return Array.from(quantities.entries())
+    .map(([key, qty]) => `${key}|${qty}`)
     .sort()
     .join('::');
 }
 
+function buildLocalSignature(items: CartItem[]): string {
+  return buildIdentityQuantitySignature(
+    items.map((item) => ({
+      key: item.id || item.medusaVariantId || '',
+      qty: item.quantity
+    }))
+  );
+}
+
 function buildCheckoutSignature(checkoutCart: any): string {
   const items = Array.isArray(checkoutCart?.items) ? checkoutCart.items : [];
-  return items
-    .map((item: any) => {
-      const id =
-        normalizeLocalItemId(item?.local_item_id) ||
-        normalizeLocalItemId(item?.metadata?.local_item_id) ||
-        normalizeLocalItemId(item?.medusa_variant_id) ||
-        normalizeLocalItemId(item?.variant_id) ||
-        normalizeLocalItemId(item?.metadata?.resolved_variant_id) ||
-        normalizeLocalItemId(item?.metadata?.base_variant_id) ||
-        normalizeLocalItemId(item?.id);
-      const variant = normalizeLocalItemId(
+  return buildIdentityQuantitySignature(
+    items.map((item: any) => ({
+      key:
+        item?.local_item_id ||
+        item?.metadata?.local_item_id ||
         item?.medusa_variant_id ||
-          item?.variant_id ||
-          item?.metadata?.resolved_variant_id ||
-          item?.metadata?.base_variant_id ||
-          ''
-      );
-      const qty = Math.max(1, Number(item?.quantity) || 1);
-      return `${id}|${variant}|${qty}`;
-    })
-    .sort()
-    .join('::');
+        item?.variant_id ||
+        item?.metadata?.resolved_variant_id ||
+        item?.metadata?.base_variant_id ||
+        '',
+      qty: item?.quantity
+    }))
+  );
 }
 
 async function fetchAuthoritativeCheckoutCart(cartId: string): Promise<any | null> {
@@ -356,6 +359,12 @@ export async function redirectToCheckout() {
   const driftDetected = localSignature !== serverSignature;
 
   if (!hasServerItems || driftDetected) {
+    if (driftDetected) {
+      console.warn('[cart-debug] checkout signature drift (pre-retry)', {
+        localSignature,
+        serverSignature
+      });
+    }
     const retrySync = await syncDisplayCart(getCart());
     if (!retrySync.ok) {
       return retrySync.error || 'Unable to prepare checkout cart. Please try again.';
@@ -370,6 +379,10 @@ export async function redirectToCheckout() {
       return 'Checkout cart is empty after sync. Please refresh your cart and try again.';
     }
     if (localSignature !== serverSignature) {
+      console.warn('[cart-debug] checkout signature drift (post-retry)', {
+        localSignature,
+        serverSignature
+      });
       return 'Your cart could not be reconciled for checkout. Please refresh and try again.';
     }
   }

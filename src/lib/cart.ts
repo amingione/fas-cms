@@ -147,6 +147,57 @@ export async function ensureMedusaCartId(): Promise<string | null> {
 
 export type SyncMedusaCartResult = { ok: boolean; error?: string; cart?: any | null };
 
+function formatCentsForError(value: unknown): string {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  if (!Number.isFinite(numeric)) return 'n/a';
+  return `$${(numeric / 100).toFixed(2)}`;
+}
+
+function buildPricingMismatchMessage(payload: any): string | null {
+  const details = Array.isArray(payload?.details) ? payload.details : [];
+  if (!details.length) return null;
+  const lines = details.slice(0, 3).map((entry: any) => {
+    const name = String(entry?.name || entry?.id || 'item').trim();
+    const addOns = Array.isArray(entry?.selectedUpgrades)
+      ? entry.selectedUpgrades.map((label: unknown) => String(label || '').trim()).filter(Boolean)
+      : [];
+    const addOnText = addOns.length ? ` [${addOns.join(', ')}]` : '';
+    const expected = formatCentsForError(entry?.expectedUnitPrice);
+    const actual = entry?.actualUnitPrice == null ? 'unresolved' : formatCentsForError(entry?.actualUnitPrice);
+    return `${name}${addOnText}: expected ${expected}, got ${actual}`;
+  });
+  return `Add-on pricing mismatch: ${lines.join(' | ')}`;
+}
+
+function buildMissingOptionIdMessage(payload: any): string | null {
+  if (payload?.code !== 'missing_medusa_option_value_ids') return null;
+  const details = Array.isArray(payload?.details) ? payload.details : [];
+  if (!details.length) return null;
+  const lines = details.slice(0, 3).map((entry: any) => {
+    const name = String(entry?.name || entry?.id || 'item').trim();
+    const addOns = Array.isArray(entry?.selectedUpgrades)
+      ? entry.selectedUpgrades.map((label: unknown) => String(label || '').trim()).filter(Boolean)
+      : [];
+    return addOns.length ? `${name}: ${addOns.join(', ')}` : name;
+  });
+  return `Missing Medusa option IDs for add-ons: ${lines.join(' | ')}`;
+}
+
+function buildVariantOptionAvailabilityMessage(payload: any): string | null {
+  if (payload?.code !== 'addon_option_values_not_available_for_variant') return null;
+  const details = Array.isArray(payload?.details) ? payload.details : [];
+  if (!details.length) return null;
+  const lines = details.slice(0, 3).map((entry: any) => {
+    const name = String(entry?.name || entry?.id || 'item').trim();
+    const addOns = Array.isArray(entry?.selectedUpgrades)
+      ? entry.selectedUpgrades.map((label: unknown) => String(label || '').trim()).filter(Boolean)
+      : [];
+    const addOnText = addOns.length ? ` [${addOns.join(', ')}]` : '';
+    return `${name}${addOnText}`;
+  });
+  return `Add-ons not available for this Medusa variant: ${lines.join(' | ')}`;
+}
+
 export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartResult> {
   return syncMedusaCartAttempt(cart, 0);
 }
@@ -202,7 +253,18 @@ async function syncMedusaCartAttempt(
         }
       }
 
-      return { ok: false, error: payload?.error || 'Failed to sync cart with checkout.' };
+      const missingOptionIds = buildMissingOptionIdMessage(payload);
+      const variantOptionAvailability = buildVariantOptionAvailabilityMessage(payload);
+      const detailedMismatch = buildPricingMismatchMessage(payload);
+      return {
+        ok: false,
+        error:
+          missingOptionIds ||
+          variantOptionAvailability ||
+          detailedMismatch ||
+          payload?.error ||
+          'Failed to sync cart with checkout.'
+      };
     }
     console.info('[cart-debug] after medusa sync response', {
       ok: true,
