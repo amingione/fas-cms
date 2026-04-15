@@ -770,7 +770,12 @@ export default function CheckoutForm() {
         });
         if (!intentResponse.ok) {
           const payload = await intentResponse.json().catch(() => null);
-          throw new Error(payload?.error || 'Failed to initialize payment');
+          const detailsMessage =
+            payload?.details?.error ||
+            payload?.details?.message ||
+            payload?.message ||
+            payload?.code;
+          throw new Error(payload?.error || detailsMessage || 'Failed to initialize payment');
         }
         const payload = await intentResponse.json().catch(() => null);
         if (!payload?.client_secret) {
