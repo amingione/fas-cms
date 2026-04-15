@@ -46,7 +46,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:e2e:ci": "playwright test --reporter=github",
-    "compliance:check": "npx tsx ../fas-sanity/scripts/compliance/fas-compliance-check.ts"
+    "compliance:check": "npx tsx ../fas-sanity/scripts/compliance/fas-compliance-check.ts",
+    "env:check:encrypted:prod": "node ./scripts/check-env-production-encrypted.mjs --file .env.production"
   },
   "depcheck": {
     "ignorePatterns": [

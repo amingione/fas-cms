@@ -1022,7 +1022,7 @@
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
-  command = "yarn dotenvx run -f .env.production -- yarn build"
+  command = "node ./scripts/check-env-production-encrypted.mjs --file .env.production && yarn dotenvx run -f .env.production -- yarn build"
   publish = "dist"
 
 [build.environment]
