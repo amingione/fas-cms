@@ -184,6 +184,7 @@ export default defineConfig({
         'sonner',
         'framer-motion',
         '@headlessui/react',
+        '@heroicons/react/16/solid',
         '@heroicons/react/20/solid',
         '@heroicons/react/24/outline',
         'lucide-react',
