@@ -13,7 +13,7 @@ Firehose monitors the web in real-time using Ahrefs' massive crawl (8B+ pages/da
 The `FIREHOSE_MANAGEMENT_KEY` is already configured in `.env`:
 
 ```bash
-FIREHOSE_MANAGEMENT_KEY=fhm_j44D2QQqW0RlSoFRfnZelxKkjjuORRSjOtYWhSWb
+FIREHOSE_MANAGEMENT_KEY=<your-management-key-here>
 ```
 
 ### 2. Dependencies
