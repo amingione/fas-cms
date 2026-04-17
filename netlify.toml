@@ -936,13 +936,13 @@
 
 [[redirects]]
   from = "/product-category/:category"
-  to = "/shop?categorySlug=:category/"
+  to = "/shop/?categorySlug=:category"
   status = 301
   force = true
 
 [[redirects]]
   from = "/product-category/:category/"
-  to = "/shop?categorySlug=:category/"
+  to = "/shop/?categorySlug=:category"
   status = 301
   force = true
 
