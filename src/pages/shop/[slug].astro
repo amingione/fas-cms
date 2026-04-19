@@ -1285,6 +1285,15 @@ if (product) {
     : `${baseProductTitle} | FAS Motorsports`;
   seoTitle = collapseSpaces(assembledTitle);
 
+  // Per-slug title overrides — use when the assembled title misses the primary keyword.
+  // Sourced from Ahrefs rank tracker; update alongside slugKeywordOverrides. (2026-04-19)
+  const slugTitleOverrides: Record<string, string> = {
+    'm122-m112-supercharger-porting': 'M122 Supercharger Porting Service | Shelby GT500 & LS Blower Porting | FAS Motorsports',
+  };
+  if (slug && slugTitleOverrides[slug]) {
+    seoTitle = slugTitleOverrides[slug];
+  }
+
   const descriptionSegments: string[] = [];
   const fitmentAndKeyword = [fitmentPhrase, primaryKeyword].filter(Boolean).join(' ');
   if (fitmentAndKeyword) {

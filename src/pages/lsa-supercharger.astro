@@ -1,0 +1,412 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/Button.astro';
+import {
+  BUSINESS_PHONE_NATIONAL,
+  BUSINESS_PHONE_E164,
+  BUSINESS_ADDRESS_LINE1,
+  BUSINESS_ADDRESS_LOCALITY,
+  BUSINESS_ADDRESS_REGION,
+  BUSINESS_ADDRESS_POSTAL_CODE,
+  BUSINESS_ADDRESS_COUNTRY,
+} from '@/lib/nap';
+
+const faqs = [
+  {
+    q: 'What is the LSA supercharger?',
+    a: "The LSA is a 1.9L Roots-style TVS (Twin Vortices Series) supercharger used in the 2009–2015 Cadillac CTS-V, 2012–2015 Camaro ZL1, and the 2014 Camaro ZL1 convertible. It produces 556–580 hp from the factory. The LSA is widely used in transplant builds on GM trucks, muscle cars, and purpose-built race cars because it's compact, well-supported, and widely available used.",
+  },
+  {
+    q: 'What does LSA supercharger porting do?',
+    a: "Porting removes casting flash, opens the inlet and outlet passages, and smooths the airflow path through the blower housing. The LSA has restriction at the snout inlet and at the discharge side — both respond to porting. On a healthy blower already dialed in with a tune, porting typically adds 20–40 whp and improves boost curve consistency by reducing inlet restriction.",
+  },
+  {
+    q: 'Can you put an LSA supercharger on a 5.3?',
+    a: "Yes — LSA transplants on LS-family 5.3s are common. You'll need an intake manifold adapter, a custom or adapter throttle body, a fuel system upgrade, and a proper tune. The 5.3 head ports are smaller than the LS3/LSA, so the blower will outrun the heads at higher RPM. Most builders go to an LS3 or LS7 head swap alongside the blower install. FAS handles porting, install coordination, and can advise on the full build path.",
+  },
+  {
+    q: 'How does the LSA compare to the LS9?',
+    a: "The LS9 is a 2.3L R2300 TVS supercharger from the C6 Corvette Z06 and ZR1 — it flows more air at higher RPM and is the platform for builds chasing 700+ rwhp on the factory blower. The LSA is more compact and more commonly available, making it the more practical transplant choice for trucks and budget-focused builds. Both platforms receive the same porting service at FAS.",
+  },
+  {
+    q: 'What does an LSA rebuild involve?',
+    a: "A full LSA rebuild at FAS covers rotor inspection and clearance verification, bearing replacement, front seal replacement, case inspection, and reassembly to spec. Porting is the logical add-on — if the blower is already apart, porting while you have access to the housing is the efficient move. Turnaround is typically 5–7 business days.",
+  },
+  {
+    q: 'Is the LSA supercharger bolt-on for LS applications?',
+    a: "Not directly — it requires an intake adapter, fuel system upgrades, and custom tuning for most LS applications outside of its factory platforms (CTS-V and ZL1). Several kit manufacturers make complete LSA swap kits for common LS applications. FAS does not sell the intake adapter kits but can port, rebuild, and install in conjunction with your kit.",
+  },
+  {
+    q: 'Do you handle LSA superchargers on Camaro ZL1 builds specifically?',
+    a: "Yes. The 2012–2015 ZL1 is a common platform at FAS — blower porting, rebuilds, and full pulley/inlet upgrades are all in scope. The ZL1 responds well to porting plus a tune: most ZL1 owners targeting 600+ rwhp start with porting, a smaller upper pulley, and E85 before moving to hardware swaps.",
+  },
+  {
+    q: 'What other GM superchargers does FAS port and rebuild?',
+    a: "FAS handles the LSA, LS9, M112, M122, and LT4. For Hellcat platforms (2.4L TVS and 2.7L IHI), see the Hellcat supercharger porting page. The service and ship-in process is the same across platforms — call before shipping to confirm fitment and current lead time.",
+  },
+];
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(({ q, a }) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+};
+
+const serviceJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'LSA Supercharger Porting and Rebuild Service',
+  description: 'Precision porting and full rebuild services for GM LSA, LS9, and LT4 superchargers. Ship-in nationwide. Hand finished, flow-bench verified, 5–7 day turnaround. FAS Motorsports, Punta Gorda FL.',
+  brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+  url: 'https://fasmotorsports.com/lsa-supercharger',
+  areaServed: 'US',
+  provider: {
+    '@type': 'AutoRepair',
+    name: 'FAS Motorsports',
+    telephone: BUSINESS_PHONE_E164,
+    email: 'sales@fasmotorsports.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: BUSINESS_ADDRESS_LINE1,
+      addressLocality: BUSINESS_ADDRESS_LOCALITY,
+      addressRegion: BUSINESS_ADDRESS_REGION,
+      postalCode: BUSINESS_ADDRESS_POSTAL_CODE,
+      addressCountry: BUSINESS_ADDRESS_COUNTRY,
+    },
+  },
+  offers: {
+    '@type': 'Offer',
+    availability: 'https://schema.org/InStock',
+    url: 'https://fasmotorsports.com/shop/lsa-ls9-lt4-supercharger-porting',
+  },
+};
+---
+
+<BaseLayout
+  title="LSA Supercharger | Porting, Rebuild & Transplant Guide | FAS Motorsports"
+  description="LSA supercharger porting, rebuilds, and install guidance for CTS-V, Camaro ZL1, and transplant builds. Ship-in nationwide. Hand finished, flow-bench verified. FAS Motorsports, Punta Gorda FL."
+  canonical="https://fasmotorsports.com/lsa-supercharger/"
+  keywords={['lsa supercharger', 'lsa supercharger porting', 'lsa supercharger rebuild', 'lsa supercharger on 5.3', 'lsa blower', 'ls9 supercharger', 'camaro zl1 supercharger porting', 'cts-v supercharger rebuild', 'lsa supercharger upgrade', 'gm supercharger porting']}
+  bodyClass="bg-dark text-white min-h-screen flex flex-col"
+  mainClass="flex-1 w-full max-w-none px-0 pt-0"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(serviceJsonLd)} />
+
+  <!-- HERO -->
+  <section class="relative flex items-center justify-center min-h-[480px] sm:min-h-[560px] overflow-hidden bg-black" aria-label="LSA supercharger porting and rebuild">
+    <div class="absolute inset-0 z-0 pointer-events-none" style="background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(234,29,38,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 80% at 20% 80%, rgba(30,80,200,0.08) 0%, transparent 70%);" aria-hidden="true"></div>
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-4">CTS-V · Camaro ZL1 · LS Transplant Builds · Ship-In Nationwide</p>
+      <h1 class="text-4xl sm:text-6xl font-bold font-ethno italic text-white mb-4 leading-tight">
+        LSA Supercharger<br /><span class="text-red-500">Porting, Rebuild & Service</span>
+      </h1>
+      <p class="text-lg font-mono text-white/70 max-w-2xl mx-auto mb-2">
+        In-house. Dyno-proven. FAS Motorsports.
+      </p>
+      <p class="text-base font-mono text-white/50 max-w-2xl mx-auto mb-8">
+        Ship us your LSA, LS9, or LT4. We port, rebuild, and return it flow-bench verified in 5–7 business days. No outsourced machining. Built under one roof since 2002.
+      </p>
+      <p class="text-xs font-mono text-white/30 mb-8 tracking-wide uppercase">
+        Platforms: LSA 1.9L TVS · LS9 2.3L R2300 · LT4 1.7L TVS · M112 · M122
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <Button href="/shop/lsa-ls9-lt4-supercharger-porting" text="Order Porting Service" variant="default" />
+        <Button href="/contact" text={`Call ${BUSINESS_PHONE_NATIONAL}`} variant="outline" />
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT IS THE LSA -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">What Is the LSA Supercharger?</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The LSA is a 1.9L Roots-style TVS (Twin Vortices Series) supercharger. Factory applications include the 2009–2015 Cadillac CTS-V and 2012–2015 Camaro ZL1 — both making 556–580 hp in stock form. The LSA runs at around 9–10 psi from the factory with a plastic rotor assembly inside an aluminum housing.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          What makes the LSA popular beyond its factory platforms is availability. Used LSA units are widely available from CTS-V donors and ZL1 trades. That, combined with its compact dimensions and good airflow envelope, makes it a common transplant for GM truck and muscle car builds — particularly on 5.3L and 6.0L LS applications.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          The LS9 is the larger sibling — 2.3L R2300, from the C6 ZR1 — designed for higher-RPM output and more absolute airflow. Both get the same porting and rebuild treatment at FAS.
+        </p>
+      </div>
+      <div class="border border-white/10 rounded overflow-hidden">
+        <div class="bg-white/10 px-4 py-3 font-mono text-xs font-bold text-white/60 uppercase tracking-wide">LSA Specs at a Glance</div>
+        {[
+          ['Displacement', '1.9L (1900cc)'],
+          ['Type', 'Roots-type TVS (Twin Vortices Series)'],
+          ['Factory platforms', 'CTS-V (2009–2015), Camaro ZL1 (2012–2015)'],
+          ['Factory output', '556–580 hp'],
+          ['Factory boost', '~9–10 psi'],
+          ['Rotor pack', 'Six-lobe rotors (plastic, factory)'],
+          ['Common transplant targets', 'LS 5.3, 6.0, 6.2 · GM trucks · race builds'],
+        ].map(([label, value]) => (
+          <div class="grid grid-cols-2 border-t border-white/10 px-4 py-3">
+            <span class="font-mono text-xs text-white/50">{label}</span>
+            <span class="font-mono text-xs text-white/80">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-2">What FAS Does</p>
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">LSA Services</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="grid lg:grid-cols-3 gap-6">
+
+        <!-- PORTING -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">Precision Porting</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">LSA / LS9 Supercharger Porting</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            The LSA responds to inlet porting more than the Hellcat platforms do — the factory casting leaves significant material in the inlet path. Discharge-side porting adds less on the LSA than the IHI, but inlet work on a ported LSA consistently moves the numbers.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Precision inlet port opening and blending',
+              'Discharge passage smoothing',
+              'Hand finished throughout',
+              'Flow-bench verified before ship-back',
+              '5–7 business day turnaround',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <Button href="/shop/lsa-ls9-lt4-supercharger-porting" text="Order Porting" variant="default" />
+        </div>
+
+        <!-- REBUILD -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">Full Rebuild</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">LSA Supercharger Rebuild</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            Used LSA units from CTS-V and ZL1 donors often have bearing wear or pressure loss after 80–120k miles. FAS rebuilds to spec — rotor clearance, bearing replacement, front seal, and case inspection. If you're already pulling the blower for a rebuild, porting is the smart add-on.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Rotor inspection and clearance check',
+              'Bearing replacement',
+              'Front seal replacement',
+              'Case inspection',
+              'Reassembly to spec and tested',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <Button href="/contact" text="Inquire About Rebuild" variant="outline" />
+        </div>
+
+        <!-- TRANSPLANT GUIDANCE -->
+        <div class="border border-white/10 rounded p-6 bg-white/5 flex flex-col">
+          <p class="text-xs font-mono tracking-widest text-red-500 uppercase mb-3">Transplant Builds</p>
+          <h3 class="text-lg font-cyber font-bold text-white mb-2">LSA on 5.3 / LS Transplants</h3>
+          <p class="text-white/60 font-mono text-xs leading-relaxed mb-4 flex-1">
+            LSA on 5.3, 6.0, and 6.2 LS builds is common. FAS handles the porting and rebuild side — you bring the intake adapter kit and tuner. Call before you ship so we can confirm clearances and advise on what to send.
+          </p>
+          <ul class="space-y-2 mb-5">
+            {[
+              'Port and rebuild prior to install',
+              '5.3, 6.0, 6.2 — all confirmed',
+              'Advise on supporting mod sequence',
+              'Coordinate with your tuner',
+              'Call to confirm fitment and lead time',
+            ].map((item) => (
+              <li class="flex items-start gap-2 font-mono text-xs text-white/70">
+                <span class="text-red-500 shrink-0">▸</span>{item}
+              </li>
+            ))}
+          </ul>
+          <Button href="/contact" text="Call the Shop" variant="outline" />
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- LSA VS LS9 COMPARISON -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">LSA vs. LS9 — What's the Difference?</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="grid md:grid-cols-2 gap-10 items-start">
+      <div>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          The LSA and LS9 are both GM factory superchargers and both use the TVS rotor design — but they are different tools for different applications. The LSA is the practical choice: compact, common, and well-supported by the aftermarket for transplant builds. The LS9 is the high-ceiling option for builds that want factory GM engineering behind a 700+ rwhp target.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed mb-4">
+          Both respond to porting. On the LS9, inlet porting has the same effect as on the LSA — less restriction, better airflow per revolution. The discharge side of the LS9 is already more open from the factory, so most LS9 porting work focuses on the inlet.
+        </p>
+        <p class="text-white/70 font-mono text-sm leading-relaxed">
+          FAS has rebuilt and ported both platforms. If you're deciding between them for a transplant, call the shop — the right answer depends on your RPM target, budget, and how hard you plan to push the fuel system.
+        </p>
+      </div>
+      <div class="border border-white/10 rounded overflow-hidden">
+        <div class="grid grid-cols-3 bg-white/10 px-4 py-3 font-mono text-xs font-bold text-white/60 uppercase tracking-wide">
+          <span></span><span class="text-center text-red-400">LSA</span><span class="text-center text-red-400">LS9</span>
+        </div>
+        {[
+          ['Displacement', '1.9L', '2.3L'],
+          ['Factory application', 'CTS-V, Camaro ZL1', 'C6 Corvette ZR1'],
+          ['Factory boost', '~9–10 psi', '~10.5 psi'],
+          ['Factory output', '556–580 hp', '638 hp'],
+          ['Transplant availability', 'High — common donor', 'Lower — ZR1 is rarer'],
+          ['Porting benefit', 'Primarily inlet', 'Primarily inlet'],
+          ['Best for', 'Transplants, budget builds', '700+ rwhp targets'],
+        ].map(([label, lsa, ls9]) => (
+          <div class="grid grid-cols-3 border-t border-white/10 px-4 py-3">
+            <span class="font-mono text-xs text-white/50">{label}</span>
+            <span class="font-mono text-xs text-white/80 text-center">{lsa}</span>
+            <span class="font-mono text-xs text-white/80 text-center">{ls9}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO SHIP -->
+  <section class="bg-[#0a0b10] border-y border-white/10 px-6 py-20">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">How to Ship Your LSA to FAS</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+      <div class="grid md:grid-cols-2 gap-10 items-start">
+        <ol class="space-y-4">
+          {[
+            {
+              n: '01',
+              title: 'Call or email before you ship',
+              body: `Confirm platform, current lead time, and we'll tell you exactly what to pull. ${BUSINESS_PHONE_NATIONAL} · sales@fasmotorsports.com`,
+            },
+            {
+              n: '02',
+              title: 'Pull the right parts',
+              body: 'Porting only? Send the complete blower — inlet porting requires access to the full housing. Rebuild + porting? Pull and ship the complete assembly.',
+            },
+            {
+              n: '03',
+              title: 'Pack it right',
+              body: `Wrap all port openings. Use original packaging if available. Ship to: FAS Motorsports · ${BUSINESS_ADDRESS_LINE1} · ${BUSINESS_ADDRESS_LOCALITY}, ${BUSINESS_ADDRESS_REGION} ${BUSINESS_ADDRESS_POSTAL_CODE}.`,
+            },
+            {
+              n: '04',
+              title: 'We port and flow-bench verify',
+              body: 'Every unit precision ported, hand finished to spec, and flow-bench tested before crating. No shortcuts.',
+            },
+            {
+              n: '05',
+              title: 'Back in 5–7 business days',
+              body: "Ready to bolt back on and tune. We'll confirm ship-back date when you book.",
+            },
+          ].map(({ n, title, body }) => (
+            <li class="flex gap-4">
+              <span class="font-ethno text-2xl font-bold text-red-500/40 shrink-0 w-8 leading-none mt-0.5">{n}</span>
+              <div>
+                <p class="font-mono text-sm font-bold text-white mb-1">{title}</p>
+                <p class="font-mono text-xs text-white/50 leading-relaxed">{body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <div class="space-y-4">
+          <div class="border border-white/10 rounded p-5 bg-white/5">
+            <p class="text-xs font-mono tracking-widest text-white/40 uppercase mb-3">Other Platforms — Same Process</p>
+            <div class="space-y-3">
+              {[
+                { platform: 'Hellcat / IHI (2.4L / 2.7L)', href: '/hellcat-supercharger-porting' },
+                { platform: 'LT4 Supercharger (C7 Z06 / ZL1)', href: '/hellcat-supercharger-porting' },
+                { platform: 'M122 / M112 (Shelby GT500, LS)', href: '/shop/m122-m112-supercharger-porting' },
+              ].map(({ platform, href }) => (
+                <a href={href} class="flex items-center gap-2 font-mono text-sm text-white/60 hover:text-red-400 transition-colors group">
+                  <span class="text-red-500/40 group-hover:text-red-500">▸</span>{platform}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div class="border border-red-500/20 rounded p-5 bg-red-950/10">
+            <p class="text-xs font-mono tracking-widest text-red-400 uppercase mb-2">Rebuild Before Porting?</p>
+            <p class="text-white/60 font-mono text-sm leading-relaxed">
+              If your LSA has bearing noise, pressure loss, or high miles on a used donor — rebuild first. Porting a worn blower doesn't fix the underlying problem. If you're already in there for a rebuild, porting is the efficient add-on — the housing is already open.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY FAS -->
+  <section class="max-w-6xl mx-auto px-6 py-20">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-3">Why FAS — Not a Generic Machine Shop</h2>
+    <div class="h-[2px] w-16 bg-red-500 mb-8"></div>
+    <div class="border border-white/10 rounded overflow-hidden">
+      <div class="grid grid-cols-3 bg-white/10 px-4 py-3 font-mono text-xs font-bold text-white/60 uppercase tracking-wide">
+        <span></span><span class="text-center text-red-400">FAS Motorsports</span><span class="text-center">Generic Machine Shop</span>
+      </div>
+      {[
+        ['LSA / LS9 / LT4 experience', 'Yes — all three platforms in-house', 'Varies, often none'],
+        ['Precision porting, hand finished', 'Yes — every unit, by hand', 'Machine only, rarely hand finished'],
+        ['Flow bench verification', 'Yes — every unit before ship-back', 'Rarely included'],
+        ['Full rebuild capability', 'Yes — rotor, bearings, seals', 'Often machining only'],
+        ['In-house work', `Yes — Punta Gorda, FL`, 'Often outsourced'],
+        ['Turnaround', '5–7 business days', '1–3 weeks typical'],
+        ['Talk to a builder', 'Yes — call the shop direct', 'Usually not'],
+      ].map(([label, fas, generic]) => (
+        <div class="grid grid-cols-3 border-t border-white/10 px-4 py-3">
+          <span class="font-mono text-xs text-white/50">{label}</span>
+          <span class="font-mono text-xs text-red-300 text-center font-bold">{fas}</span>
+          <span class="font-mono text-xs text-white/30 text-center">{generic}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="bg-[#0a0b10] border-t border-white/10 px-6 py-20">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-3xl font-cyber font-bold text-white mb-3">LSA Supercharger — Common Questions</h2>
+      <div class="h-[2px] w-16 bg-red-500 mb-10"></div>
+      <div class="space-y-4">
+        {faqs.map(({ q, a }) => (
+          <details class="border border-white/10 rounded bg-white/5 group">
+            <summary class="cursor-pointer px-5 py-4 font-mono font-bold text-white text-sm tracking-wide list-none flex justify-between items-center">
+              {q}<span class="text-red-500 ml-4 shrink-0 group-open:rotate-180 transition-transform">▾</span>
+            </summary>
+            <p class="px-5 pb-4 pt-1 text-white/60 font-mono text-sm leading-relaxed">{a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="text-3xl font-cyber font-bold text-white mb-4">Ship It In</h2>
+    <p class="text-white/60 font-mono text-sm mb-2 max-w-xl mx-auto">
+      Call before you ship — confirm platform, get current lead time, and get a straight answer on whether to port, rebuild, or both.
+    </p>
+    <p class="text-white/40 font-mono text-xs mb-8">Ship-in service for: LSA · LS9 · LT4 · M112 · M122 · Hellcat 2.4L TVS · 2.7L IHI</p>
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <Button href="/shop/lsa-ls9-lt4-supercharger-porting" text="Order Porting Service" variant="default" />
+      <Button href="/contact" text="Contact the Shop" variant="outline" />
+    </div>
+    <p class="text-white/30 font-mono text-xs">
+      FAS Motorsports · {BUSINESS_ADDRESS_LINE1} · {BUSINESS_ADDRESS_LOCALITY}, {BUSINESS_ADDRESS_REGION} · {BUSINESS_PHONE_NATIONAL} · Ships Nationwide
+    </p>
+    <p class="mt-1 text-red-500/60 font-ethno text-xs italic tracking-widest uppercase">Fast. Aggressive. Superior.</p>
+  </section>
+
+</BaseLayout>

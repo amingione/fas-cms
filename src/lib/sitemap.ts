@@ -204,6 +204,7 @@ const KNOWN_PUBLIC_ROUTES: RouteFileEntry[] = [
   '/dominator-supercharger-package',
   '/hellcat-billet-snout',
   '/hellcat-supercharger-porting',
+  '/lsa-supercharger',
   '/ihi-supercharger-rebuild',
   // Packages
   '/packages',
