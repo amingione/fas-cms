@@ -193,10 +193,14 @@ export function buildStorefrontCartFromMedusaCart(medusaCart: any) {
     ? toCentsStrict(medusaCart.discount_total, 'cart.discount_total') ?? 0
     : 0;
 
+  // Fallback subtotal from items: unit_price × quantity only (base price, no tax).
+  // Deliberately avoids item.total — in Medusa v2, item.total can be tax-inclusive,
+  // which would cause the displayed subtotal to include tax a second time.
   const itemSubtotalCents = (Array.isArray(medusaCart.items) ? medusaCart.items : []).reduce(
     (sum: number, item: any) => {
-      const itemTotal = toCentsStrict(item.total, 'item.total') ?? 0;
-      return sum + itemTotal;
+      const unitPrice = toCentsStrict(item.unit_price, 'item.unit_price') ?? 0;
+      const qty = typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1;
+      return sum + unitPrice * qty;
     },
     0
   );
@@ -208,9 +212,21 @@ export function buildStorefrontCartFromMedusaCart(medusaCart: any) {
   const medusaShippingCents =
     toCentsStrict(medusaCart.shipping_total, 'cart.shipping_total') ?? 0;
 
-  // Medusa is the single source of truth for cart totals.
+  // Always compute total from parts — never trust medusaCart.total directly.
+  // After POST /store/carts/:id/shipping-methods, Medusa v2 can return a stale
+  // `total` that equals subtotal + tax but omits shipping. Computing from parts
+  // guarantees subtotal + shipping + tax - discount is always correct.
+  const computedTotalCents = Math.max(
+    0,
+    medusaSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents
+  );
   const medusaReportedTotal = toCentsStrict(medusaCart.total, 'cart.total');
-  const medusaTotalCents = medusaReportedTotal ?? Math.max(0, medusaSubtotalCents + medusaShippingCents + medusaTaxCents - discountCents);
+  // Accept Medusa's reported total only when it is >= the computed value, meaning
+  // it includes at least all the components we know about (no missing shipping, etc.).
+  const medusaTotalCents =
+    medusaReportedTotal != null && medusaReportedTotal >= computedTotalCents
+      ? medusaReportedTotal
+      : computedTotalCents;
 
   const discountsArray: any[] = [];
   const promotions = Array.isArray(medusaCart?.promotions) ? medusaCart.promotions : [];

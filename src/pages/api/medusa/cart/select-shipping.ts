@@ -157,8 +157,20 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  // The POST /shipping-methods response can return a cart with a stale `total`
+  // (subtotal + tax, missing shipping) in some Medusa v2 versions. Follow up with
+  // a GET to ensure totals reflect the applied shipping method before building
+  // the storefront cart. Fall back to the POST response cart if the GET fails.
+  const freshCartResponse = await medusaFetch(
+    `/store/carts/${cartId}?${fieldsParam}`,
+    { method: 'GET' }
+  );
+  const freshCartData = await readJsonSafe<any>(freshCartResponse);
+  const cartForTransform =
+    freshCartResponse.ok && freshCartData?.cart ? freshCartData.cart : data?.cart;
+
   return jsonResponse(
-    { cart: data?.cart ? buildStorefrontCartFromMedusaCart(data.cart) : null },
+    { cart: cartForTransform ? buildStorefrontCartFromMedusaCart(cartForTransform) : null },
     { status: 200 },
     { noIndex: true }
   );
