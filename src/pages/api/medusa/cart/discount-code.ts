@@ -1,3 +1,15 @@
+/**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Checkout math fix (discount code endpoint)
+ *
+ * CONTRACTS (must never change):
+ *  - fieldsParam MUST include +items.total,+items.metadata,+items.adjustments
+ *    after any promotion mutation so per-item adjustments stay visible
+ *  - normalizeCartTotals must be called on cart payload before returning
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
 import type { APIRoute } from 'astro';
 import { medusaFetch, readJsonSafe } from '@/lib/medusa';
 import { normalizeCartTotals } from '@/lib/money';

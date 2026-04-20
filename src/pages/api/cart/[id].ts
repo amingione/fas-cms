@@ -1,4 +1,16 @@
 /**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Checkout math fix (cart GET endpoint)
+ *
+ * CONTRACTS (must never change):
+ *  - fieldsParam MUST include +items.total,+items.metadata,+items.adjustments
+ *    Removing these causes add-on adjustments to be invisible in display
+ *  - All cart responses must pass through buildStorefrontCartFromMedusaCart
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
+/**
  * Get Cart Data
  * Fetches cart from Medusa for checkout display
  */

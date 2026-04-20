@@ -1,4 +1,17 @@
 ---
+/**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Brand hardcode fix (product page Brand attribute)
+ *
+ * CONTRACTS (must never change):
+ *  - Brand attribute displayed on product info tab MUST be hardcoded to 'FAS Motorsports'
+ *  - Do NOT read brand from Sanity product.brand, Medusa metadata, or any dynamic source
+ *  - Rationale: Sanity product.brand field contained inconsistent values ('F.A.S. Motorsports')
+ *    that propagated to Google Merchant Center and structured data
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   getProductBySlug,

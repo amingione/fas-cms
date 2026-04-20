@@ -38,6 +38,21 @@ Sanity (content) -> Medusa (commerce authority) -> fas-cms-fresh (storefront) an
 
 All architecture-sensitive storefront changes must map to tracker IDs in the canonical task tracker.
 
+## 🔒 GOVERNANCE LOCK — CHECKOUT MATH & BRAND (2026-04-20)
+
+**All files in this section are locked. No edits without Amber Mingione's explicit written approval.**
+
+| File | What It Owns | Critical Contract |
+|------|-------------|-------------------|
+| `src/lib/cart/transform.ts` | Core cart → storefront transform | `itemSubtotalCents` = `unit_price × qty`; total computed from parts; Medusa `cart.total` only trusted if `>= computedTotalCents` |
+| `src/lib/money.ts` | Monetary normalization (`toCentsStrict`, `normalizeCartTotals`) | Integers = already cents; decimals × 100 via BigInt — no float arithmetic |
+| `src/pages/api/cart/[id].ts` | Cart GET endpoint | `fieldsParam` MUST include `+items.total,+items.metadata,+items.adjustments` |
+| `src/pages/api/medusa/cart/select-shipping.ts` | Shipping selection endpoint | `fieldsParam` MUST include item fields; fresh GET required after POST /shipping-methods |
+| `src/pages/api/medusa/cart/discount-code.ts` | Discount/promo code endpoint | `fieldsParam` MUST include item fields; `normalizeCartTotals` must be called before return |
+| `src/pages/shop/[slug].astro` | Product page (storefront) | Brand attribute MUST be hardcoded to `'FAS Motorsports'` — never read from Sanity/Medusa |
+
+**Why locked:** These files contain the definitive fix for checkout subtotal/total miscalculation caused by Medusa v2 not returning `item.total` by default. The brand fix prevents "F.A.S. Motorsports" from appearing in Google Merchant Center. Any revert or modification without approval will silently break checkout math or brand display.
+
 ## SEO Redirect Safety (Mandatory)
 
 - Canonical storefront page URLs are slash-suffixed (example: `/warranty/`).

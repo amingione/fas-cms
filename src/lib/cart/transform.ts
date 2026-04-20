@@ -1,3 +1,16 @@
+/**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Checkout math fix (cart total calculation)
+ *
+ * CONTRACTS (must never change):
+ *  - itemSubtotalCents is derived from unit_price × quantity (never item.total — tax-inclusive)
+ *  - computedTotalCents = subtotal + shipping + tax - discount (always floor-computed from parts)
+ *  - Medusa cart.total is only trusted if it is >= computedTotalCents
+ *  - All monetary fields pass through toCentsStrict before use
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
 import { normalizeCartTotals, toCentsStrict } from '@/lib/money';
 
 function asString(value: unknown): string | null {

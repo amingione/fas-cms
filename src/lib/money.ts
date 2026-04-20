@@ -1,3 +1,15 @@
+/**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Checkout math fix (monetary normalization layer)
+ *
+ * CONTRACTS (must never change):
+ *  - toCentsStrict: integers returned as-is (already cents); decimals multiplied by 100 via BigInt
+ *  - normalizeCartTotals: mutates cart in-place, converting all total fields to cents
+ *  - No rounding shortcuts — always use BigInt path for decimal inputs to prevent float drift
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
 export type MoneyValue = number | string | null | undefined;
 
 const decimalPattern = /^-?\d+(\.\d+)?$/;

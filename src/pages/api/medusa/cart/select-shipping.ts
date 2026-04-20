@@ -1,3 +1,16 @@
+/**
+ * @governance-locked
+ * OWNER: Amber Mingione — do NOT modify without explicit written approval.
+ * LOCKED: 2026-04-20 | Checkout math fix (shipping selection endpoint)
+ *
+ * CONTRACTS (must never change):
+ *  - fieldsParam MUST include +items.total,+items.metadata,+items.adjustments
+ *  - After POST /shipping-methods succeeds, MUST perform a fresh GET to get correct totals
+ *    (Medusa v2 POST response can return stale total — subtotal+tax, missing shipping)
+ *  - cartForTransform must prefer freshCartData.cart over data.cart when GET succeeds
+ *
+ * To request a change: open a PR and tag @ambermin for review.
+ */
 import type { APIRoute } from 'astro';
 import { jsonResponse } from '@/server/http/responses';
 import { getMedusaConfig, medusaFetch, readJsonSafe } from '@/lib/medusa';
