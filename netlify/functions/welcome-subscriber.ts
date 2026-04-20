@@ -2,7 +2,7 @@ import type { Handler } from '@netlify/functions';
 import { Resend } from 'resend';
 
 const DEFAULT_FROM =
-  process.env.RESEND_FROM || 'FAS Motorsports <noreply@updates.fasmotorsports.com>';
+  process.env.RESEND_FROM || 'FAS Motorsports <fas@updates.fasmotorsports.com>';
 const DEFAULT_SUBJECT = 'Welcome to FAS Motorsports — Where Real Builds Begin';
 const PREVIEW_TEXT = 'Early access to new parts, pre-orders, and member-only pricing.';
 const CTA_URL = 'https://fasmotorsports.com/shop';

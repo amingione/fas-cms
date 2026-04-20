@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
     const resendApiKey = await getSecret('RESEND_API_KEY');
     const resend = resendApiKey ? new Resend(resendApiKey) : null;
-    const FROM = import.meta.env.RESEND_FROM ?? 'noreply@updates.fasmotorsports.com';
+    const FROM = import.meta.env.RESEND_FROM ?? 'fas@updates.fasmotorsports.com';
 
     const doc = {
       _type: 'wheelQuote',

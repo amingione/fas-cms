@@ -87,7 +87,7 @@ From: fasmotorsports.com/packages
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          from: 'FAS Motorsports <noreply@fasmotorsports.com>',
+          from: 'FAS Motorsports <fas@fasmotorsports.com>',
           to: ['sales@fasmotorsports.com'],
           reply_to: email,
           subject: `${packageName} Consultation Request - ${name}`,

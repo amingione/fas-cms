@@ -78,7 +78,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
     const resend = new Resend(resendApiKey);
     const resendFrom =
-      (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
+      (import.meta.env.RESEND_FROM as string | undefined) || 'fas@updates.fasmotorsports.com';
     const toAddress = 'sales@fasmotorsports.com';
 
     const safe = (v: any) => String(v ?? '').toString();

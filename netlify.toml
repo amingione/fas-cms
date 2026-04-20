@@ -1094,7 +1094,7 @@
   PAYMENT_INTENT_WEBHOOK_LOCAL_PROCESS_ENABLED = "true"
   WEBHOOK_FORWARD_TIMEOUT_MS = "10000"
   # Email defaults (non-secret sender addresses)
-  RESEND_FROM = "noreply@updates.fasmotorsports.com"
+  RESEND_FROM = "fas@updates.fasmotorsports.com"
   NOTIFY_EMAIL = "sales@fasmotorsports.com"
   NOTIFY_FROM = "no-reply@fasmotorsports.com"
   # Public Stripe key (non-secret, baked into bundle)

@@ -8,7 +8,7 @@ import { rateLimit } from '@/server/vendor-portal/rateLimit';
 const resendApiKey = import.meta.env.RESEND_API_KEY as string | undefined;
 const resendFrom =
   (import.meta.env.RESEND_FROM as string | undefined) ||
-  'FAS Motorsports <noreply@updates.fasmotorsports.com>';
+  'FAS Motorsports <fas@updates.fasmotorsports.com>';
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 const successMessage =

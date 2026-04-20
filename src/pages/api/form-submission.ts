@@ -237,7 +237,7 @@ export const POST: APIRoute = async ({ request }) => {
       const resend = new Resend(import.meta.env.RESEND_API_KEY);
       const resendFrom =
         (import.meta.env.RESEND_FROM as string | undefined) ||
-        'noreply@updates.fasmotorsports.com';
+        'fas@updates.fasmotorsports.com';
       await resend.emails.send({
         from: resendFrom,
         to: ['sales@fasmotorsports.com'],

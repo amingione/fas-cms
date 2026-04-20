@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 const CALCOM_WEBHOOK_SECRET = import.meta.env.CALCOM_WEBHOOK_SECRET;
 const resend = new Resend(import.meta.env.RESEND_API_KEY);
 const resendFrom =
-  (import.meta.env.RESEND_FROM as string | undefined) || 'noreply@updates.fasmotorsports.com';
+  (import.meta.env.RESEND_FROM as string | undefined) || 'fas@updates.fasmotorsports.com';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
