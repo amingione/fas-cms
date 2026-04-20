@@ -1613,13 +1613,7 @@ if (product) {
           ''
       )
     );
-    const medusaBrandDisplay = collapseSpaces(
-      String((product as any)?.brand || (medusaSource as any)?.metadata?.brand || '')
-    );
-
-    if (medusaBrandDisplay) {
-      infoTabsAttributes.push({ label: 'Brand', value: medusaBrandDisplay });
-    }
+    infoTabsAttributes.push({ label: 'Brand', value: 'FAS Motorsports' });
     // Skip generic Medusa default type "physical" — not meaningful to customers
     if (medusaTypeForDisplay && medusaTypeForDisplay.toLowerCase() !== 'physical') {
       infoTabsAttributes.push({ label: 'Product Type', value: medusaTypeForDisplay });
