@@ -42,6 +42,16 @@ All architecture-sensitive storefront changes must map to tracker IDs in the can
 
 - Canonical storefront page URLs are slash-suffixed (example: `/warranty/`).
 - Redirect rules must never self-target on 3xx statuses (for example `from="/warranty/"` and `to="/warranty/"` with `301`), because this creates infinite redirect loops in production.
-- Enforcement commands:
+- **Critical — trailing-slash variant:** Netlify normalizes trailing slashes before matching `_redirects`. A rule like `/shop/foo → /shop/foo/` (301) loops identically to `/shop/foo → /shop/foo` because `/shop/foo/` is treated as `/shop/foo` at match time. The middleware in `src/middleware.ts` issues a 308 at the SSR layer — that is the correct and only enforcement point. Do NOT add trailing-slash redirect entries to `public/_redirects`.
+- Enforcement commands (also run by the pre-commit hook):
   - `npm run seo:check:category-slashes`
   - `npm run seo:check:netlify-self-redirects`
+
+## Locked Files — Do Not Modify Without Amber's Explicit Approval
+
+The following files have been locked due to a production redirect loop incident (2026-04-20). Any AI agent (Codex, Claude, Copilot) must treat these as read-only unless Amber explicitly instructs a change in the task description:
+
+- `public/_redirects` — CODEOWNERS gate + pre-commit hook enforced
+- `netlify.toml` — CODEOWNERS gate enforced
+
+If you believe a change is necessary, stop and ask Amber before touching these files.

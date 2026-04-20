@@ -71,7 +71,11 @@ const parseRedirectsFile = async () => {
     const [from, to, statusRaw] = parts;
     const status = statusRaw.replace(/!$/, '');
 
-    if (from === to && REDIRECT_STATUSES.has(status)) {
+    // Exact self-redirect (from === to)
+    // Trailing-slash self-redirect: Netlify normalizes trailing slashes before
+    // matching, so /shop/foo → /shop/foo/ loops identically to /shop/foo → /shop/foo.
+    const isSelfRedirect = from === to || `${from}/` === to || from === `${to}/`;
+    if (isSelfRedirect && REDIRECT_STATUSES.has(status)) {
       violations.push({
         source: 'public/_redirects',
         line: index + 1,

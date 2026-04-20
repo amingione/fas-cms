@@ -1,3 +1,5 @@
 
-# Skip linting and formatting checks
-echo "Skipping lint-staged checks..."
+# Guard: reject any commit that introduces a Netlify self-redirect loop.
+# Catches both exact self-redirects (from=to) and trailing-slash variants
+# (from=/shop/foo to=/shop/foo/) which Netlify's CDN normalizes identically.
+node ./scripts/seo/check-netlify-self-redirects.mjs

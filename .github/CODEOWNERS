@@ -1,0 +1,8 @@
+# CODEOWNERS — fas-cms-fresh
+# Files listed here require explicit review from the owner before any PR merges.
+
+# Redirect rules: self-redirect loops cause ERR_TOO_MANY_REDIRECTS in production.
+# The pre-commit hook (check-netlify-self-redirects.mjs) also guards these files,
+# but CODEOWNERS ensures no PR bypasses the guard without Amber's approval.
+public/_redirects    @amingione
+netlify.toml         @amingione
