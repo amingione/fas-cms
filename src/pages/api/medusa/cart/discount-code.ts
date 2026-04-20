@@ -149,8 +149,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // Include promotions fields to get full discount details
-    const fieldsParam = 'fields=+promotions,+promotions.application_method';
+    // Include promotions, item totals, and item metadata for consistent display.
+    const fieldsParam = 'fields=+promotions,+promotions.application_method,+items.total,+items.metadata,+items.adjustments';
     const cartResponse = await medusaFetch(`/store/carts/${encodeURIComponent(cartId)}?${fieldsParam}`, { method: 'GET' });
     const cartPayload = await readJsonSafe<any>(cartResponse);
     if (!cartResponse.ok || !cartPayload?.cart) {

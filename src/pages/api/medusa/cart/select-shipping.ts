@@ -116,7 +116,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   // Service/package carts can be intentionally non-shippable. In that case this
   // endpoint should be a safe no-op so checkout can continue to payment.
-  const fieldsParam = 'fields=+promotions,+promotions.application_method';
+  const fieldsParam = 'fields=+promotions,+promotions.application_method,+items.total,+items.metadata,+items.adjustments';
   const cartResponse = await medusaFetch(`/store/carts/${cartId}?${fieldsParam}`, { method: 'GET' });
   const cartData = await readJsonSafe<any>(cartResponse);
   if (cartResponse.ok && cartData?.cart) {

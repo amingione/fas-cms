@@ -32,8 +32,11 @@ export const GET: APIRoute = async ({ params }) => {
     }
 
     // Fetch cart from Medusa using shared config/headers so all cart routes stay aligned.
-    // Include promotions and discounts fields to get full discount details
-    const fieldsParam = 'fields=+promotions,+promotions.application_method'
+    // Include promotions, item totals, and item metadata.
+    // +items.total: ensures per-item total (including add-on adjustments) matches
+    //   cart.subtotal so displayed item price and subtotal are consistent.
+    // +items.metadata: exposes selected_upgrades_detailed so add-on labels render.
+    const fieldsParam = 'fields=+promotions,+promotions.application_method,+items.total,+items.metadata,+items.adjustments'
     const response = await medusaFetch(`/store/carts/${cartId}?${fieldsParam}`, { method: 'GET' })
     const medusaData = await readJsonSafe<any>(response)
 
