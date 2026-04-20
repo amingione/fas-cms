@@ -1,12 +1,10 @@
-# ── Trailing-slash explicit 301s ──────────────────────────────────────────────
-# Astro trailingSlash: 'always' issues an implicit 301 for no-slash URLs, but
-# Google can burn crawl budget and split link equity on the un-slashed variant
-# before the redirect resolves.  Explicit entries here are served from the CDN
-# edge with no origin hit.  Add any URL the moment Ahrefs / GSC flags it as a
-# 3XX receiving traffic.
+# ── NOTE: Trailing-slash CDN entries removed ───────────────────────────────────
+# Netlify normalizes trailing slashes before matching _redirects rules, so a
+# same-URL +slash redirect (e.g. /shop/foo → /shop/foo/) loops infinitely when
+# the /shop/foo/ request also matches the rule. The middleware (src/middleware.ts)
+# issues a 308 at the SSR layer for any path-like URL missing a trailing slash —
+# that is the correct enforcement point. Do NOT add trailing-slash entries here.
 # ──────────────────────────────────────────────────────────────────────────────
-/shop/dominator-2-4l-supercharger-package              /shop/dominator-2-4l-supercharger-package/              301
-/shop/upgraded-hellcat-supercharger-snout-bearings     /shop/upgraded-hellcat-supercharger-snout-bearings/     301
 
 # ── Slug renames — target includes trailing slash to avoid double-redirect ────
 /shop/fas-850-package-trackhawk-durango   /shop/fas-850-package-td/   301
