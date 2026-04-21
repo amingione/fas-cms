@@ -73,11 +73,17 @@ const canonicalSiteOrigin = (() => {
 const canonicalSlug = resolveSlug(slug ?? '');
 const canonicalUrl = new URL(`/blog/${canonicalSlug}`, canonicalSiteOrigin).toString();
 const publisherLogoUrl = new URL('/fas-logo.png', canonicalSiteOrigin).toString();
+// SEO override pattern mirroring shop/[slug].astro: prefer the explicit
+// Sanity `seo.metaDescription` when editors have curated it, fall back to
+// `excerpt` otherwise. The blogPost schema models both; the template must
+// honor the override, not silently ignore it.
+const metaDescription: string = post?.seo?.metaDescription ?? post?.excerpt ?? '';
+
 const articleJsonLd = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'Article',
   headline: post?.title ?? '',
-  description: post?.excerpt ?? '',
+  description: metaDescription,
   image: coverImage ? [coverImage] : undefined,
   datePublished: post?.publishedAt ?? undefined,
   dateModified: post?._updatedAt ?? post?.publishedAt ?? undefined,
@@ -102,7 +108,7 @@ const articleJsonLd = JSON.stringify({
 
 <BaseLayout
   title={post?.title ?? 'Blog Post'}
-  description={post?.excerpt ?? ''}
+  description={metaDescription}
   ogImage={coverImage}
   canonical={canonicalUrl}
   ogType="article"
