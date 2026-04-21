@@ -56,6 +56,8 @@ docs/*
 !docs/ai-governance/
 !docs/ai-governance/templates/
 !docs/ai-governance/templates/**
+!docs/governance/
+!docs/governance/**
 
 
 .early.coverage

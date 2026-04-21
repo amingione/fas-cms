@@ -1,0 +1,1 @@
+../../../fas-sanity/docs/governance/DEPRECATED_SUBDOMAINS.md
