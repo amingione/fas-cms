@@ -1692,12 +1692,33 @@ if (product) {
 
   const productSchemaImages = productImages.map((img) => img.webpUrl).filter(Boolean);
 
+  // Derive SKU from Sanity product or Medusa primary variant — mirrors the logic
+  // that populates the SKU info tab attribute so the rendered UI and structured
+  // data stay in lockstep. Fallback chain matches line ~1617.
+  const productSchemaSku = (() => {
+    const medusaSrcForSku = (product as any)?.medusa;
+    const medusaVariantForSku =
+      Array.isArray((medusaSrcForSku as any)?.variants) && (medusaSrcForSku as any).variants.length > 0
+        ? (medusaSrcForSku as any).variants[0]
+        : null;
+    const raw = collapseSpaces(
+      String((product as any)?.sku || (medusaVariantForSku as any)?.sku || '')
+    );
+    return raw || undefined;
+  })();
+
   productStructuredData = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: (product as any)?.title,
     image: productSchemaImages.length ? productSchemaImages : undefined,
     description: plainDescription || undefined,
+    // @governance-locked: Brand MUST be 'FAS Motorsports' (see file header).
+    // Mirrors the visible Brand info tab hardcode. Prevents inconsistent
+    // Sanity/Medusa brand values from propagating to Google Rich Results
+    // and Merchant Center feed.
+    brand: { '@type': 'Brand', name: 'FAS Motorsports' },
+    sku: productSchemaSku,
     url: seoCanon,
     offers: offerDetails
   };
