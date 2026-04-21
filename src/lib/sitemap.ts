@@ -408,6 +408,12 @@ function filterEntriesByPathPrefix(entries: SitemapUrlEntry[], prefixes: string[
   return entries.filter((entry) => prefixes.some((prefix) => pathFromLoc(entry.loc).startsWith(prefix)));
 }
 
+// GROQ slice prevents silent truncation. Sanity's default fetch cap is 1000
+// rows if no slice is specified — a silent failure mode that would cause
+// sitemap coverage gaps once any category exceeds that count. Slice is set
+// to the same ceiling as PRODUCT_SITEMAP_CHUNK_SIZE so downstream chunking
+// logic remains the governing upper bound. If catalog ever grows past 5000,
+// convert these to true paginated fetches (not just a bigger slice).
 export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
   const docs = await fetchSanitySlugs(`*[
     _type == "product" &&
@@ -415,7 +421,7 @@ export async function getProductEntries(): Promise<SitemapUrlEntry[]> {
     status == "active" &&
     defined(slug.current) &&
     coalesce(noindex, false) != true
-  ]{
+  ] | order(_updatedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`);
@@ -427,7 +433,7 @@ export async function getCategoryEntries(): Promise<SitemapUrlEntry[]> {
     _type == "category" &&
     !(_id in path('drafts.**')) &&
     defined(slug.current)
-  ]{
+  ] | order(_updatedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`);
@@ -441,7 +447,7 @@ export async function getBlogEntries(): Promise<SitemapUrlEntry[]> {
     status == "published" &&
     publishedAt <= now() &&
     defined(slug.current)
-  ]{
+  ] | order(publishedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`);
@@ -454,7 +460,7 @@ export async function getVendorEntries(): Promise<SitemapUrlEntry[]> {
     !(_id in path('drafts.**')) &&
     status == "active" &&
     defined(slug.current)
-  ]{
+  ] | order(_updatedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
     "slug": slug.current,
     "updatedAt": coalesce(_updatedAt, _createdAt)
   }`);
@@ -538,7 +544,7 @@ export async function getImageSitemapEntries(): Promise<SitemapImageEntry[]> {
       (productType == "service" || productType == "bundle" || productType == "physical" || featured == true) &&
       defined(slug.current) &&
       coalesce(noindex, false) != true
-    ]{
+    ] | order(_updatedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
       "slug": slug.current,
       "updatedAt": coalesce(_updatedAt, _createdAt),
       "imageUrl": coalesce(mainImage.asset->url, images[0].asset->url, ogImage.asset->url),
@@ -550,7 +556,7 @@ export async function getImageSitemapEntries(): Promise<SitemapImageEntry[]> {
       status == "published" &&
       publishedAt <= now() &&
       defined(slug.current)
-    ]{
+    ] | order(publishedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
       "slug": slug.current,
       "updatedAt": coalesce(_updatedAt, _createdAt),
       "imageUrl": coalesce(mainImage.asset->url, ogImage.asset->url),
