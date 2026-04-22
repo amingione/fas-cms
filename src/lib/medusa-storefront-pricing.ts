@@ -209,6 +209,50 @@ export function resolveProductMedusaVariant(
   return resolvePreferredVariant(product as any);
 }
 
+type MedusaProductsByHandleResponse = {
+  products?: Array<{
+    variants?: unknown[];
+  }>;
+};
+
+export async function fetchProductHandleCalculatedPriceCents(
+  handle: string
+): Promise<number | null> {
+  const normalizedHandle = typeof handle === 'string' ? handle.trim() : '';
+  if (!normalizedHandle) return null;
+
+  const medusaConfig = getMedusaConfig();
+  if (!medusaConfig) return null;
+
+  const params = new URLSearchParams({
+    handle: normalizedHandle,
+    fields: '*variants.calculated_price'
+  });
+  if (medusaConfig.regionId) {
+    params.set('region_id', medusaConfig.regionId);
+  }
+
+  try {
+    const response = await medusaFetch(`/store/products?${params.toString()}`, { method: 'GET' });
+    if (!response.ok) {
+      console.warn('[medusa-pricing] Failed to fetch SEO price', {
+        handle: normalizedHandle,
+        status: response.status
+      });
+      return null;
+    }
+
+    const data = await readJsonSafe<MedusaProductsByHandleResponse>(response);
+    return resolveVariantCalculatedPriceAmount(data?.products?.[0]?.variants?.[0]);
+  } catch (error) {
+    console.warn('[medusa-pricing] Failed to resolve SEO price', {
+      handle: normalizedHandle,
+      error: error instanceof Error ? error.message : String(error)
+    });
+    return null;
+  }
+}
+
 /**
  * Pricing authority guard.
  *
