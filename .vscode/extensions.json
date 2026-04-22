@@ -6,7 +6,8 @@
     "wscats.cors-browser",
     "ms-vscode.live-server",
     "jasonlhy.vscode-browser-sync",
-    "openai.chatgpt"
+	"openai.chatgpt",
+	"sanity-io.vscode-sanity"
   ],
   "unwantedRecommendations": []
 }
