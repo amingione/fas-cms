@@ -738,7 +738,7 @@ if (endPage < totalPages) {
     <div class="mb-6 mt-2 space-y-3">
       <div class="hidden md:block">
         <ShopTopControls
-          client:idle
+          client:load
           categories={categories}
           availableFilters={uniqueFilters}
           filterTitleMap={filterTitleMap}
@@ -752,7 +752,7 @@ if (endPage < totalPages) {
       </div>
       <div class="md:hidden">
         <FilterPanelMobile
-          client:idle
+          client:load
           categories={categories}
           filters={uniqueFilters}
           filterTitleMap={filterTitleMap}
@@ -765,7 +765,7 @@ if (endPage < totalPages) {
     <div class="flex flex-col md:flex-row gap-0 pt-8">
       <aside class="relative hidden w-full pr-4 md:block md:w-1/4 md:shrink-0">
         <ShopSidebarFilters
-          client:idle
+          client:load
           categories={categories}
           availableFilters={uniqueFilters}
           filterTitleMap={filterTitleMap}

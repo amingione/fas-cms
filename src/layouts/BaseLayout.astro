@@ -506,20 +506,21 @@ const jsonLdEntries = [...defaultJsonLdEntries, ...cmsJsonLdEntries];
 <!doctype html>
 <html lang="en" class="dark">
   <head>
-    <!-- Google tag (gtag.js) — runs in Partytown web worker, zero main-thread cost -->
+    <!-- Google tag (gtag.js) -->
     {import.meta.env.PROD && GTAG_SCRIPT_URL && (
       <>
+        <script async src={GTAG_SCRIPT_URL}></script>
         <script
           is:inline
           set:html={`window.dataLayer = window.dataLayer || [];
-window.gtag = function gtag(){ window.dataLayer.push(arguments); };
+function gtag(){window.dataLayer.push(arguments);} 
+window.gtag = window.gtag || gtag;
 window.gtag('js', new Date());
 window.gtag('config', ${JSON.stringify(GA_MEASUREMENT_ID)});
 ${GOOGLE_ADS_ID ? `if (${JSON.stringify(GOOGLE_ADS_ID)} !== ${JSON.stringify(GA_MEASUREMENT_ID)}) { window.gtag('config', ${JSON.stringify(GOOGLE_ADS_ID)}); }` : ''}
 document.dispatchEvent(new Event('gtag:loaded'));
 `}
         ></script>
-        <script is:inline type="text/partytown" src={GTAG_SCRIPT_URL}></script>
       </>
     )}
     <script

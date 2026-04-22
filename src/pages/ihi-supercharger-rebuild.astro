@@ -12,7 +12,8 @@ import {
   BUSINESS_ADDRESS_POSTAL_CODE,
   BUSINESS_ADDRESS_COUNTRY,
 } from '@/lib/nap';
-import { fetchProductHandleCalculatedPriceCents } from '@/lib/medusa-storefront-pricing';
+import { medusaFetch, getMedusaConfig, readJsonSafe } from '@/lib/medusa';
+import { resolveVariantCalculatedPriceAmount } from '@/lib/medusa-storefront-pricing';
 
 const faqs = [
   {
@@ -47,7 +48,12 @@ const faqJsonLd = {
   })),
 };
 
-const _pCents = await fetchProductHandleCalculatedPriceCents('2-7l-ihi-supercharger-rebuild');
+const _medusaConfig = getMedusaConfig();
+const _pParams = new URLSearchParams({ handle: '2-7l-ihi-supercharger-rebuild', fields: '*variants.calculated_price' });
+if (_medusaConfig?.regionId) _pParams.set('region_id', _medusaConfig.regionId);
+const _pResp = _medusaConfig ? await medusaFetch(`/store/products?${_pParams.toString()}`, { method: 'GET' }) : null;
+const _pData = _pResp ? await readJsonSafe<any>(_pResp) : null;
+const _pCents = resolveVariantCalculatedPriceAmount(_pData?.products?.[0]?.variants?.[0]);
 const price = _pCents != null ? _pCents / 100 : null;
 
 const productJsonLd = {

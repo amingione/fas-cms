@@ -7,7 +7,6 @@ import { fileURLToPath } from 'url';
 import viteCompression from 'vite-plugin-compression';
 
 import sentry from '@sentry/astro';
-import partytown from '@astrojs/partytown';
 
 process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA =
   process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA || '1';
@@ -97,11 +96,6 @@ export default defineConfig({
   integrations: [
     react(),
     tailwind(),
-    partytown({
-      config: {
-        forward: ['dataLayer.push', 'gtag']
-      }
-    }),
     sentry({
       project: 'fas-cms',
       org: 'fas-moto',
