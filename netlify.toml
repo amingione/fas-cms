@@ -1022,7 +1022,7 @@
 ## Note: Custom auth uses Astro API under /api/auth/*; no redirects needed.
 
 [build]
-  command = "node ./scripts/check-env-production-encrypted.mjs --file .env.production && yarn dotenvx run -f .env.production -- yarn build"
+  command = "yarn build"
   publish = "dist"
 
 [build.environment]
@@ -1120,15 +1120,11 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
-  external_node_modules = ["sharp", "ssh2", "@dotenvx/dotenvx"]
+  external_node_modules = ["sharp", "ssh2"]
   included_files = [
-    ".env.production",
     "node_modules/sharp/**/*",
     "node_modules/ssh2/lib/protocol/crypto/build/Release/**"
   ]
-
-[functions.environment]
-  NODE_OPTIONS = "--require /var/task/node_modules/@dotenvx/dotenvx/src/lib/config.js"
 
 # Help Netlify Dev choose the right framework command
 [dev]
@@ -1137,10 +1133,6 @@
   targetPort = 3000
   port = 8888
   autoLaunch = false
-
-# dotenvx handles all secrets via encrypted .env.production in all environments.
-[context.dev.environment]
-  NODE_OPTIONS = "" # keep empty: local commands load dotenvx explicitly.
 
 # Build plugins
 [[plugins]]

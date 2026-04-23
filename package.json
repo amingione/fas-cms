@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "preinstall": "node scripts/enforce-package-manager.cjs",
-    "dev": "yarn dotenvx run -f .env.production -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
-    "dev:clean": "rimraf node_modules/.vite .astro && yarn dotenvx run -f .env.production -- cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
+    "dev": "cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
+    "dev:clean": "rimraf node_modules/.vite .astro && cross-env NODE_ENV=development NETLIFY_DEV=1 astro dev --host localhost --port 4321 --strictPort",
     "prebuild": "node scripts/netlify/prepare-gmc-service-account.cjs && node scripts/netlify/prepare-functions-internal.cjs",
     "postbuild": "node scripts/netlify/prepare-functions-internal.cjs",
-    "build": "yarn dotenvx run -f .env.production -- cross-env NODE_ENV=production astro build",
-    "preview": "yarn dotenvx run -f .env.production -- cross-env NODE_ENV=production astro preview",
+    "build": "cross-env NODE_ENV=production astro build",
+    "preview": "cross-env NODE_ENV=production astro preview",
     "lint": "eslint \"src/**/*.{js,ts,jsx,tsx}\"",
     "test": "yarn lint && yarn type-check",
     "test:unit": "vitest run",
@@ -25,11 +25,11 @@
     "firehose:ingest": "node scripts/firehose-monitor-fetch.js ingest",
     "firehose:cron:run": "tsx scripts/firehose-run-cron-local.ts",
     "astro:check": "cross-env BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA=1 BROWSERSLIST_IGNORE_OLD_DATA=1 astro check --minimumSeverity warning",
-    "audit:sanity-addons": "yarn dotenvx run -f .env.production -- tsx src/scripts/audit-sanity-addons.ts",
-    "audit:create-priority-list": "yarn dotenvx run -f .env.production -- tsx src/scripts/create-migration-priority-list.ts",
+    "audit:sanity-addons": "tsx src/scripts/audit-sanity-addons.ts",
+    "audit:create-priority-list": "tsx src/scripts/create-migration-priority-list.ts",
     "audit:unused-files": "node ./scripts/audit-unused-files.mjs",
-    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env.production",
-    "env:check:local": "node ./scripts/check-env-unused.mjs --file .env.production",
+    "env:check:netlify": "node ./scripts/check-env-unused.mjs --file .env.local",
+    "env:check:local": "node ./scripts/check-env-unused.mjs --file .env.local",
     "env:sync": "node scripts/sync-env-to-netlify.js",
     "env:sync:dry": "node scripts/sync-env-to-netlify.js --dry-run",
     "env:sync:remove": "node scripts/sync-env-to-netlify.js --remove",
@@ -46,8 +46,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:e2e:ci": "playwright test --reporter=github",
-    "compliance:check": "npx tsx ../fas-sanity/scripts/compliance/fas-compliance-check.ts",
-    "env:check:encrypted:prod": "node ./scripts/check-env-production-encrypted.mjs --file .env.production"
+    "compliance:check": "npx tsx ../fas-sanity/scripts/compliance/fas-compliance-check.ts"
   },
   "depcheck": {
     "ignorePatterns": [
@@ -85,7 +84,6 @@
   },
   "devDependencies": {
     "@babel/core": "7.28.5",
-    "@dotenvx/dotenvx": "^1.61.0",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "9.39.2",
     "@netlify/functions": "5.1.2",

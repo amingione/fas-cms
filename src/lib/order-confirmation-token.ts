@@ -45,7 +45,7 @@ const readEnv = (key: string, fallback?: string): string | undefined => {
 
 /**
  * Signing secret for order-confirmation tokens. Reuses AUTH_SECRET (already
- * typed in env.d.ts and provisioned via dotenvx across every deploy target).
+ * typed in env.d.ts and provisioned in the Netlify dashboard (production) or .env.local (dev).
  * Falls through to SESSION_SECRET / JWT_SECRET so local dev doesn't need a
  * second rotation to work — prod still mandates AUTH_SECRET.
  */
@@ -97,7 +97,7 @@ export function signOrderConfirmationToken(
 ): string {
   if (!TOKEN_SECRET) {
     throw new Error(
-      '[order-confirmation-token] Missing AUTH_SECRET — cannot sign. Configure via dotenvx.'
+      '[order-confirmation-token] Missing AUTH_SECRET — set it in the Netlify dashboard (production) or .env.local (dev).'
     );
   }
   if (!payload?.orderCode || typeof payload.orderCode !== 'string') {
