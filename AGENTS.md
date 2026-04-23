@@ -1,9 +1,29 @@
-# FAS CMS Fresh - AGENTS.md
+# AGENTS.md — fas-cms-fresh
+
+> ⚠️ DEPRECATED REPO — fas-cms-fresh is the currently live storefront (fasmotorsports.com)
+> but is being retired. New storefront work goes in `fas-vendure/apps/web`.
+> Do not add features here. Fix only what is breaking production revenue.
+
+## 📋 Required Reading — Start Every Session Here
+
+Before writing any code, read these three files in order:
+
+| # | File | What it covers |
+|---|------|----------------|
+| 1 | `AGENTS.md` *(this file)* | Repo-specific rules, deprecation status, non-negotiables |
+| 2 | `TASKS.md` | Live task list — symlink → `fas-vendure/TASKS.md` |
+| 3 | `../fas-vendure/docs/FAS_MASTER_PLAN.md` | Ecosystem architecture — migration timeline, what's live, what's retiring |
+
+These are the three files that give full context. Do not start a task without reading all three.
 
 ## Canonical Authority
 
-- Global architecture authority: `/Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-sanity/AGENTS.md`
-- Global task tracker: `/Users/ambermin/LocalStorm/Workspace/DevProjects/GitHub/fas-sanity/docs/governance/FAS_4_REPO_PIPELINE_TASK_TRACKER.md`
+- **New canonical authority (Vendure era):** `../fas-vendure/AGENTS.md`
+- **Master plan:** `../fas-vendure/docs/FAS_MASTER_PLAN.md`
+- **Live task list:** `TASKS.md` (symlink → `../fas-vendure/TASKS.md`)
+
+> ~~Global architecture authority: fas-sanity/AGENTS.md~~ — superseded 2026-04-23
+> ~~Global task tracker: FAS_4_REPO_PIPELINE_TASK_TRACKER.md~~ — superseded by TASKS.md
 
 If this file conflicts with canonical authority, canonical authority wins.
 
