@@ -174,13 +174,12 @@ function buildMissingOptionIdMessage(payload: any): string | null {
   const details = Array.isArray(payload?.details) ? payload.details : [];
   if (!details.length) return null;
   const lines = details.slice(0, 3).map((entry: any) => {
-    const name = String(entry?.name || entry?.id || 'item').trim();
     const addOns = Array.isArray(entry?.selectedUpgrades)
       ? entry.selectedUpgrades.map((label: unknown) => String(label || '').trim()).filter(Boolean)
       : [];
-    return addOns.length ? `${name}: ${addOns.join(', ')}` : name;
+    return addOns.length ? addOns.join(', ') : String(entry?.name || entry?.id || 'item').trim();
   });
-  return `Missing Medusa option IDs for add-ons: ${lines.join(' | ')}`;
+  return `One or more selected add-ons are not yet available for online checkout. Please deselect them and try again, or contact us for assistance. (${lines.join(' | ')})`;
 }
 
 function buildVariantOptionAvailabilityMessage(payload: any): string | null {
@@ -188,14 +187,13 @@ function buildVariantOptionAvailabilityMessage(payload: any): string | null {
   const details = Array.isArray(payload?.details) ? payload.details : [];
   if (!details.length) return null;
   const lines = details.slice(0, 3).map((entry: any) => {
-    const name = String(entry?.name || entry?.id || 'item').trim();
     const addOns = Array.isArray(entry?.selectedUpgrades)
       ? entry.selectedUpgrades.map((label: unknown) => String(label || '').trim()).filter(Boolean)
       : [];
     const addOnText = addOns.length ? ` [${addOns.join(', ')}]` : '';
-    return `${name}${addOnText}`;
+    return `${String(entry?.name || entry?.id || 'item').trim()}${addOnText}`;
   });
-  return `Add-ons not available for this Medusa variant: ${lines.join(' | ')}`;
+  return `One or more selected add-ons are not available for this product configuration. Please deselect them and try again, or contact us for assistance. (${lines.join(' | ')})`;
 }
 
 export async function syncMedusaCart(cart: CartItem[]): Promise<SyncMedusaCartResult> {

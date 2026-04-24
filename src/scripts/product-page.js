@@ -346,6 +346,31 @@ const initCustomOptionDependencies = () => {
   syncDependencyVisibility();
 };
 
+const showAddToCartError = (msg) => {
+  let el = document.getElementById('add-to-cart-error');
+  if (!el) {
+    el = document.createElement('p');
+    el.id = 'add-to-cart-error';
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'polite');
+    el.style.cssText = 'margin-top:0.5rem;font-size:0.875rem;line-height:1.25rem;color:#f87171;';
+    const form = document.getElementById('product-options');
+    if (form) {
+      form.appendChild(el);
+    }
+  }
+  el.textContent = msg;
+  el.style.display = '';
+};
+
+const hideAddToCartError = () => {
+  const el = document.getElementById('add-to-cart-error');
+  if (el) {
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+};
+
 const hydrateCartButtons = () => {
   const win = window;
   if (win.__fasProductInit) return;
@@ -455,8 +480,23 @@ const hydrateCartButtons = () => {
     if (!medusaVariantId) {
       return;
     }
-    // Some legacy products still have add-on labels without mapped Medusa option-value IDs.
-    // Allow add-to-cart and let server-side cart sync resolve by label when possible.
+
+    // Guard: if any paid add-on has no medusaOptionValueId, the server-side price integrity
+    // check in /api/medusa/cart/add-item will reject the cart sync. Surface a clear,
+    // actionable message here rather than letting the customer reach checkout first.
+    const unmappedPaidUpgrades = selectedUpgradesDetailed.filter(
+      (entry) => normalizeCents(entry?.priceCents) > 0 && !entry.medusaOptionValueId
+    );
+    if (unmappedPaidUpgrades.length > 0) {
+      const labels = unmappedPaidUpgrades.map((e) => e.label).filter(Boolean);
+      const labelText = labels.map((l) => `"${l}"`).join(', ');
+      showAddToCartError(
+        `The add-on ${labelText} is not yet available for online checkout. Please contact us for assistance or deselect it to continue.`
+      );
+      return;
+    }
+    hideAddToCartError();
+
     const normalizedExtra = Number.isFinite(extra) ? extra : 0;
     const originalPrice =
       compareTotal > total
@@ -545,6 +585,7 @@ const hydrateCartButtons = () => {
     if (!form) return;
     const recalc = (event) => {
       if (form.contains(event.target)) {
+        hideAddToCartError();
         schedule(updateConfiguredPriceUI);
       }
     };
@@ -554,6 +595,7 @@ const hydrateCartButtons = () => {
       'click',
       (event) => {
         if (form.contains(event.target)) {
+          hideAddToCartError();
           schedule(updateConfiguredPriceUI);
         }
       },
