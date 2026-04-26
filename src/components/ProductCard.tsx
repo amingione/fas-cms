@@ -51,7 +51,7 @@ function resolveBadge(product: ProductCardProduct): { text: string; variant: str
   // 3. Featured / best seller
   if ((product as any)?.isBestSeller || (product as any)?.bestSeller)
     return { text: 'BEST SELLER', variant: 'bestseller' };
-  if (product.featured) return { text: 'BEST SELLER', variant: 'bestseller' };
+  if (product.featured) return { text: 'FEATURED', variant: 'featured' };
 
   // 4. New arrival
   if ((product as any)?.isNew || (product as any)?.newArrival)
