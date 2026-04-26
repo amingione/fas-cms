@@ -1,6 +1,7 @@
 export const seoPageSlugsQuery = /* groq */ `
-  *[_type == "seoPage" && defined(slug.current)][]{
-    "slug": slug.current
+  *[_type == "seoPage" && !(_id in path('drafts.**')) && defined(slug.current)][]{
+    "slug": slug.current,
+    "updatedAt": coalesce(_updatedAt, _createdAt)
   }
 `
 
@@ -19,7 +20,8 @@ export const seoPageBySlugQuery = /* groq */ `
     ctaText,
     ctaButtonLabel,
     ctaButtonHref,
-    medusaCollectionHandle,
+    "medusaCollectionHandle": coalesce(medusaCollectionHandle, vendureCollectionHandle, VendureCollectionHandle),
+    "vendureCollectionHandle": coalesce(vendureCollectionHandle, VendureCollectionHandle, medusaCollectionHandle),
     featuredProductHandles
   }
 `

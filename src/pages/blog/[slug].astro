@@ -73,6 +73,9 @@ const canonicalSiteOrigin = (() => {
 const canonicalSlug = resolveSlug(slug ?? '');
 const canonicalUrl = new URL(`/blog/${canonicalSlug}`, canonicalSiteOrigin).toString();
 const publisherLogoUrl = new URL('/fas-logo.png', canonicalSiteOrigin).toString();
+const authorName = post?.author?.name ?? 'FAS Motorsports';
+const authorAvatar = typeof post?.author?.avatar === 'string' ? post.author.avatar : undefined;
+const authorEmail = typeof post?.author?.email === 'string' ? post.author.email : undefined;
 // SEO override pattern mirroring shop/[slug].astro: prefer the explicit
 // Sanity `seo.metaDescription` when editors have curated it, fall back to
 // `excerpt` otherwise. The blogPost schema models both; the template must
@@ -89,7 +92,9 @@ const articleJsonLd = JSON.stringify({
   dateModified: post?._updatedAt ?? post?.publishedAt ?? undefined,
   author: {
     '@type': 'Person',
-    name: post?.authorName ?? 'FAS Motorsports',
+    name: authorName,
+    image: authorAvatar,
+    email: authorEmail,
   },
   publisher: {
     '@type': 'Organization',
@@ -117,7 +122,7 @@ const articleJsonLd = JSON.stringify({
   <script type="application/ld+json" set:html={articleJsonLd} slot="head" />
   <!-- article:published_time + article:author for social previews and Google News -->
   {post?.publishedAt && <meta property="article:published_time" content={post.publishedAt} slot="head" />}
-  {post?.authorName && <meta property="article:author" content={post.authorName} slot="head" />}
+  {post?.author?.name && <meta property="article:author" content={post.author.name} slot="head" />}
   <article class="mx-auto max-w-4xl px-4 py-12 space-y-10">
     <header class="space-y-4">
       {post?.categories?.length > 0 && (

@@ -18,7 +18,8 @@ type SeoPage = {
   ctaText?: string
   ctaButtonLabel?: string
   ctaButtonHref?: string
-  medusaCollectionHandle: string
+  medusaCollectionHandle?: string
+  vendureCollectionHandle?: string
   featuredProductHandles?: string[]
 }
 
@@ -49,12 +50,15 @@ if (!page) {
 }
 
 let products: Awaited<ReturnType<typeof getSeoProducts>> = []
+const collectionHandle = page.medusaCollectionHandle ?? page.vendureCollectionHandle
 
 try {
-  products = await getSeoProducts({
-    featuredProductHandles: page.featuredProductHandles,
-    medusaCollectionHandle: page.medusaCollectionHandle,
-  })
+  if ((page.featuredProductHandles?.length ?? 0) > 0 || collectionHandle) {
+    products = await getSeoProducts({
+      featuredProductHandles: page.featuredProductHandles,
+      medusaCollectionHandle: collectionHandle ?? '',
+    })
+  }
 } catch (error) {
   console.error(`[seo-pages] Failed to fetch products for "${slug}"`, error)
 }

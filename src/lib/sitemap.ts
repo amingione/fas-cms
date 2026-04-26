@@ -1,5 +1,6 @@
 import { stat } from 'node:fs/promises';
 import { sanity } from './sanity-utils';
+import { seoPageSlugsQuery } from './sanity/queries/seoPages';
 
 const FALLBACK_SITE_URL = 'https://fasmotorsports.com';
 const PRODUCT_SITEMAP_CHUNK_SIZE = 5000;
@@ -440,6 +441,11 @@ export async function getCategoryEntries(): Promise<SitemapUrlEntry[]> {
   return mapSanityDocsToEntries(docs, '/shop/categories', 'weekly', 0.7);
 }
 
+export async function getSeoPageEntries(): Promise<SitemapUrlEntry[]> {
+  const docs = await fetchSanitySlugs(seoPageSlugsQuery);
+  return mapSanityDocsToEntries(docs, '', 'weekly', 0.7);
+}
+
 export async function getBlogEntries(): Promise<SitemapUrlEntry[]> {
   const docs = await fetchSanitySlugs(`*[
     _type == "post" &&
@@ -468,10 +474,13 @@ export async function getVendorEntries(): Promise<SitemapUrlEntry[]> {
 }
 
 export async function getCoreUrlEntries(): Promise<SitemapUrlEntry[]> {
-  const publicRouteFiles = await discoverPublicRouteFiles();
+  const [publicRouteFiles, seoPageEntries] = await Promise.all([
+    discoverPublicRouteFiles(),
+    getSeoPageEntries()
+  ]);
   const coreRouteFiles = publicRouteFiles.filter(({ pathname }) => CORE_ROUTE_CANDIDATES.has(pathname));
   const entries = await Promise.all(coreRouteFiles.map(toUrlEntry));
-  return dedupeByLoc(withFixedMetadata(entries, 'weekly', 0.8));
+  return dedupeByLoc([...withFixedMetadata(entries, 'weekly', 0.8), ...seoPageEntries]);
 }
 
 export async function getServiceUrlEntries(): Promise<SitemapUrlEntry[]> {
@@ -559,7 +568,7 @@ export async function getImageSitemapEntries(): Promise<SitemapImageEntry[]> {
     ] | order(publishedAt desc) [0...${PRODUCT_SITEMAP_CHUNK_SIZE}] {
       "slug": slug.current,
       "updatedAt": coalesce(_updatedAt, _createdAt),
-      "imageUrl": coalesce(mainImage.asset->url, ogImage.asset->url),
+      "imageUrl": coalesce(featuredImage.asset->url, mainImage.asset->url, ogImage.asset->url),
       "title": title
     }`)
   ]);
@@ -602,14 +611,15 @@ export async function getImageSitemapEntries(): Promise<SitemapImageEntry[]> {
 }
 
 export async function getStaticUrlEntries(): Promise<SitemapUrlEntry[]> {
-  const [publicRouteFiles, blogEntries, vendorEntries] = await Promise.all([
+  const [publicRouteFiles, blogEntries, vendorEntries, seoPageEntries] = await Promise.all([
     discoverPublicRouteFiles(),
     getBlogEntries(),
-    getVendorEntries()
+    getVendorEntries(),
+    getSeoPageEntries()
   ]);
   const nonShopRouteFiles = publicRouteFiles.filter(({ pathname }) => !pathname.startsWith('/shop'));
   const staticEntries = await Promise.all(nonShopRouteFiles.map(toUrlEntry));
-  return dedupeByLoc([...staticEntries, ...blogEntries, ...vendorEntries]);
+  return dedupeByLoc([...staticEntries, ...blogEntries, ...vendorEntries, ...seoPageEntries]);
 }
 
 export async function getShopUrlEntries(): Promise<SitemapUrlEntry[]> {
